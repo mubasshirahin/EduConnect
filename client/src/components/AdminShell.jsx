@@ -31,6 +31,12 @@ function AdminShell({ user, onLogout, children, currentRoute }) {
           <a className={`sidebar-link ${currentRoute?.startsWith("#status") ? "sidebar-link-active" : ""}`} href="#status">
             Status
           </a>
+          <a className={`sidebar-link ${currentRoute?.startsWith("#reports") ? "sidebar-link-active" : ""}`} href="#reports">
+            Reports
+          </a>
+          <a className={`sidebar-link ${currentRoute?.startsWith("#complains") ? "sidebar-link-active" : ""}`} href="#complains">
+            Complains
+          </a>
           <a className={`sidebar-link ${currentRoute?.startsWith("#messages") ? "sidebar-link-active" : ""}`} href="#messages">
             Messages
           </a>

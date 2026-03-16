@@ -194,6 +194,22 @@ function App() {
     );
   }
 
+  if (authUser?.role === "admin" && route.startsWith("#reports")) {
+    content = (
+      <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <UpdateSoon title="Reports" />
+      </AdminShell>
+    );
+  }
+
+  if (authUser?.role === "admin" && route.startsWith("#complains")) {
+    content = (
+      <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <UpdateSoon title="Complains" />
+      </AdminShell>
+    );
+  }
+
   if (authUser?.role === "admin" && route === "#admin-users") {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
