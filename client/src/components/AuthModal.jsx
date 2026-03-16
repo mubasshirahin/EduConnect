@@ -90,10 +90,12 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
                 <input type="radio" name="role" value="student" required />
                 <span>Student</span>
               </label>
-              <label className="role-option">
-                <input type="radio" name="role" value="admin" required />
-                <span>Admin</span>
-              </label>
+              {isLogin && (
+                <label className="role-option">
+                  <input type="radio" name="role" value="admin" required />
+                  <span>Admin</span>
+                </label>
+              )}
             </div>
           </label>
           <label className="form-group">

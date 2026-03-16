@@ -5,16 +5,6 @@ function JobBoard({ authUser, onRequireLogin }) {
   const [jobs, setJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
-  const [appliedJobs, setAppliedJobs] = useState([]);
-  useEffect(() => {
-    if (!authUser?.email) {
-      setAppliedJobs([]);
-      return;
-    }
-    const key = `educonnect-applied-${authUser.email}`;
-    const stored = localStorage.getItem(key);
-    setAppliedJobs(stored ? JSON.parse(stored) : []);
-  }, [authUser]);
 
   const handleApply = (job) => {
     if (!authUser) {
@@ -24,19 +14,10 @@ function JobBoard({ authUser, onRequireLogin }) {
     if (!authUser.email) {
       return;
     }
-    const key = `educonnect-applied-${authUser.email}`;
-    const alreadyApplied = appliedJobs.some((item) => item.id === job._id || item.id === job.id);
+    const alreadyApplied = job.applicants?.some((app) => app.email === authUser.email.toLowerCase());
     if (alreadyApplied) {
       return;
     }
-    const newEntry = {
-      id: job._id || job.id,
-      title: job.title,
-      location: job.location,
-      schedule: job.schedule,
-      rate: job.rate,
-      appliedAt: new Date().toLocaleDateString(),
-    };
     if (job._id) {
       fetch(`/api/jobs/${job._id}/apply`, {
         method: "POST",
@@ -49,20 +30,12 @@ function JobBoard({ authUser, onRequireLogin }) {
         })
         .catch(() => {});
     }
-    const updated = [newEntry, ...appliedJobs];
-    localStorage.setItem(key, JSON.stringify(updated));
-    setAppliedJobs(updated);
   };
 
   const handleWithdraw = (job) => {
     if (!authUser?.email) {
       return;
     }
-    const key = `educonnect-applied-${authUser.email}`;
-    const jobId = job._id || job.id;
-    const updated = appliedJobs.filter((item) => item.id !== jobId);
-    localStorage.setItem(key, JSON.stringify(updated));
-    setAppliedJobs(updated);
     if (job._id) {
       fetch(`/api/jobs/${job._id}/withdraw`, {
         method: "POST",
@@ -185,24 +158,24 @@ function JobBoard({ authUser, onRequireLogin }) {
                     <strong>Salary:</strong> {job.rate}
                   </span>
                 </div>
-              {isTeacher || !authUser ? (
-                <div className="job-actions">
-                  {appliedJobs.some((item) => item.id === (job._id || job.id)) ? (
-                    <>
-                      <button className="btn btn-primary" type="button" disabled>
-                        Applied
-                      </button>
-                      <button className="btn btn-ghost" type="button" onClick={() => handleWithdraw(job)}>
-                        Withdraw Apply
-                      </button>
-                    </>
-                  ) : (
-                    <button className="btn btn-primary" type="button" onClick={() => handleApply(job)}>
-                      Apply
-                    </button>
-                  )}
-                </div>
-              ) : null}
+                  {isTeacher || !authUser ? (
+                    <div className="job-actions">
+                      {job.applicants?.some((app) => app.email === authUser?.email?.toLowerCase()) ? (
+                        <>
+                          <button className="btn btn-primary" type="button" disabled>
+                            Applied
+                          </button>
+                          <button className="btn btn-ghost" type="button" onClick={() => handleWithdraw(job)}>
+                            Withdraw Apply
+                          </button>
+                        </>
+                      ) : (
+                        <button className="btn btn-primary" type="button" onClick={() => handleApply(job)}>
+                          Apply
+                        </button>
+                      )}
+                    </div>
+                  ) : null}
               </div>
             </article>
           ))

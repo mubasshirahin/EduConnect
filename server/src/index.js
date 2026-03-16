@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRoutes from "./routes/auth.js";
 import jobRoutes from "./routes/jobs.js";
+import messageRoutes from "./routes/messages.js";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.get("/api/health", async (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
+app.use("/api/messages", messageRoutes);
 
 app.use((err, req, res, next) => {
   const status = err.status || 500;

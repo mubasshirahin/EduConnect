@@ -8,10 +8,10 @@ function TeacherDashboard({ authUser }) {
       setAppliedCount(0);
       return;
     }
-    const key = `educonnect-applied-${authUser.email}`;
-    const stored = localStorage.getItem(key);
-    const items = stored ? JSON.parse(stored) : [];
-    setAppliedCount(items.length);
+    fetch(`/api/jobs?applicantEmail=${encodeURIComponent(authUser.email)}`)
+      .then((res) => res.json())
+      .then((jobs) => setAppliedCount(jobs.length))
+      .catch(() => setAppliedCount(0));
   }, [authUser]);
 
   return (

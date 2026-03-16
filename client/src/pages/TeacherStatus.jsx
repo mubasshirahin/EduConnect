@@ -2,15 +2,20 @@ import React, { useEffect, useState } from "react";
 
 function TeacherStatus({ authUser }) {
   const [appliedJobs, setAppliedJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!authUser?.email) {
       setAppliedJobs([]);
+      setLoading(false);
       return;
     }
-    const key = `educonnect-applied-${authUser.email}`;
-    const stored = localStorage.getItem(key);
-    setAppliedJobs(stored ? JSON.parse(stored) : []);
+    setLoading(true);
+    fetch(`/api/jobs?applicantEmail=${encodeURIComponent(authUser.email)}`)
+      .then((res) => res.json())
+      .then((jobs) => setAppliedJobs(jobs))
+      .catch(() => setAppliedJobs([]))
+      .finally(() => setLoading(false));
   }, [authUser]);
 
   return (
@@ -19,7 +24,12 @@ function TeacherStatus({ authUser }) {
         <h2>Applied Jobs</h2>
         <p>All the posts you have applied to.</p>
       </div>
-      {appliedJobs.length === 0 ? (
+      {loading ? (
+        <div className="job-empty">
+          <h3>Loading applied jobs...</h3>
+          <p>Please wait a moment.</p>
+        </div>
+      ) : appliedJobs.length === 0 ? (
         <div className="job-empty">
           <h3>No applied jobs yet</h3>
           <p>Apply to a job from the Job Board to see it here.</p>
@@ -27,7 +37,7 @@ function TeacherStatus({ authUser }) {
       ) : (
         <div className="status-list">
           {appliedJobs.map((job) => (
-            <article key={job.id} className="status-card">
+            <article key={job._id} className="status-card">
               <h3>{job.title}</h3>
               <div className="job-details">
                 <span>
@@ -40,7 +50,17 @@ function TeacherStatus({ authUser }) {
                   <strong>Salary:</strong> {job.rate}
                 </span>
               </div>
-              <p className="job-meta">Applied on {job.appliedAt}</p>
+              <p className="job-meta">
+                Applied on{" "}
+                {job.applicants
+                  ?.find((app) => app.email === authUser?.email?.toLowerCase())
+                  ?.appliedAt
+                  ? new Date(
+                      job.applicants.find((app) => app.email === authUser?.email?.toLowerCase())
+                        .appliedAt
+                    ).toLocaleDateString()
+                  : "N/A"}
+              </p>
             </article>
           ))}
         </div>
