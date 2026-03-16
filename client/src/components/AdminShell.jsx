@@ -13,9 +13,6 @@ function AdminShell({ user, onLogout, children, currentRoute }) {
             <p className="sidebar-meta">Admin Panel</p>
           </div>
         </div>
-        <a className="sidebar-edit" href="#profile">
-          Edit Profile
-        </a>
         <button
           className="sidebar-toggle"
           type="button"

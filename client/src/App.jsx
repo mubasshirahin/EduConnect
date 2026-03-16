@@ -9,6 +9,8 @@ import TeacherStatus from "./pages/TeacherStatus";
 import StudentStatus from "./pages/StudentStatus";
 import ApplicantProfile from "./pages/ApplicantProfile";
 import MessagesPage from "./pages/MessagesPage";
+import AdminUsers from "./pages/AdminUsers";
+import AdminUserProfile from "./pages/AdminUserProfile";
 import AuthModal from "./components/AuthModal";
 import Navbar from "./components/Navbar";
 import TeacherShell from "./components/TeacherShell";
@@ -188,6 +190,31 @@ function App() {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <UpdateSoon title="Settings" />
+      </AdminShell>
+    );
+  }
+
+  if (authUser?.role === "admin" && route === "#admin-users") {
+    content = (
+      <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <AdminUsers roleFilter="user" />
+      </AdminShell>
+    );
+  }
+
+  if (authUser?.role === "admin" && route === "#admin-admins") {
+    content = (
+      <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <AdminUsers roleFilter="admin" />
+      </AdminShell>
+    );
+  }
+
+  if (authUser?.role === "admin" && route.startsWith("#admin-user/")) {
+    const email = decodeURIComponent(route.replace("#admin-user/", ""));
+    content = (
+      <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <AdminUserProfile email={email} />
       </AdminShell>
     );
   }

@@ -69,11 +69,20 @@ router.post("/login", async (req, res, next) => {
       if (!match) {
         return res.status(403).json({ message: "Invalid admin credentials." });
       }
-      const token = createToken(`admin:${email.toLowerCase()}`);
+      let adminUser = await User.findOne({ email: email.toLowerCase() });
+      if (!adminUser) {
+        adminUser = await User.create({
+          name: email.split("@")[0],
+          email,
+          passwordHash: await bcrypt.hash(password, 12),
+          role: "admin",
+        });
+      }
+      const token = createToken(adminUser._id);
       return res.status(200).json({
         message: "Login successful.",
         token,
-        user: { id: `admin:${email.toLowerCase()}`, name: email.split("@")[0], email, role: "admin" },
+        user: { id: adminUser._id, name: adminUser.name, email: adminUser.email, role: adminUser.role },
       });
     }
 
