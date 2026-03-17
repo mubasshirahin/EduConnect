@@ -86,13 +86,13 @@ function AdminDashboard() {
             <p>Reports</p>
           </div>
         </div>
-        <div className="stat-card">
+        <button className="stat-card stat-card-link" type="button" onClick={() => (window.location.hash = "#complains")}>
           <span className="stat-icon">C</span>
           <div>
             <h3>0</h3>
             <p>Complaints</p>
           </div>
-        </div>
+        </button>
       </div>
       <div className="update-soon-card">
         <h2>Admin tools coming soon</h2>
