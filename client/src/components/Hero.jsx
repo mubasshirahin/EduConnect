@@ -1,6 +1,6 @@
 import React from "react";
 
-function Hero() {
+function Hero({ onRequestTutor }) {
   return (
     <section className="hero section">
       <div className="container hero-content">
@@ -10,7 +10,13 @@ function Hero() {
           EduConnect connects guardians with qualified tutors through a secure,
           moderated, and transparent matching process.
         </p>
-        <button className="btn btn-primary btn-large">Request a Tutor</button>
+        <button
+          type="button"
+          className="btn btn-primary btn-large"
+          onClick={onRequestTutor}
+        >
+          Request a Tutor
+        </button>
       </div>
     </section>
   );
