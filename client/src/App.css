@@ -1070,6 +1070,10 @@ html[data-theme="light"] .role-option {
   gap: 1rem;
 }
 
+.admin-users-list {
+  grid-template-columns: 1fr;
+}
+
 .admin-user-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-soft);
