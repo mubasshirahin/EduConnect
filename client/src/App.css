@@ -720,7 +720,7 @@ html[data-theme="light"] .role-option {
 .teacher-topbar h1 {
   font-family: "Merriweather", serif;
   font-size: clamp(1.9rem, 3vw, 2.6rem);
-  color: #1b2d4d;
+  color: var(--text-main);
 }
 
 .teacher-topbar-actions {
