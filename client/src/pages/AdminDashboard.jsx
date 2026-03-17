@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 function AdminDashboard() {
   const [stats, setStats] = useState({ totalUsers: 0, totalJobs: 0, totalAdmins: 0, totalBlocked: 0 });
   const [loading, setLoading] = useState(true);
+  const [jobsCount, setJobsCount] = useState(null);
 
   useEffect(() => {
     fetch("/api/admin/stats")
@@ -20,6 +21,21 @@ function AdminDashboard() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    fetch("/api/jobs")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setJobsCount(data.length);
+        }
+      })
+      .catch(() => {
+        setJobsCount(null);
+      });
+  }, []);
+
+  const displayTotalJobs = loading && jobsCount === null ? "..." : jobsCount ?? stats.totalJobs;
 
   return (
     <section>
@@ -42,13 +58,13 @@ function AdminDashboard() {
             <p>Total Admins</p>
           </div>
         </button>
-        <div className="stat-card">
+        <button className="stat-card stat-card-link" type="button" onClick={() => (window.location.hash = "#jobs")}>
           <span className="stat-icon">J</span>
           <div>
-            <h3>{loading ? "..." : stats.totalJobs}</h3>
+            <h3>{displayTotalJobs}</h3>
             <p>Total Jobs</p>
           </div>
-        </div>
+        </button>
         <button className="stat-card stat-card-link" type="button" onClick={() => (window.location.hash = "#admin-blocked")}>
           <span className="stat-icon">B</span>
           <div>
