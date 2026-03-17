@@ -1077,6 +1077,8 @@ html[data-theme="light"] .role-option {
   padding: 1rem;
   box-shadow: var(--shadow-soft);
   text-align: left;
+  display: grid;
+  gap: 0.85rem;
 }
 
 .admin-user-link {
@@ -1103,6 +1105,12 @@ html[data-theme="light"] .role-option {
   color: var(--accent);
   font-weight: 700;
   text-transform: capitalize;
+}
+
+.admin-user-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
 }
 
 .applicant-modal {
@@ -1304,6 +1312,8 @@ html[data-theme="light"] .role-option {
   margin-top: 0.6rem;
   color: var(--text-soft);
   font-size: 0.9rem;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .profile-grid {
@@ -1356,6 +1366,25 @@ html[data-theme="light"] .role-option {
 .profile-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status-pill-danger {
+  color: #7b1f1f;
+  background: rgba(231, 76, 60, 0.14);
+  border: 1px solid rgba(231, 76, 60, 0.32);
 }
 
 .update-soon {

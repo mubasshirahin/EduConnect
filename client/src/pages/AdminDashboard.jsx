@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 function AdminDashboard() {
-  const [stats, setStats] = useState({ totalUsers: 0, totalJobs: 0, totalAdmins: 0 });
+  const [stats, setStats] = useState({ totalUsers: 0, totalJobs: 0, totalAdmins: 0, totalBlocked: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -12,10 +12,11 @@ function AdminDashboard() {
           totalUsers: data.totalUsers ?? 0,
           totalJobs: data.totalJobs ?? 0,
           totalAdmins: data.totalAdmins ?? 0,
+          totalBlocked: data.totalBlocked ?? 0,
         });
       })
       .catch(() => {
-        setStats({ totalUsers: 0, totalJobs: 0, totalAdmins: 0 });
+        setStats({ totalUsers: 0, totalJobs: 0, totalAdmins: 0, totalBlocked: 0 });
       })
       .finally(() => setLoading(false));
   }, []);
@@ -48,6 +49,13 @@ function AdminDashboard() {
             <p>Total Jobs</p>
           </div>
         </div>
+        <button className="stat-card stat-card-link" type="button" onClick={() => (window.location.hash = "#admin-blocked")}>
+          <span className="stat-icon">B</span>
+          <div>
+            <h3>{loading ? "..." : stats.totalBlocked}</h3>
+            <p>Blocked Users</p>
+          </div>
+        </button>
         <div className="stat-card">
           <span className="stat-icon">A</span>
           <div>
