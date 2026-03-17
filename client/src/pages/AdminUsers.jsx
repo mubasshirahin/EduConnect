@@ -21,6 +21,7 @@ function AdminUsers({ roleFilter }) {
   }, [roleFilter]);
 
   const title = roleFilter === "admin" ? "Admins" : "Users";
+  const useListView = roleFilter !== "admin";
 
   return (
     <section className="status-page">
@@ -39,7 +40,7 @@ function AdminUsers({ roleFilter }) {
           <p>Users will appear here once registered.</p>
         </div>
       ) : (
-        <div className="admin-users">
+        <div className={useListView ? "admin-users admin-users-list" : "admin-users"}>
           {users.map((user) => (
             <button
               key={user._id}
