@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 function AdminUserProfile({ email }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [actionState, setActionState] = useState({ loading: false, error: "", success: "" });
 
   useEffect(() => {
     const load = async () => {
@@ -19,6 +20,32 @@ function AdminUserProfile({ email }) {
     };
     load();
   }, [email]);
+
+  const handleToggleBlock = async () => {
+    if (!user?.email) return;
+    const nextBlocked = !user.isBlocked;
+    setActionState({ loading: true, error: "", success: "" });
+    try {
+      const response = await fetch(`/api/admin/users/${encodeURIComponent(user.email)}/block`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ blocked: nextBlocked }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setActionState({ loading: false, error: data?.message || "Unable to update user.", success: "" });
+        return;
+      }
+      setUser((prev) => ({ ...prev, ...data.user }));
+      setActionState({
+        loading: false,
+        error: "",
+        success: nextBlocked ? "User blocked successfully." : "User unblocked successfully.",
+      });
+    } catch {
+      setActionState({ loading: false, error: "Unable to update user.", success: "" });
+    }
+  };
 
   const renderField = (label, value) => (
     <div className="profile-field">
@@ -58,12 +85,25 @@ function AdminUserProfile({ email }) {
           <p>{user.email}</p>
           <div className="profile-meta">
             <span>Role: {user.role}</span>
+            {user.isBlocked ? <span className="status-pill status-pill-danger">Blocked</span> : null}
           </div>
         </div>
-        <a className="btn btn-ghost" href="#admin-users">
-          Back to Users
-        </a>
+        <div className="profile-actions">
+          <button
+            className={`btn ${user.isBlocked ? "btn-ghost" : "btn-primary"}`}
+            type="button"
+            onClick={handleToggleBlock}
+            disabled={actionState.loading}
+          >
+            {actionState.loading ? "Updating..." : user.isBlocked ? "Unblock User" : "Block User"}
+          </button>
+          <a className="btn btn-ghost" href="#admin-users">
+            Back to Users
+          </a>
+        </div>
       </div>
+      {actionState.error ? <p className="auth-status auth-status-error">{actionState.error}</p> : null}
+      {actionState.success ? <p className="auth-status auth-status-success">{actionState.success}</p> : null}
       <div className="profile-grid">
         <section className="profile-section">
           <h3>Basic Information</h3>

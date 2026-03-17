@@ -11,6 +11,7 @@ import ApplicantProfile from "./pages/ApplicantProfile";
 import MessagesPage from "./pages/MessagesPage";
 import AdminUsers from "./pages/AdminUsers";
 import AdminUserProfile from "./pages/AdminUserProfile";
+import AdminBlockedUsers from "./pages/AdminBlockedUsers";
 import AuthModal from "./components/AuthModal";
 import Navbar from "./components/Navbar";
 import TeacherShell from "./components/TeacherShell";
@@ -222,6 +223,14 @@ function App() {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <AdminUsers roleFilter="admin" />
+      </AdminShell>
+    );
+  }
+
+  if (authUser?.role === "admin" && route === "#admin-blocked") {
+    content = (
+      <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <AdminBlockedUsers />
       </AdminShell>
     );
   }

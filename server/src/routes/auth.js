@@ -78,6 +78,9 @@ router.post("/login", async (req, res, next) => {
           role: "admin",
         });
       }
+      if (adminUser.isBlocked) {
+        return res.status(403).json({ message: "Account is blocked." });
+      }
       const token = createToken(adminUser._id);
       return res.status(200).json({
         message: "Login successful.",
@@ -89,6 +92,9 @@ router.post("/login", async (req, res, next) => {
     const user = await User.findOne({ email });
     if (!user || user.role !== role) {
       return res.status(401).json({ message: "Invalid email or password." });
+    }
+    if (user.isBlocked) {
+      return res.status(403).json({ message: "Account is blocked." });
     }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
