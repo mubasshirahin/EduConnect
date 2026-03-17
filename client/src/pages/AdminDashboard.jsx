@@ -1,6 +1,25 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 function AdminDashboard() {
+  const [stats, setStats] = useState({ totalUsers: 0, totalJobs: 0, totalAdmins: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/admin/stats")
+      .then((res) => res.json())
+      .then((data) => {
+        setStats({
+          totalUsers: data.totalUsers ?? 0,
+          totalJobs: data.totalJobs ?? 0,
+          totalAdmins: data.totalAdmins ?? 0,
+        });
+      })
+      .catch(() => {
+        setStats({ totalUsers: 0, totalJobs: 0, totalAdmins: 0 });
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <section>
       <div className="status-header">
@@ -8,17 +27,24 @@ function AdminDashboard() {
         <p>Manage users, jobs, and platform activity.</p>
       </div>
       <div className="stats-grid">
-        <div className="stat-card">
+        <button className="stat-card stat-card-link" type="button" onClick={() => (window.location.hash = "#admin-users")}>
           <span className="stat-icon">U</span>
           <div>
-            <h3>0</h3>
+            <h3>{loading ? "..." : stats.totalUsers}</h3>
             <p>Total Users</p>
           </div>
-        </div>
+        </button>
+        <button className="stat-card stat-card-link" type="button" onClick={() => (window.location.hash = "#admin-admins")}>
+          <span className="stat-icon">A</span>
+          <div>
+            <h3>{loading ? "..." : stats.totalAdmins}</h3>
+            <p>Total Admins</p>
+          </div>
+        </button>
         <div className="stat-card">
           <span className="stat-icon">J</span>
           <div>
-            <h3>0</h3>
+            <h3>{loading ? "..." : stats.totalJobs}</h3>
             <p>Total Jobs</p>
           </div>
         </div>

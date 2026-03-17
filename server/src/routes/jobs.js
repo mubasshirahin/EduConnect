@@ -9,6 +9,9 @@ router.get("/", async (req, res, next) => {
     if (req.query.postedByEmail) {
       query.postedByEmail = req.query.postedByEmail.toLowerCase();
     }
+    if (req.query.applicantEmail) {
+      query["applicants.email"] = req.query.applicantEmail.toLowerCase();
+    }
     const jobs = await Job.find(query).sort({ createdAt: -1 });
     res.json(jobs);
   } catch (error) {

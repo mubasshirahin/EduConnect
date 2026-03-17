@@ -1,63 +1,91 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-function MessagesPage({ authUser }) {
-  const storageKey = useMemo(() => "educonnect-threads", []);
+function MessagesPage({ authUser, route }) {
   const [threads, setThreads] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [draft, setDraft] = useState("");
+  const [pendingRecipient, setPendingRecipient] = useState(null);
 
   useEffect(() => {
     if (!authUser?.email) {
       setThreads([]);
       return;
     }
-    const stored = localStorage.getItem(storageKey);
-    const items = stored ? JSON.parse(stored) : [];
-    const visible = items.filter((thread) => thread.participants?.includes(authUser.email));
-    setThreads(visible);
+    fetch(`/api/messages?user=${encodeURIComponent(authUser.email)}`)
+      .then((res) => res.json())
+      .then((items) => {
+        setThreads(items);
+        if (items.length) {
+          let nextActive = items[0]._id;
+          if (route?.includes("?to=")) {
+            const params = new URLSearchParams(route.split("?")[1]);
+            const toEmail = params.get("to");
+            const match = items.find((thread) => thread.participants?.includes(toEmail));
+            if (match) {
+              nextActive = match._id;
+              setPendingRecipient(null);
+            } else if (toEmail) {
+              setPendingRecipient(toEmail);
+              nextActive = `new:${toEmail}`;
+            }
+          }
+          setActiveId(nextActive);
+        } else if (route?.includes("?to=")) {
+          const params = new URLSearchParams(route.split("?")[1]);
+          const toEmail = params.get("to");
+          if (toEmail) {
+            setPendingRecipient(toEmail);
+            setActiveId(`new:${toEmail}`);
+          }
+        }
+      })
+      .catch(() => setThreads([]));
+  }, [authUser, route]);
 
-    const openThread = localStorage.getItem("educonnect-open-thread");
-    if (openThread) {
-      localStorage.removeItem("educonnect-open-thread");
-      setActiveId(openThread);
-    } else if (visible.length) {
-      setActiveId(visible[0].threadId);
-    }
-  }, [authUser, storageKey]);
-
-  const activeThread = threads.find((t) => t.threadId === activeId);
-
-  const persistThreads = (updated) => {
-    setThreads(updated.filter((thread) => thread.participants?.includes(authUser?.email)));
-    localStorage.setItem(storageKey, JSON.stringify(updated));
-  };
+  const activeThread = threads.find((t) => t._id === activeId);
 
   const handleSend = (event) => {
     event.preventDefault();
-    if (!draft.trim() || !activeThread) {
+    if (!draft.trim() || !authUser?.email || (!activeThread && !pendingRecipient)) {
       return;
     }
-    const message = {
-      id: `${Date.now()}`,
-      text: draft.trim(),
-      from: authUser?.email || "me",
-      to: activeThread.email,
-      createdAt: new Date().toISOString(),
-    };
-    const stored = localStorage.getItem(storageKey);
-    const allThreads = stored ? JSON.parse(stored) : [];
-    const updated = allThreads.map((thread) =>
-      thread.threadId === activeThread.threadId
-        ? { ...thread, messages: [...thread.messages, message] }
-        : thread
-    );
-    persistThreads(updated);
-    setDraft("");
+    const toEmail =
+      pendingRecipient ||
+      activeThread?.participants?.find((email) => email !== authUser.email) ||
+      "";
+    fetch("/api/messages/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: authUser.email,
+        to: toEmail,
+        text: draft.trim(),
+        fromName: authUser.name,
+        toName: activeThread?.participantNames?.[toEmail],
+      }),
+    })
+      .then((res) => res.json())
+      .then((updatedThread) => {
+        setThreads((prev) => {
+          const exists = prev.some((thread) => thread._id === updatedThread._id);
+          if (exists) {
+            return prev.map((thread) =>
+              thread._id === updatedThread._id ? updatedThread : thread
+            );
+          }
+          return [updatedThread, ...prev];
+        });
+        setActiveId(updatedThread._id);
+        setPendingRecipient(null);
+        setDraft("");
+      })
+      .catch(() => {});
   };
 
   const getDisplayName = (thread) => {
     const otherEmail = thread.participants?.find((email) => email !== authUser?.email) || thread.email;
-    return thread.participantNames?.[otherEmail] || otherEmail;
+    const map = thread.participantNames || {};
+    return map[otherEmail] || otherEmail;
   };
 
   return (
@@ -70,10 +98,10 @@ function MessagesPage({ authUser }) {
           ) : (
             threads.map((thread) => (
               <button
-                key={thread.threadId}
-                className={`messages-thread ${thread.threadId === activeId ? "messages-thread-active" : ""}`}
+                key={thread._id}
+                className={`messages-thread ${thread._id === activeId ? "messages-thread-active" : ""}`}
                 type="button"
-                onClick={() => setActiveId(thread.threadId)}
+                onClick={() => setActiveId(thread._id)}
               >
                 <span className="thread-name">{getDisplayName(thread)}</span>
                 <span className="thread-email">
@@ -84,25 +112,30 @@ function MessagesPage({ authUser }) {
           )}
         </aside>
         <div className="messages-chat">
-          {activeThread ? (
+          {activeThread || pendingRecipient ? (
             <>
               <div className="messages-header">
                 <div>
-                  <h4>{getDisplayName(activeThread)}</h4>
-                  <p>{activeThread.participants?.find((email) => email !== authUser?.email)}</p>
+                  <h4>{activeThread ? getDisplayName(activeThread) : pendingRecipient}</h4>
+                  <p>
+                    {activeThread
+                      ? activeThread.participants?.find((email) => email !== authUser?.email)
+                      : pendingRecipient}
+                  </p>
                 </div>
               </div>
               <div className="messages-body">
-                {activeThread.messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`message-bubble ${
-                      msg.from === (authUser?.email || "me") ? "message-out" : "message-in"
-                    }`}
-                  >
-                    {msg.text}
-                  </div>
-                ))}
+                {activeThread &&
+                  activeThread.messages.map((msg) => (
+                    <div
+                      key={msg._id || msg.createdAt}
+                      className={`message-bubble ${
+                        msg.from === (authUser?.email || "me") ? "message-out" : "message-in"
+                      }`}
+                    >
+                      {msg.text}
+                    </div>
+                  ))}
               </div>
               <form className="messages-input" onSubmit={handleSend}>
                 <input

@@ -48,24 +48,8 @@ function ApplicantProfile({ email, authUser }) {
               if (!authUser?.email) {
                 return;
               }
-              const storageKey = "educonnect-threads";
-              const stored = localStorage.getItem(storageKey);
-              const threads = stored ? JSON.parse(stored) : [];
-              const threadId = [authUser.email, email].sort().join("|");
-              if (!threads.some((t) => t.threadId === threadId)) {
-                threads.unshift({
-                  threadId,
-                  participants: [authUser.email, email],
-                  participantNames: {
-                    [authUser.email]: authUser.name || "You",
-                    [email]: profile.name,
-                  },
-                  messages: [],
-                });
-                localStorage.setItem(storageKey, JSON.stringify(threads));
-              }
-              localStorage.setItem("educonnect-open-thread", threadId);
-              window.location.hash = "#messages";
+              const params = new URLSearchParams({ to: email, name: profile.name });
+              window.location.hash = `#messages?${params.toString()}`;
             }}
           >
             Message

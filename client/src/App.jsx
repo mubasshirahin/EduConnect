@@ -9,6 +9,8 @@ import TeacherStatus from "./pages/TeacherStatus";
 import StudentStatus from "./pages/StudentStatus";
 import ApplicantProfile from "./pages/ApplicantProfile";
 import MessagesPage from "./pages/MessagesPage";
+import AdminUsers from "./pages/AdminUsers";
+import AdminUserProfile from "./pages/AdminUserProfile";
 import AuthModal from "./components/AuthModal";
 import Navbar from "./components/Navbar";
 import TeacherShell from "./components/TeacherShell";
@@ -57,19 +59,19 @@ function App() {
 
   let content = <Home />;
 
-  if (route === "#jobs") {
+  if (route.startsWith("#jobs")) {
     content = <JobBoard authUser={authUser} onRequireLogin={openLogin} />;
-  } else if (route === "#profile") {
+  } else if (route.startsWith("#profile")) {
     content = <ProfilePage authUser={authUser} />;
   } else if (route.startsWith("#applicant/")) {
     const email = decodeURIComponent(route.replace("#applicant/", ""));
     content = <ApplicantProfile email={email} authUser={authUser} />;
-  } else if (["#messages", "#settings"].includes(route)) {
+  } else if (route.startsWith("#messages") || route.startsWith("#settings")) {
     const titleMap = {
       "#messages": "Messages",
       "#settings": "Settings",
     };
-    content = <UpdateSoon title={titleMap[route]} />;
+    content = <UpdateSoon title={route.startsWith("#messages") ? titleMap["#messages"] : titleMap["#settings"]} />;
   } else if (authUser?.role === "teacher") {
     content = (
       <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
@@ -90,7 +92,7 @@ function App() {
     );
   }
 
-  if (authUser?.role === "teacher" && route === "#jobs") {
+  if (authUser?.role === "teacher" && route.startsWith("#jobs")) {
     content = (
       <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <JobBoard authUser={authUser} onRequireLogin={openLogin} />
@@ -98,7 +100,7 @@ function App() {
     );
   }
 
-  if (authUser?.role === "student" && route === "#jobs") {
+  if (authUser?.role === "student" && route.startsWith("#jobs")) {
     content = (
       <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <JobBoard authUser={authUser} onRequireLogin={openLogin} />
@@ -106,7 +108,7 @@ function App() {
     );
   }
 
-  if (authUser?.role === "admin" && route === "#jobs") {
+  if (authUser?.role === "admin" && route.startsWith("#jobs")) {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <JobBoard authUser={authUser} onRequireLogin={openLogin} />
@@ -114,7 +116,7 @@ function App() {
     );
   }
 
-  if (authUser?.role === "teacher" && route === "#profile") {
+  if (authUser?.role === "teacher" && route.startsWith("#profile")) {
     content = (
       <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <ProfilePage authUser={authUser} />
@@ -122,7 +124,7 @@ function App() {
     );
   }
 
-  if (authUser?.role === "student" && route === "#profile") {
+  if (authUser?.role === "student" && route.startsWith("#profile")) {
     content = (
       <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <ProfilePage authUser={authUser} />
@@ -130,7 +132,7 @@ function App() {
     );
   }
 
-  if (authUser?.role === "admin" && route === "#profile") {
+  if (authUser?.role === "admin" && route.startsWith("#profile")) {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <ProfilePage authUser={authUser} />
@@ -138,7 +140,7 @@ function App() {
     );
   }
 
-  if (authUser?.role === "teacher" && route === "#status") {
+  if (authUser?.role === "teacher" && route.startsWith("#status")) {
     content = (
       <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <TeacherStatus authUser={authUser} />
@@ -146,11 +148,11 @@ function App() {
     );
   }
 
-  if (authUser?.role === "teacher" && ["#messages", "#settings"].includes(route)) {
+  if (authUser?.role === "teacher" && (route.startsWith("#messages") || route.startsWith("#settings"))) {
     content = (
       <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
-        {route === "#messages" ? (
-          <MessagesPage authUser={authUser} />
+        {route.startsWith("#messages") ? (
+          <MessagesPage authUser={authUser} route={route} />
         ) : (
           <UpdateSoon title="Settings" />
         )}
@@ -158,17 +160,17 @@ function App() {
     );
   }
 
-  if (authUser?.role === "student" && ["#status", "#messages", "#settings"].includes(route)) {
+  if (authUser?.role === "student" && (route.startsWith("#status") || route.startsWith("#messages") || route.startsWith("#settings"))) {
     content = (
       <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
-        {route === "#status" ? <StudentStatus authUser={authUser} /> : null}
-        {route === "#messages" ? <MessagesPage authUser={authUser} /> : null}
-        {route === "#settings" ? <UpdateSoon title="Settings" /> : null}
+        {route.startsWith("#status") ? <StudentStatus authUser={authUser} /> : null}
+        {route.startsWith("#messages") ? <MessagesPage authUser={authUser} route={route} /> : null}
+        {route.startsWith("#settings") ? <UpdateSoon title="Settings" /> : null}
       </StudentShell>
     );
   }
 
-  if (authUser?.role === "admin" && route === "#status") {
+  if (authUser?.role === "admin" && route.startsWith("#status")) {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <UpdateSoon title="Status" />
@@ -176,18 +178,59 @@ function App() {
     );
   }
 
-  if (authUser?.role === "admin" && route === "#messages") {
+  if (authUser?.role === "admin" && route.startsWith("#messages")) {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
-        <MessagesPage authUser={authUser} />
+        <MessagesPage authUser={authUser} route={route} />
       </AdminShell>
     );
   }
 
-  if (authUser?.role === "admin" && route === "#settings") {
+  if (authUser?.role === "admin" && route.startsWith("#settings")) {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <UpdateSoon title="Settings" />
+      </AdminShell>
+    );
+  }
+
+  if (authUser?.role === "admin" && route.startsWith("#reports")) {
+    content = (
+      <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <UpdateSoon title="Reports" />
+      </AdminShell>
+    );
+  }
+
+  if (authUser?.role === "admin" && route.startsWith("#complains")) {
+    content = (
+      <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <UpdateSoon title="Complains" />
+      </AdminShell>
+    );
+  }
+
+  if (authUser?.role === "admin" && route === "#admin-users") {
+    content = (
+      <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <AdminUsers roleFilter="user" />
+      </AdminShell>
+    );
+  }
+
+  if (authUser?.role === "admin" && route === "#admin-admins") {
+    content = (
+      <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <AdminUsers roleFilter="admin" />
+      </AdminShell>
+    );
+  }
+
+  if (authUser?.role === "admin" && route.startsWith("#admin-user/")) {
+    const email = decodeURIComponent(route.replace("#admin-user/", ""));
+    content = (
+      <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <AdminUserProfile email={email} />
       </AdminShell>
     );
   }

@@ -13,9 +13,6 @@ function AdminShell({ user, onLogout, children, currentRoute }) {
             <p className="sidebar-meta">Admin Panel</p>
           </div>
         </div>
-        <a className="sidebar-edit" href="#profile">
-          Edit Profile
-        </a>
         <button
           className="sidebar-toggle"
           type="button"
@@ -25,19 +22,25 @@ function AdminShell({ user, onLogout, children, currentRoute }) {
           {isCollapsed ? "»" : "«"}
         </button>
         <nav className="sidebar-nav">
-          <a className={`sidebar-link ${currentRoute === "#home" ? "sidebar-link-active" : ""}`} href="#home">
+          <a className={`sidebar-link ${currentRoute?.startsWith("#home") ? "sidebar-link-active" : ""}`} href="#home">
             Home
           </a>
-          <a className={`sidebar-link ${currentRoute === "#jobs" ? "sidebar-link-active" : ""}`} href="#jobs">
+          <a className={`sidebar-link ${currentRoute?.startsWith("#jobs") ? "sidebar-link-active" : ""}`} href="#jobs">
             Job Board
           </a>
-          <a className={`sidebar-link ${currentRoute === "#status" ? "sidebar-link-active" : ""}`} href="#status">
+          <a className={`sidebar-link ${currentRoute?.startsWith("#status") ? "sidebar-link-active" : ""}`} href="#status">
             Status
           </a>
-          <a className={`sidebar-link ${currentRoute === "#messages" ? "sidebar-link-active" : ""}`} href="#messages">
+          <a className={`sidebar-link ${currentRoute?.startsWith("#reports") ? "sidebar-link-active" : ""}`} href="#reports">
+            Reports
+          </a>
+          <a className={`sidebar-link ${currentRoute?.startsWith("#complains") ? "sidebar-link-active" : ""}`} href="#complains">
+            Complains
+          </a>
+          <a className={`sidebar-link ${currentRoute?.startsWith("#messages") ? "sidebar-link-active" : ""}`} href="#messages">
             Messages
           </a>
-          <a className={`sidebar-link ${currentRoute === "#settings" ? "sidebar-link-active" : ""}`} href="#settings">
+          <a className={`sidebar-link ${currentRoute?.startsWith("#settings") ? "sidebar-link-active" : ""}`} href="#settings">
             Settings
           </a>
           <button className="sidebar-link sidebar-link-logout" type="button" onClick={onLogout}>

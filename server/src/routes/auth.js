@@ -25,13 +25,7 @@ router.post("/register", async (req, res, next) => {
       return res.status(400).json({ message: "Role must be teacher, student, or admin." });
     }
     if (role === "admin") {
-      const adminEmail = process.env.ADMIN_EMAIL;
-      if (!adminEmail) {
-        return res.status(500).json({ message: "ADMIN_EMAIL is missing in .env." });
-      }
-      if (adminEmail.toLowerCase() !== email.toLowerCase()) {
-        return res.status(403).json({ message: "This email is not allowed to register as admin." });
-      }
+      return res.status(403).json({ message: "Admin registration is disabled." });
     }
 
     const existing = await User.findOne({ email });
@@ -63,13 +57,33 @@ router.post("/login", async (req, res, next) => {
       return res.status(400).json({ message: "Role must be teacher, student, or admin." });
     }
     if (role === "admin") {
-      const adminEmail = process.env.ADMIN_EMAIL;
-      if (!adminEmail) {
-        return res.status(500).json({ message: "ADMIN_EMAIL is missing in .env." });
+      const adminAccountsRaw = process.env.ADMIN_ACCOUNTS;
+      if (!adminAccountsRaw) {
+        return res.status(500).json({ message: "ADMIN_ACCOUNTS is missing in .env." });
       }
-      if (adminEmail.toLowerCase() !== email.toLowerCase()) {
-        return res.status(403).json({ message: "This email is not allowed to login as admin." });
+      const pairs = adminAccountsRaw.split(",").map((entry) => entry.trim());
+      const match = pairs.find((entry) => {
+        const [accEmail, accPass] = entry.split(":");
+        return accEmail?.toLowerCase() === email.toLowerCase() && accPass === password;
+      });
+      if (!match) {
+        return res.status(403).json({ message: "Invalid admin credentials." });
       }
+      let adminUser = await User.findOne({ email: email.toLowerCase() });
+      if (!adminUser) {
+        adminUser = await User.create({
+          name: email.split("@")[0],
+          email,
+          passwordHash: await bcrypt.hash(password, 12),
+          role: "admin",
+        });
+      }
+      const token = createToken(adminUser._id);
+      return res.status(200).json({
+        message: "Login successful.",
+        token,
+        user: { id: adminUser._id, name: adminUser.name, email: adminUser.email, role: adminUser.role },
+      });
     }
 
     const user = await User.findOne({ email });
