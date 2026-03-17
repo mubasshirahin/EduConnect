@@ -58,7 +58,7 @@ function App() {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
-  let content = <Home />;
+  let content = <Home onRequestTutor={openLogin} />;
 
   if (route.startsWith("#jobs")) {
     content = <JobBoard authUser={authUser} onRequireLogin={openLogin} />;

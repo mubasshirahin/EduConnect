@@ -4,10 +4,10 @@ import Features from "../components/Features";
 import HowItWorks from "../components/HowItWorks";
 import Footer from "../components/Footer";
 
-function Home() {
+function Home({ onRequestTutor }) {
   return (
     <div className="home-page">
-      <Hero />
+      <Hero onRequestTutor={onRequestTutor} />
       <Features />
       <HowItWorks />
       <Footer />
