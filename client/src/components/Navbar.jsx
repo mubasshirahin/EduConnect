@@ -13,6 +13,9 @@ function Navbar({ onLoginClick, onRegisterClick, onLogout, authUser, theme, onTo
             <a className="nav-link" href="#jobs">
               Job Board
             </a>
+            <a className="nav-link" href="#reviews">
+              Reviews
+            </a>
           </div>
         )}
         <div className="nav-actions">
