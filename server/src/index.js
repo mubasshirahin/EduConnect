@@ -6,7 +6,6 @@ import authRoutes from "./routes/auth.js";
 import jobRoutes from "./routes/jobs.js";
 import messageRoutes from "./routes/messages.js";
 import adminRoutes from "./routes/admin.js";
-import reviewRoutes from "./routes/reviews.js";
 
 dotenv.config();
 
@@ -16,7 +15,6 @@ const mongoUri = process.env.MONGO_URI;
 
 app.use(cors());
 app.use(express.json());
-app.use("/api/reviews", reviewRoutes);
 
 app.get("/api/health", async (req, res) => {
   const state = mongoose.connection.readyState;
