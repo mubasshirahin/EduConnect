@@ -3,7 +3,6 @@ import Home from "./pages/Home";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import JobBoard from "./pages/JobBoard";
-import Reviews from "./pages/Reviews"; 
 import ProfilePage from "./pages/ProfilePage";
 import UpdateSoon from "./pages/UpdateSoon";
 import TeacherStatus from "./pages/TeacherStatus";
@@ -58,13 +57,11 @@ function App() {
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
- 
+
   let content = <Home onRequestTutor={openLogin} />;
 
   if (route.startsWith("#jobs")) {
     content = <JobBoard authUser={authUser} onRequireLogin={openLogin} />;
-  } else if (route.startsWith("#reviews")) {
-    content = <Reviews />;
   } else if (route.startsWith("#profile")) {
     content = <ProfilePage authUser={authUser} />;
   } else if (route.startsWith("#applicant/")) {
@@ -76,34 +73,25 @@ function App() {
       "#settings": "Settings",
     };
     content = <UpdateSoon title={route.startsWith("#messages") ? titleMap["#messages"] : titleMap["#settings"]} />;
-  } 
-  
-  else if (authUser?.role === "teacher") {
+  } else if (authUser?.role === "teacher") {
     content = (
       <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
-        {route === "#reviews" ? <Reviews /> : <TeacherDashboard authUser={authUser} />}
+        <TeacherDashboard authUser={authUser} />
       </TeacherShell>
     );
-  } 
-  
-
-  else if (authUser?.role === "student") {
+  } else if (authUser?.role === "student") {
     content = (
       <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
-        {route === "#reviews" ? <Reviews /> : <StudentDashboard user={authUser} />}
+        <StudentDashboard user={authUser} />
       </StudentShell>
     );
-  } 
-  
-
-  else if (authUser?.role === "admin") {
+  } else if (authUser?.role === "admin") {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
-        {route === "#reviews" ? <Reviews /> : <AdminDashboard />}
+        <AdminDashboard />
       </AdminShell>
     );
   }
-
 
   if (authUser?.role === "teacher" && route.startsWith("#jobs")) {
     content = (
