@@ -7,6 +7,7 @@ import jobRoutes from "./routes/jobs.js";
 import messageRoutes from "./routes/messages.js";
 import adminRoutes from "./routes/admin.js";
 import reviewRoutes from "./routes/reviews.js";
+import passwordResetRoutes from "./routes/passwordReset.js";
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/password-reset", passwordResetRoutes);
 
 app.use((err, req, res, next) => {
   const status = err.status || 500;
