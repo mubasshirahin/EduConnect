@@ -8,8 +8,6 @@ const userSchema = new mongoose.Schema(
     role: { type: String, required: true, enum: ["teacher", "student", "admin"] },
     isBlocked: { type: Boolean, default: false },
     blockedAt: { type: Date },
-    resetPasswordToken: { type: String },
-    resetPasswordExpire: { type: Date },
   },
   { timestamps: true }
 );
