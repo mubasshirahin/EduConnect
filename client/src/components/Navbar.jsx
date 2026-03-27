@@ -1,4 +1,5 @@
 import React from "react";
+import eduConnectLogo from "../assets/educonnect-logo.png";
 
 function Navbar({ onLoginClick, onRegisterClick, onLogout, authUser, theme, onToggleTheme }) {
   const isDark = theme === "dark";
@@ -9,28 +10,7 @@ function Navbar({ onLoginClick, onRegisterClick, onLogout, authUser, theme, onTo
       <div className="container navbar-inner">
         <div className="brand">
           <span className="brand-logo" aria-hidden="true">
-            <svg className="brand-logo-image" viewBox="0 0 76 32" fill="none">
-              <path
-                d="M38 6H17C10.373 6 5 11.373 5 18C5 24.627 10.373 30 17 30H34"
-                stroke="currentColor"
-                strokeWidth="4.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M7 18H27"
-                stroke="currentColor"
-                strokeWidth="4.2"
-                strokeLinecap="round"
-              />
-              <path
-                d="M46 6H61C67.627 6 73 11.373 73 18C73 24.627 67.627 30 61 30H43C36.373 30 31 24.627 31 18"
-                stroke="currentColor"
-                strokeWidth="4.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <img className="brand-logo-image" src={eduConnectLogo} alt="" />
           </span>
           <span className="brand-text">EduConnect</span>
         </div>
