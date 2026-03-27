@@ -9,6 +9,7 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
 
   const [status, setStatus] = useState({ type: "", message: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -16,7 +17,7 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
     setStatus({ type: "", message: "" });
     setIsLoading(true);
 
-      const formData = new FormData(form);
+    const formData = new FormData(form);
     const payload = {
       email: formData.get("email"),
       password: formData.get("password"),
@@ -105,6 +106,18 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
           <label className="form-group">
             <span>Password</span>
             <input type="password" name="password" placeholder="Enter your password" required />
+            {!isLogin && (
+              <label className="form-group checkbox-group">
+                <input
+                  type="checkbox"
+                  checked={agreeToTerms}
+                  onChange={(e) => setAgreeToTerms(e.target.checked)}
+                  required
+                />
+                <span>I agree to the Terms & Conditions</span>
+              </label>
+            )}
+
           </label>
           {status.message && (
             <p className={`auth-status ${status.type === "error" ? "auth-status-error" : "auth-status-success"}`}>

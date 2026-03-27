@@ -1669,4 +1669,21 @@ html[data-theme="light"] .role-option {
     padding-left: 2.8rem;
   }
 }
+.checkbox-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkbox-group input {
+  width: auto;
+  margin: 0;
+}
+
+.checkbox-group span {
+  font-size: 0.9rem;
+  color: var(--text-soft);
+}
+
 
