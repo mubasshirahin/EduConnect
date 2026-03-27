@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import TermsModal from "./TermsModal";
 
 function AuthModal({ mode, onClose, onAuthSuccess }) {
   const isLogin = mode === "login";
@@ -10,6 +11,7 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
   const [status, setStatus] = useState({ type: "", message: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -62,50 +64,52 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
   };
 
   return (
-    <div className="auth-overlay" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="auth-modal">
-        <div className="auth-modal-header">
-          <div>
-            <h3>{title}</h3>
-            <p>{subtitle}</p>
-          </div>
-          <button className="auth-close" type="button" onClick={onClose} aria-label="Close">
-            ✕
-          </button>
-        </div>
-        <form className="auth-form" onSubmit={handleSubmit}>
-          {!isLogin && (
-            <label className="form-group">
-              <span>Full Name</span>
-              <input type="text" name="registerName" placeholder="Jane Doe" required />
-            </label>
-          )}
-          <label className="form-group">
-            <span>{isLogin ? "Login As" : "Register As"}</span>
-            <div className="role-group">
-              <label className="role-option">
-                <input type="radio" name="role" value="teacher" required />
-                <span>Teacher</span>
-              </label>
-              <label className="role-option">
-                <input type="radio" name="role" value="student" required />
-                <span>Student</span>
-              </label>
-              {isLogin && (
-                <label className="role-option">
-                  <input type="radio" name="role" value="admin" required />
-                  <span>Admin</span>
-                </label>
-              )}
+    <>
+      <div className="auth-overlay" role="dialog" aria-modal="true" aria-label={title}>
+        <div className="auth-modal">
+          <div className="auth-modal-header">
+            <div>
+              <h3>{title}</h3>
+              <p>{subtitle}</p>
             </div>
-          </label>
-          <label className="form-group">
-            <span>Email</span>
-            <input type="email" name="email" placeholder="you@example.com" required />
-          </label>
-          <label className="form-group">
-            <span>Password</span>
-            <input type="password" name="password" placeholder="Enter your password" required />
+            <button className="auth-close" type="button" onClick={onClose} aria-label="Close">
+              ✕
+            </button>
+          </div>
+          <form className="auth-form" onSubmit={handleSubmit}>
+            {!isLogin && (
+              <label className="form-group">
+                <span>Full Name</span>
+                <input type="text" name="registerName" placeholder="Jane Doe" required />
+              </label>
+            )}
+            <label className="form-group">
+              <span>{isLogin ? "Login As" : "Register As"}</span>
+              <div className="role-group">
+                <label className="role-option">
+                  <input type="radio" name="role" value="teacher" required />
+                  <span>Teacher</span>
+                </label>
+                <label className="role-option">
+                  <input type="radio" name="role" value="student" required />
+                  <span>Student</span>
+                </label>
+                {isLogin && (
+                  <label className="role-option">
+                    <input type="radio" name="role" value="admin" required />
+                    <span>Admin</span>
+                  </label>
+                )}
+              </div>
+            </label>
+            <label className="form-group">
+              <span>Email</span>
+              <input type="email" name="email" placeholder="you@example.com" required />
+            </label>
+            <label className="form-group">
+              <span>Password</span>
+              <input type="password" name="password" placeholder="Enter your password" required />
+            </label>
             {!isLogin && (
               <label className="form-group checkbox-group">
                 <input
@@ -115,24 +119,30 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
                   required
                 />
                 <span>
-                  I agree to the <a href="#terms">Terms & Conditions</a>
+                  I agree to the 
+                  <span 
+                    onClick={() => setShowTerms(true)} 
+                    style={{ color: 'var(--accent)', textDecoration: 'underline', cursor: 'pointer', marginLeft: '4px' }}
+                  >
+                    Terms & Conditions
+                  </span>
                 </span>
               </label>
             )}
-
-          </label>
-          {status.message && (
-            <p className={`auth-status ${status.type === "error" ? "auth-status-error" : "auth-status-success"}`}>
-              {status.message}
-            </p>
-          )}
-          <button className="btn btn-primary" type="submit" disabled={isLoading}>
-            {isLoading ? "Please wait..." : title}
-          </button>
-        </form>
+            {status.message && (
+              <p className={`auth-status ${status.type === "error" ? "auth-status-error" : "auth-status-success"}`}>
+                {status.message}
+              </p>
+            )}
+            <button className="btn btn-primary" type="submit" disabled={isLoading}>
+              {isLoading ? "Please wait..." : title}
+            </button>
+          </form>
+        </div>
+        <button className="auth-backdrop" type="button" onClick={onClose} aria-label="Close" />
       </div>
-      <button className="auth-backdrop" type="button" onClick={onClose} aria-label="Close" />
-    </div>
+      {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
+    </>
   );
 }
 
