@@ -1,6 +1,7 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import User from "../models/User.js";
 
 const router = express.Router();
@@ -109,6 +110,69 @@ router.post("/login", async (req, res, next) => {
       token,
       user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Forgot Password - Request reset link
+router.post("/forgot-password", async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ message: "Email is required." });
+    }
+    
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "No account found with that email." });
+    }
+    
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    await user.save();
+    
+    // For now, return the token (in production you would send an email)
+    res.json({ 
+      message: "Password reset link sent. Use this token to reset your password.",
+      resetToken: resetToken
+    });
+    
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Reset Password - Set new password
+router.post("/reset-password", async (req, res, next) => {
+  try {
+    const { token, newPassword } = req.body;
+    
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: "Token and new password are required." });
+    }
+    
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+    
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired reset token." });
+    }
+    
+    // Hash new password
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    user.passwordHash = passwordHash;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+    
+    res.json({ message: "Password has been reset successfully." });
+    
   } catch (error) {
     return next(error);
   }
