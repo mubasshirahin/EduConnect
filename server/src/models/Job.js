@@ -13,6 +13,11 @@ const jobSchema = new mongoose.Schema(
         email: { type: String, required: true, trim: true, lowercase: true },
         name: { type: String, required: true, trim: true },
         appliedAt: { type: Date, default: Date.now },
+        status: { 
+          type: String, 
+          enum: ["pending", "shortlisted", "rejected", "hired"],
+          default: "pending"
+        }
       },
     ],
   },

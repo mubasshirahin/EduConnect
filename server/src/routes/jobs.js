@@ -18,7 +18,6 @@ router.get("/", async (req, res, next) => {
     next(error);
   }
 });
-
 router.post("/", async (req, res, next) => {
   try {
     const { title, location, schedule, rate, postedBy, postedByEmail } = req.body;
@@ -66,6 +65,46 @@ router.post("/:id/withdraw", async (req, res, next) => {
     job.applicants = job.applicants.filter((app) => app.email !== email.toLowerCase());
     await job.save();
     res.json(job);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Update applicant status (for teachers)
+router.patch("/:jobId/applicants/:applicantEmail/status", async (req, res, next) => {
+  try {
+    const { jobId, applicantEmail } = req.params;
+    const { status } = req.body;
+    
+    if (!status) {
+      return res.status(400).json({ message: "Status is required." });
+    }
+    
+    if (!["pending", "shortlisted", "rejected", "hired"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status." });
+    }
+    
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ message: "Job not found." });
+    }
+    
+    const applicant = job.applicants.find(
+      (app) => app.email === applicantEmail.toLowerCase()
+    );
+    
+    if (!applicant) {
+      return res.status(404).json({ message: "Applicant not found." });
+    }
+    
+    applicant.status = status;
+    await job.save();
+    
+    res.json({ 
+      message: `Applicant status updated to ${status}`,
+      applicant: applicant
+    });
+    
   } catch (error) {
     next(error);
   }
