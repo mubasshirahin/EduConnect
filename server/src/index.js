@@ -8,7 +8,7 @@ import messageRoutes from "./routes/messages.js";
 import adminRoutes from "./routes/admin.js";
 import reviewRoutes from "./routes/reviews.js";
 
-dotenv.config();
+dotenv.config({ path: './.env' });
 
 const app = express();
 const port = process.env.PORT || 5000;
