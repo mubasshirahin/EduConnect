@@ -15,6 +15,7 @@
   --radius-md: 14px;
   --radius-lg: 20px;
   --container: 1120px;
+  --brand-logo-filter: brightness(0) saturate(100%) invert(96%) sepia(8%) saturate(154%) hue-rotate(84deg) brightness(103%) contrast(93%);
 }
 
 html[data-theme="light"] {
@@ -29,6 +30,7 @@ html[data-theme="light"] {
   --border-soft: #d3e4d8;
   --shadow-soft: 0 14px 34px rgba(15, 35, 24, 0.08);
   --shadow-strong: 0 18px 42px rgba(15, 35, 24, 0.14);
+  --brand-logo-filter: brightness(0) saturate(100%) invert(12%) sepia(17%) saturate(920%) hue-rotate(93deg) brightness(96%) contrast(91%);
 }
 
 * {
@@ -144,25 +146,20 @@ html[data-theme="light"] .nav-user-role {
 }
 
 .brand-logo {
-  width: 44px;
-  height: 24px;
+  width: 38px;
+  height: 22px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: #ffffff;
 }
 
 .brand-logo-image {
   width: 100%;
   height: 100%;
   display: block;
-  overflow: visible;
-  filter: drop-shadow(0 6px 14px rgba(31, 122, 79, 0.16));
-}
-
-html[data-theme="light"] .brand-logo {
-  color: var(--text-main);
+  object-fit: contain;
+  filter: var(--brand-logo-filter) drop-shadow(0 6px 14px rgba(31, 122, 79, 0.16));
 }
 
 .brand-text {
@@ -474,7 +471,7 @@ html[data-theme="light"] .btn-primary {
   border-radius: var(--radius-md);
   padding: 1rem 1rem 1rem 3rem;
   box-shadow: var(--shadow-soft);
-  color: #44566f;
+  color: var(--text-soft);
   position: relative;
 }
 
