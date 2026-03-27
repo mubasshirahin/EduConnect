@@ -18,7 +18,6 @@ router.get("/", async (req, res, next) => {
     next(error);
   }
 });
-
 router.post("/", async (req, res, next) => {
   try {
     const { title, location, schedule, rate, postedBy, postedByEmail } = req.body;
