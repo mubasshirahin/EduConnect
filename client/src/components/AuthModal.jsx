@@ -12,6 +12,8 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
   const [isLoading, setIsLoading] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -63,86 +65,180 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
     }
   };
 
-  return (
-    <>
-      <div className="auth-overlay" role="dialog" aria-modal="true" aria-label={title}>
+  const handleForgotPassword = async (event) => {
+    event.preventDefault();
+    setStatus({ type: "", message: "" });
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: resetEmail }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Request failed.");
+      }
+
+      setStatus({ type: "success", message: "Password reset link sent to your email!" });
+      setResetEmail("");
+      
+      setTimeout(() => {
+        setIsForgotPassword(false);
+      }, 3000);
+      
+    } catch (error) {
+      setStatus({ type: "error", message: error.message || "Something went wrong." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBackToLogin = () => {
+    setIsForgotPassword(false);
+    setStatus({ type: "", message: "" });
+  };
+
+  // Forgot Password View
+  if (isForgotPassword) {
+    return (
+      <div className="auth-overlay" role="dialog" aria-modal="true">
         <div className="auth-modal">
           <div className="auth-modal-header">
             <div>
-              <h3>{title}</h3>
-              <p>{subtitle}</p>
+              <h3>Reset Password</h3>
+              <p>Enter your email to receive a reset link</p>
             </div>
             <button className="auth-close" type="button" onClick={onClose} aria-label="Close">
               ✕
             </button>
           </div>
-          <form className="auth-form" onSubmit={handleSubmit}>
-            {!isLogin && (
-              <label className="form-group">
-                <span>Full Name</span>
-                <input type="text" name="registerName" placeholder="Jane Doe" required />
-              </label>
-            )}
+          <form className="auth-form" onSubmit={handleForgotPassword}>
             <label className="form-group">
-              <span>{isLogin ? "Login As" : "Register As"}</span>
-              <div className="role-group">
-                <label className="role-option">
-                  <input type="radio" name="role" value="teacher" required />
-                  <span>Teacher</span>
-                </label>
-                <label className="role-option">
-                  <input type="radio" name="role" value="student" required />
-                  <span>Student</span>
-                </label>
-                {isLogin && (
-                  <label className="role-option">
-                    <input type="radio" name="role" value="admin" required />
-                    <span>Admin</span>
-                  </label>
-                )}
-              </div>
+              <span>Email Address</span>
+              <input 
+                type="email" 
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                placeholder="you@example.com" 
+                required 
+              />
             </label>
-            <label className="form-group">
-              <span>Email</span>
-              <input type="email" name="email" placeholder="you@example.com" required />
-            </label>
-            <label className="form-group">
-              <span>Password</span>
-              <input type="password" name="password" placeholder="Enter your password" required />
-            </label>
-            {!isLogin && (
-              <label className="form-group checkbox-group">
-                <input
-                  type="checkbox"
-                  checked={agreeToTerms}
-                  onChange={(e) => setAgreeToTerms(e.target.checked)}
-                  required
-                />
-                <span>
-                  I agree to the 
-                  <span 
-                    onClick={() => setShowTerms(true)} 
-                    style={{ color: 'var(--accent)', textDecoration: 'underline', cursor: 'pointer', marginLeft: '4px' }}
-                  >
-                    Terms & Conditions
-                  </span>
-                </span>
-              </label>
-            )}
             {status.message && (
               <p className={`auth-status ${status.type === "error" ? "auth-status-error" : "auth-status-success"}`}>
                 {status.message}
               </p>
             )}
             <button className="btn btn-primary" type="submit" disabled={isLoading}>
-              {isLoading ? "Please wait..." : title}
+              {isLoading ? "Sending..." : "Send Reset Link"}
+            </button>
+            <button 
+              type="button" 
+              className="btn btn-ghost" 
+              onClick={handleBackToLogin}
+              style={{ marginTop: '0.5rem' }}
+            >
+              Back to Login
             </button>
           </form>
         </div>
         <button className="auth-backdrop" type="button" onClick={onClose} aria-label="Close" />
       </div>
+    );
+  }
+
+  // Main Login/Register View
+  return (
+    <div className="auth-overlay" role="dialog" aria-modal="true" aria-label={title}>
+      <div className="auth-modal">
+        <div className="auth-modal-header">
+          <div>
+            <h3>{title}</h3>
+            <p>{subtitle}</p>
+          </div>
+          <button className="auth-close" type="button" onClick={onClose} aria-label="Close">
+            ✕
+          </button>
+        </div>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          {!isLogin && (
+            <label className="form-group">
+              <span>Full Name</span>
+              <input type="text" name="registerName" placeholder="Jane Doe" required />
+            </label>
+          )}
+          <label className="form-group">
+            <span>{isLogin ? "Login As" : "Register As"}</span>
+            <div className="role-group">
+              <label className="role-option">
+                <input type="radio" name="role" value="teacher" required />
+                <span>Teacher</span>
+              </label>
+              <label className="role-option">
+                <input type="radio" name="role" value="student" required />
+                <span>Student</span>
+              </label>
+              {isLogin && (
+                <label className="role-option">
+                  <input type="radio" name="role" value="admin" required />
+                  <span>Admin</span>
+                </label>
+              )}
+            </div>
+          </label>
+          <label className="form-group">
+            <span>Email</span>
+            <input type="email" name="email" placeholder="you@example.com" required />
+          </label>
+          <label className="form-group">
+            <span>Password</span>
+            <input type="password" name="password" placeholder="Enter your password" required />
+            {isLogin && (
+              <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
+                <span 
+                  onClick={() => setIsForgotPassword(true)} 
+                  style={{ color: 'var(--accent)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.8rem' }}
+                >
+                  Forgot Password?
+                </span>
+              </div>
+            )}
+          </label>
+          {!isLogin && (
+            <label className="form-group checkbox-group">
+              <input
+                type="checkbox"
+                checked={agreeToTerms}
+                onChange={(e) => setAgreeToTerms(e.target.checked)}
+                required
+              />
+              <span>
+                I agree to the 
+                <span 
+                  onClick={() => setShowTerms(true)} 
+                  style={{ color: 'var(--accent)', textDecoration: 'underline', cursor: 'pointer', marginLeft: '4px' }}
+                >
+                  Terms & Conditions
+                </span>
+              </span>
+            </label>
+          )}
+          {status.message && (
+            <p className={`auth-status ${status.type === "error" ? "auth-status-error" : "auth-status-success"}`}>
+              {status.message}
+            </p>
+          )}
+          <button className="btn btn-primary" type="submit" disabled={isLoading}>
+            {isLoading ? "Please wait..." : title}
+          </button>
+        </form>
+      </div>
+      <button className="auth-backdrop" type="button" onClick={onClose} aria-label="Close" />
       {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
-    </>
+    </div>
   );
 }
 
