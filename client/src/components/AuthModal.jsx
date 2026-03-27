@@ -114,7 +114,9 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
                   onChange={(e) => setAgreeToTerms(e.target.checked)}
                   required
                 />
-                <span>I agree to the Terms & Conditions</span>
+                <span>
+                  I agree to the <a href="#terms">Terms & Conditions</a>
+                </span>
               </label>
             )}
 
