@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from "react";
 
 function TeacherDashboard({ authUser }) {
-  const [myJobs, setMyJobs] = useState([]);
+  const [appliedJobs, setAppliedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [updatingStatus, setUpdatingStatus] = useState(null);
 
   useEffect(() => {
     if (!authUser?.email) return;
-    fetchMyJobs();
+    fetchAppliedJobs();
   }, [authUser]);
 
-  const fetchMyJobs = async () => {
+  const fetchAppliedJobs = async () => {
     try {
-      const response = await fetch(`/api/jobs?postedByEmail=${authUser.email}`);
+      const response = await fetch(`/api/jobs?applicantEmail=${authUser.email}`);
       const data = await response.json();
-      setMyJobs(data);
+      
+      // Filter jobs where teacher has applied
+      const jobs = data.filter(job => 
+        job.applicants.some(app => app.email === authUser.email)
+      );
+      
+      setAppliedJobs(jobs);
     } catch (error) {
       console.error("Error fetching jobs:", error);
     } finally {
@@ -22,45 +27,13 @@ function TeacherDashboard({ authUser }) {
     }
   };
 
-  const updateStatus = async (jobId, applicantEmail, newStatus) => {
-    setUpdatingStatus({ jobId, applicantEmail });
-    try {
-      const response = await fetch(`/api/jobs/${jobId}/applicants/${applicantEmail}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      
-      if (response.ok) {
-        // Update local state
-        setMyJobs(prevJobs => 
-          prevJobs.map(job => {
-            if (job._id === jobId) {
-              return {
-                ...job,
-                applicants: job.applicants.map(app => 
-                  app.email === applicantEmail ? { ...app, status: newStatus } : app
-                )
-              };
-            }
-            return job;
-          })
-        );
-      }
-    } catch (error) {
-      console.error("Error updating status:", error);
-    } finally {
-      setUpdatingStatus(null);
-    }
-  };
-
-  const getStatusColor = (status) => {
+  const getStatusBadgeColor = (status) => {
     switch(status) {
-      case "pending": return "#f59e0b";
-      case "shortlisted": return "#3b82f6";
-      case "rejected": return "#ef4444";
-      case "hired": return "#10b981";
-      default: return "#6b7280";
+      case "pending": return { background: "#f59e0b", color: "#fff" };
+      case "shortlisted": return { background: "#3b82f6", color: "#fff" };
+      case "rejected": return { background: "#ef4444", color: "#fff" };
+      case "hired": return { background: "#10b981", color: "#fff" };
+      default: return { background: "#6b7280", color: "#fff" };
     }
   };
 
@@ -86,93 +59,83 @@ function TeacherDashboard({ authUser }) {
 
       <section className="stats-grid">
         <div className="stat-card">
-          <span className="stat-icon">JP</span>
+          <span className="stat-icon">AJ</span>
           <div>
-            <h3>{myJobs.length}</h3>
-            <p>Jobs Posted</p>
+            <h3>{appliedJobs.length}</h3>
+            <p>Jobs Applied</p>
           </div>
         </div>
         <div className="stat-card">
-          <span className="stat-icon">AP</span>
+          <span className="stat-icon">SJ</span>
           <div>
-            <h3>{myJobs.reduce((total, job) => total + job.applicants.length, 0)}</h3>
-            <p>Total Applicants</p>
+            <h3>{appliedJobs.filter(job => {
+              const app = job.applicants.find(a => a.email === authUser.email);
+              return app?.status === "shortlisted";
+            }).length}</h3>
+            <p>Shortlisted</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <span className="stat-icon">HJ</span>
+          <div>
+            <h3>{appliedJobs.filter(job => {
+              const app = job.applicants.find(a => a.email === authUser.email);
+              return app?.status === "hired";
+            }).length}</h3>
+            <p>Hired</p>
           </div>
         </div>
       </section>
 
-      <section style={{ marginTop: "2rem" }}>
-        <h3 style={{ marginBottom: "1rem" }}>My Jobs & Applicants</h3>
+      <section className="dashboard-card" style={{ marginTop: "1.5rem" }}>
+        <h3>My Applications</h3>
         
-        {myJobs.length === 0 ? (
-          <div className="dashboard-card" style={{ textAlign: "center" }}>
-            <p>You haven't posted any jobs yet. Click "Post a Job" to get started!</p>
-          </div>
+        {appliedJobs.length === 0 ? (
+          <p style={{ color: "var(--text-soft)", padding: "1rem 0" }}>
+            You haven't applied to any tuition jobs yet. Go to the Job Board to apply!
+          </p>
         ) : (
-          myJobs.map(job => (
-            <div key={job._id} className="dashboard-card" style={{ marginBottom: "1.5rem" }}>
-              <h4 style={{ marginBottom: "0.5rem" }}>{job.title}</h4>
-              <p style={{ color: "var(--text-soft)", fontSize: "0.85rem", marginBottom: "1rem" }}>
-                {job.location} • {job.schedule} • {job.rate}
-              </p>
+          <div style={{ display: "grid", gap: "1rem", marginTop: "1rem" }}>
+            {appliedJobs.map((job) => {
+              const application = job.applicants.find(app => app.email === authUser.email);
+              const badgeStyle = getStatusBadgeColor(application?.status || "pending");
               
-              {job.applicants.length === 0 ? (
-                <p style={{ color: "var(--text-soft)" }}>No applicants yet.</p>
-              ) : (
-                <div style={{ display: "grid", gap: "0.75rem", marginTop: "1rem" }}>
-                  {job.applicants.map(applicant => (
-                    <div key={applicant.email} style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "0.75rem",
-                      border: "1px solid var(--border-soft)",
-                      borderRadius: "8px",
-                      background: "var(--bg-muted)"
-                    }}>
-                      <div>
-                        <p style={{ fontWeight: "bold" }}>{applicant.name}</p>
-                        <p style={{ fontSize: "0.8rem", color: "var(--text-soft)" }}>{applicant.email}</p>
-                        <p style={{ fontSize: "0.7rem", color: "var(--text-soft)" }}>
-                          Applied: {new Date(applicant.appliedAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                        <span style={{
-                          background: getStatusColor(applicant.status),
-                          color: "#fff",
-                          padding: "0.25rem 0.6rem",
-                          borderRadius: "20px",
-                          fontSize: "0.7rem",
-                          fontWeight: "bold"
-                        }}>
-                          {applicant.status}
-                        </span>
-                        <select
-                          value={applicant.status}
-                          onChange={(e) => updateStatus(job._id, applicant.email, e.target.value)}
-                          disabled={updatingStatus?.jobId === job._id && updatingStatus?.applicantEmail === applicant.email}
-                          style={{
-                            padding: "0.3rem 0.5rem",
-                            borderRadius: "6px",
-                            background: "var(--bg-surface)",
-                            color: "var(--text-main)",
-                            border: "1px solid var(--border-soft)",
-                            cursor: "pointer"
-                          }}
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="shortlisted">Shortlisted</option>
-                          <option value="rejected">Rejected</option>
-                          <option value="hired">Hired</option>
-                        </select>
-                      </div>
+              return (
+                <div key={job._id} style={{
+                  border: "1px solid var(--border-soft)",
+                  borderRadius: "12px",
+                  padding: "1rem",
+                  background: "var(--bg-surface)"
+                }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+                    <div>
+                      <h4 style={{ marginBottom: "0.5rem", color: "var(--text-main)" }}>{job.title}</h4>
+                      <p style={{ color: "var(--text-soft)", fontSize: "0.9rem" }}>
+                        {job.location} • {job.schedule} • {job.rate}
+                      </p>
+                      <p style={{ color: "var(--text-soft)", fontSize: "0.85rem", marginTop: "0.5rem" }}>
+                        Posted by: {job.postedBy}
+                      </p>
                     </div>
-                  ))}
+                    <span style={{
+                      background: badgeStyle.background,
+                      color: badgeStyle.color,
+                      padding: "0.25rem 0.75rem",
+                      borderRadius: "20px",
+                      fontSize: "0.8rem",
+                      fontWeight: "bold",
+                      textTransform: "uppercase"
+                    }}>
+                      {application?.status || "pending"}
+                    </span>
+                  </div>
+                  <p style={{ marginTop: "0.5rem", color: "var(--text-soft)", fontSize: "0.85rem" }}>
+                    Applied on: {new Date(application?.appliedAt).toLocaleDateString()}
+                  </p>
                 </div>
-              )}
-            </div>
-          ))
+              );
+            })}
+          </div>
         )}
       </section>
     </div>
