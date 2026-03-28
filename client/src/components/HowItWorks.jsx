@@ -6,9 +6,16 @@ function HowItWorks() {
   const { t } = useLanguage();
   const steps = t("home.steps");
   const [showPopup, setShowPopup] = useState(false);
+  const [selectedStep, setSelectedStep] = useState(null);
 
   const handleStepClick = (step) => {
-    if (step === "Guardian requests a tutor through chat.") {
+    const actionableSteps = [
+      "Guardian requests a tutor through chat.",
+      "Admin verifies and creates a tuition post.",
+    ];
+
+    if (actionableSteps.includes(step)) {
+      setSelectedStep(step);
       setShowPopup(true);
     }
   };
@@ -19,23 +26,34 @@ function HowItWorks() {
         <div className="container flow-content">
           <h2 className="section-title">{t("home.howItWorksTitle")}</h2>
           <ol className="steps-list">
-            {steps.map((step, index) => (
-              <li 
-                key={index} 
-                onClick={() => handleStepClick(step)}
-                style={{ 
-                  cursor: step === "Guardian requests a tutor through chat." ? "pointer" : "default"
-                }}
-              >
-                {step}
-              </li>
-            ))}
+            {steps.map((step, index) => {
+              const clickable = [
+                "Guardian requests a tutor through chat.",
+                "Admin verifies and creates a tuition post.",
+              ].includes(step);
+
+              return (
+                <li
+                  key={index}
+                  onClick={() => handleStepClick(step)}
+                  style={{ cursor: clickable ? "pointer" : "default" }}
+                >
+                  {step}
+                </li>
+              );
+            })}
           </ol>
         </div>
       </section>
       
       {showPopup && (
-        <StepPopup onClose={() => setShowPopup(false)} />
+        <StepPopup
+          step={selectedStep}
+          onClose={() => {
+            setShowPopup(false);
+            setSelectedStep(null);
+          }}
+        />
       )}
     </>
   );
