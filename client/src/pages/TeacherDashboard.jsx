@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 function TeacherDashboard({ authUser }) {
   const [appliedCount, setAppliedCount] = useState(0);
   const [profileCompletion, setProfileCompletion] = useState(0);
+  const [notice, setNotice] = useState(null);
 
   useEffect(() => {
     if (!authUser?.email) {
@@ -30,6 +31,28 @@ function TeacherDashboard({ authUser }) {
     return () => window.removeEventListener("storage", readCompletion);
   }, [authUser?.email]);
 
+  useEffect(() => {
+    const readNotice = () => {
+      const stored = localStorage.getItem("educonnect-notice");
+      if (!stored) {
+        setNotice(null);
+        return;
+      }
+      try {
+        setNotice(JSON.parse(stored));
+      } catch {
+        setNotice(null);
+      }
+    };
+    readNotice();
+    window.addEventListener("storage", readNotice);
+    window.addEventListener("notice-updated", readNotice);
+    return () => {
+      window.removeEventListener("storage", readNotice);
+      window.removeEventListener("notice-updated", readNotice);
+    };
+  }, []);
+
   return (
     <div>
       <section className="notice-board">
@@ -37,13 +60,15 @@ function TeacherDashboard({ authUser }) {
           <span className="notice-icon">NB</span>
           <h2>Notice Board</h2>
         </div>
-        <p>
-          Our &quot;Tutor of the Month, March 2026&quot; is Shahria Rahman Rafi (Tutor
-          ID: 385346) and our &quot;Guardian of the Month, March 2026&quot; is Md.
-          Mubarak Hossain (Guardian ID: 429325). Heartiest congratulations to
-          both of them; we&apos;re glad to work with them.
-        </p>
-        <span className="notice-date">Mar 04, 2026</span>
+        {notice?.body ? (
+          <>
+            <p>{notice.title || "Notice"}</p>
+            <p>{notice.body}</p>
+            {notice.date && <span className="notice-date">{notice.date}</span>}
+          </>
+        ) : (
+          <p>No notices available right now.</p>
+        )}
       </section>
 
         <section className="stats-grid">
@@ -88,15 +113,15 @@ function TeacherDashboard({ authUser }) {
         <article className="teacher-tile teacher-highlight">
           <div>
             <p className="tile-label">Tutor of the Month</p>
-            <h3>Shahria Rahman</h3>
-            <p>ID: 385346</p>
+            <h3>No tutor selected</h3>
+            <p>Election pending</p>
           </div>
-          <div className="tile-badge">★★★★★</div>
+          <div className="tile-badge">—</div>
         </article>
         <article className="teacher-tile">
           <p className="tile-label">Nearby Jobs</p>
-          <h3>3 new posts</h3>
-          <p>Check the latest tuition requests around you.</p>
+          <h3>No Jobs</h3>
+          <p>No nearby tuition requests right now.</p>
         </article>
         <article className="teacher-tile teacher-profile">
           <div className="progress-ring">{profileCompletion}%</div>

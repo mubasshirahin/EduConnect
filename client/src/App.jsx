@@ -19,6 +19,7 @@ import TeacherShell from "./components/TeacherShell";
 import StudentShell from "./components/StudentShell";
 import AdminShell from "./components/AdminShell";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminNotices from "./pages/AdminNotices";
 import TermsOfService from "./pages/TermsOfService";
 import AboutUs from "./pages/AboutUs";
 import { useLanguage } from "./i18n/LanguageContext.jsx";
@@ -233,6 +234,14 @@ function App() {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <UpdateSoon title="Reports" />
+      </AdminShell>
+    );
+  }
+
+  if (authUser?.role === "admin" && route.startsWith("#notices")) {
+    content = (
+      <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <AdminNotices />
       </AdminShell>
     );
   }

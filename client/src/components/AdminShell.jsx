@@ -93,6 +93,20 @@ function AdminShell({ user, onLogout, children, currentRoute }) {
             <span className="sidebar-text">Complains</span>
           </a>
           <a
+            className={`sidebar-link ${currentRoute?.startsWith("#notices") ? "sidebar-link-active" : ""}`}
+            href="#notices"
+            aria-label="Notices"
+          >
+            <span className="sidebar-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 4h16v12H7l-3 4z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M8 8h8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M8 12h6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            <span className="sidebar-text">Notices</span>
+          </a>
+          <a
             className={`sidebar-link ${currentRoute?.startsWith("#messages") ? "sidebar-link-active" : ""}`}
             href="#messages"
             aria-label="Messages"
