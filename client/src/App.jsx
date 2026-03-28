@@ -268,6 +268,14 @@ function App() {
     );
   }
 
+  if (authUser?.role === "admin" && route === "#admin-teachers") {
+    content = (
+      <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <AdminUsers roleFilter="teacher" />
+      </AdminShell>
+    );
+  }
+
   if (authUser?.role === "admin" && route === "#admin-admins") {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>

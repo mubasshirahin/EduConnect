@@ -8,9 +8,53 @@ function AdminUsers({ roleFilter }) {
     const load = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/admin/users?role=${roleFilter}`);
-        const data = await response.json();
-        setUsers(data);
+        const [usersResponse, jobsResponse] = await Promise.all([
+          fetch(`/api/admin/users?role=${roleFilter}`),
+          roleFilter === "teacher" ? fetch("/api/jobs") : Promise.resolve(null),
+        ]);
+
+        const data = await usersResponse.json();
+        const jobs = jobsResponse ? await jobsResponse.json() : [];
+
+        const enrichedUsers = Array.isArray(data)
+          ? data.map((user) => {
+              const storageKey = user?.email ? `educonnect-profile:${user.email}` : "";
+              const lowerEmail = user?.email?.toLowerCase?.() || "";
+              const teacherJobs = Array.isArray(jobs)
+                ? jobs.filter((job) =>
+                    Array.isArray(job.applicants) &&
+                    job.applicants.some((applicant) => applicant.email === lowerEmail)
+                  )
+                : [];
+              const appliedCount = teacherJobs.length;
+              const confirmedCount = teacherJobs.filter((job) =>
+                job.applicants?.some(
+                  (applicant) => applicant.email === lowerEmail && applicant.status === "hired"
+                )
+              ).length;
+
+              if (!storageKey) return user;
+              const storedProfile = localStorage.getItem(storageKey);
+              if (!storedProfile) {
+                return { ...user, appliedCount, confirmedCount };
+              }
+              try {
+                return { ...user, ...JSON.parse(storedProfile), appliedCount, confirmedCount };
+              } catch {
+                return { ...user, appliedCount, confirmedCount };
+              }
+            })
+          : [];
+        const sortedUsers = roleFilter === "teacher"
+          ? [...enrichedUsers].sort((a, b) => {
+              const confirmedDiff = (b.confirmedCount || 0) - (a.confirmedCount || 0);
+              if (confirmedDiff !== 0) return confirmedDiff;
+              const appliedDiff = (b.appliedCount || 0) - (a.appliedCount || 0);
+              if (appliedDiff !== 0) return appliedDiff;
+              return (a.name || "").localeCompare(b.name || "");
+            })
+          : enrichedUsers;
+        setUsers(sortedUsers);
       } catch {
         setUsers([]);
       } finally {
@@ -20,14 +64,22 @@ function AdminUsers({ roleFilter }) {
     load();
   }, [roleFilter]);
 
-  const title = roleFilter === "admin" ? "Admins" : "Users";
+  const title = roleFilter === "admin" ? "Admins" : roleFilter === "teacher" ? "Teachers" : "Users";
   const useListView = roleFilter !== "admin";
+  const isTeacherView = roleFilter === "teacher";
+
+  const renderTeacherField = (label, value) => (
+    <div className="admin-user-detail">
+      <span>{label}</span>
+      <strong>{value || "Not provided"}</strong>
+    </div>
+  );
 
   return (
     <section className="status-page">
       <div className="status-header">
         <h2>{title}</h2>
-        <p>Registered {title.toLowerCase()} list.</p>
+        <p>{isTeacherView ? "All registered teachers with saved profile details." : `Registered ${title.toLowerCase()} list.`}</p>
       </div>
       {loading ? (
         <div className="job-empty">
@@ -44,13 +96,28 @@ function AdminUsers({ roleFilter }) {
           {users.map((user) => (
             <button
               key={user._id}
-              className="admin-user-card admin-user-link"
+              className={`admin-user-card admin-user-link ${isTeacherView ? "admin-user-card-detailed" : ""}`}
               type="button"
               onClick={() => (window.location.hash = `#admin-user/${encodeURIComponent(user.email)}`)}
             >
               <h4>{user.name || "User"}</h4>
               <p>{user.email}</p>
               <span className="admin-user-role">{user.role}</span>
+              {user.isBlocked ? <span className="status-pill status-pill-danger">Blocked</span> : null}
+              {isTeacherView ? (
+                <div className="admin-user-details-grid">
+                  {renderTeacherField("Applied Tuitions", user.appliedCount ?? 0)}
+                  {renderTeacherField("Confirmed Tuitions", user.confirmedCount ?? 0)}
+                  {renderTeacherField("Tutor ID", user.tutorId)}
+                  {renderTeacherField("Phone", user.phone)}
+                  {renderTeacherField("City", user.city)}
+                  {renderTeacherField("Location", user.location)}
+                  {renderTeacherField("Preferred Classes", user.preferredClasses)}
+                  {renderTeacherField("Preferred Subjects", user.preferredSubjects)}
+                  {renderTeacherField("Expected Salary", user.expectedSalary)}
+                  {renderTeacherField("Experience", user.totalExperience)}
+                </div>
+              ) : null}
             </button>
           ))}
         </div>
