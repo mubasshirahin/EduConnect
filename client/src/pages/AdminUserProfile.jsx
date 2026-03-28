@@ -4,6 +4,7 @@ function AdminUserProfile({ email }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionState, setActionState] = useState({ loading: false, error: "", success: "" });
+  const [profileCompletion, setProfileCompletion] = useState(0);
 
   useEffect(() => {
     const load = async () => {
@@ -19,6 +20,23 @@ function AdminUserProfile({ email }) {
       }
     };
     load();
+  }, [email]);
+
+  useEffect(() => {
+    const completionKey = email
+      ? `profileCompletionPercent:${email}`
+      : "profileCompletionPercent:guest";
+
+    const readCompletion = () => {
+      const raw = localStorage.getItem(completionKey);
+      const parsed = Number.parseInt(raw || "0", 10);
+      const safe = Number.isFinite(parsed) ? Math.min(100, Math.max(0, parsed)) : 0;
+      setProfileCompletion(safe);
+    };
+
+    readCompletion();
+    window.addEventListener("storage", readCompletion);
+    return () => window.removeEventListener("storage", readCompletion);
   }, [email]);
 
   const handleToggleBlock = async () => {
@@ -54,6 +72,8 @@ function AdminUserProfile({ email }) {
     </div>
   );
 
+  const isProfileComplete = profileCompletion >= 80;
+
   if (loading) {
     return (
       <section className="profile-page">
@@ -86,6 +106,37 @@ function AdminUserProfile({ email }) {
           <div className="profile-meta">
             <span>Role: {user.role}</span>
             {user.isBlocked ? <span className="status-pill status-pill-danger">Blocked</span> : null}
+          </div>
+          <div className="profile-meta">
+            <span>Profile Completion: {profileCompletion}%</span>
+            <span>{isProfileComplete ? "Complete (80%+)" : "Incomplete"}</span>
+          </div>
+          <div style={{ marginTop: "8px" }}>
+            <div
+              style={{
+                height: "10px",
+                width: "100%",
+                maxWidth: "320px",
+                background: "rgba(255, 255, 255, 0.12)",
+                borderRadius: "999px",
+                overflow: "hidden",
+                boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08), 0 0 18px rgba(91, 207, 144, 0.08)",
+              }}
+            >
+              <div
+                style={{
+                  height: "100%",
+                  width: `${profileCompletion}%`,
+                  background: isProfileComplete
+                    ? "linear-gradient(90deg, #ff4d4d 0%, #ffd24d 25%, #4dff88 50%, #4dd2ff 75%, #b84dff 100%)"
+                    : "linear-gradient(90deg, #ff9f43 0%, #ffd166 50%, #ff6b6b 100%)",
+                  boxShadow: isProfileComplete
+                    ? "0 0 10px rgba(255, 77, 77, 0.45), 0 0 18px rgba(77, 210, 255, 0.35), 0 0 26px rgba(184, 77, 255, 0.28)"
+                    : "0 0 10px rgba(255, 159, 67, 0.35), 0 0 18px rgba(255, 107, 107, 0.25)",
+                  transition: "width 0.25s ease",
+                }}
+              />
+            </div>
           </div>
         </div>
         <div className="profile-actions">
