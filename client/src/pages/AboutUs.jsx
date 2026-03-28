@@ -69,10 +69,10 @@ function AboutUs() {
             <p>{t("about.teamSubtitle")}</p>
           </div>
           <div className="about-team-grid">
-            {team.map((member) => (
+            {team.map((member, index) => (
               <article className="about-team-card" key={member.name}>
                 <div className="about-team-avatar" aria-hidden="true">
-                  {member.name.slice(-1)}
+                  {index + 1}
                 </div>
                 <h3>{member.name}</h3>
                 <p className="about-team-role">{member.role}</p>

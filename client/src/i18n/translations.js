@@ -159,9 +159,9 @@ export const translations = {
         "EduConnect is currently managed by a student team, with each member supporting a specific part of the platform.",
       team: [
         {
-          name: "Team Member 1",
+          name: "Mubasshir Mehedi",
           role: "Platform Supervision",
-          university: "University Name",
+          university: "Ahsanullah University of Science and Technology",
           intro: "Supports the overall flow and daily direction of the platform.",
         },
         {
@@ -345,9 +345,9 @@ export const translations = {
         "EduConnect বর্তমানে একটি student team দ্বারা পরিচালিত, যেখানে প্রতিটি সদস্য প্ল্যাটফর্মের নির্দিষ্ট একটি অংশে কাজ করে।",
       team: [
         {
-          name: "টিম মেম্বার ১",
+          name: "Mubasshir Mehedi",
           role: "প্ল্যাটফর্ম তদারকি",
-          university: "বিশ্ববিদ্যালয়ের নাম",
+          university: "Ahsanullah University of Science and Technology",
           intro: "প্ল্যাটফর্মের সামগ্রিক flow ও দৈনন্দিন direction দেখভাল করেন।",
         },
         {
