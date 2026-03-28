@@ -1,6 +1,10 @@
 import React from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function StepPopup({ step, onClose }) {
+  const { t } = useLanguage();
+  const stepDetails = t("home.stepDetails");
+
   const defaultDetails = {
     "Guardian requests a tutor through chat.": {
       title: "Guardian Request Process",
@@ -32,17 +36,27 @@ function StepPopup({ step, onClose }) {
         "Admin reviews tutor applications and selects the best match.",
       ],
     },
+    "Admin selects the best tutor.": {
+      title: "Admin Tutor Selection",
+      description:
+        "Admin evaluates tutor applications and selects the best qualified tutor for the tuition post.",
+      points: [
+        "Admin checks tutor profiles, ratings, and availability.",
+        "Admin selects the tutor that best fits the requirement.",
+        "Selected tutor receives the assignment and guardian is notified.",
+      ],
+    },
   };
 
-  const info = defaultDetails[step] || {
+  const info = (stepDetails && stepDetails[step]) || defaultDetails[step] || {
     title: step || "Step details",
     description: "Information about this step is not available.",
     points: [],
   };
 
   return (
-    <div className="auth-overlay">
-      <div className="auth-modal">
+    <div className="auth-overlay" onClick={onClose}>
+      <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
         <div className="auth-modal-header">
           <div>
             <h3>{info.title}</h3>
