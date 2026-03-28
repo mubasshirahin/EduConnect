@@ -1816,6 +1816,33 @@ html[data-theme="light"] .role-option {
   justify-content: flex-end;
 }
 
+.admin-user-card-detailed {
+  gap: 1rem;
+}
+
+.admin-user-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.admin-user-detail {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.admin-user-detail span {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-soft);
+}
+
+.admin-user-detail strong {
+  color: var(--text-main);
+  font-size: 0.92rem;
+}
+
 .applicant-modal {
   width: min(680px, calc(100% - 2rem));
 }
@@ -2369,6 +2396,10 @@ html[data-theme="light"] .role-option {
   }
 
   .teacher-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-user-details-grid {
     grid-template-columns: 1fr;
   }
 

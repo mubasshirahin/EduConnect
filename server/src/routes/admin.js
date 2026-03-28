@@ -25,6 +25,10 @@ router.get("/users", async (req, res, next) => {
     const query = {};
     if (role === "admin") {
       query.role = "admin";
+    } else if (role === "teacher") {
+      query.role = "teacher";
+    } else if (role === "student") {
+      query.role = "student";
     } else if (role === "user") {
       query.role = { $ne: "admin" };
     }
