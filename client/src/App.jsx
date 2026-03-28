@@ -289,7 +289,7 @@ function App() {
 
   return (
     <>
-      <Navbar authUser={authUser} onLoginClick={openLogin} onRegisterClick={openRegister} theme={theme} onToggleTheme={toggleTheme} />
+      <Navbar authUser={authUser} onLoginClick={openLogin} onRegisterClick={openRegister} theme={theme} onToggleTheme={toggleTheme} currentRoute={route} />
       {content}
       {authMode && (
         <AuthModal

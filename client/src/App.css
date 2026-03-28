@@ -267,12 +267,38 @@ html[data-theme="light"] .language-icon-button {
   border-bottom-color: rgba(255, 255, 255, 0.6);
 }
 
+.nav-link-active {
+  color: #ffffff;
+  border-bottom-color: rgba(255, 255, 255, 0.6);
+}
+
+.nav-links:hover .nav-link-active {
+  border-bottom-color: transparent;
+}
+
+.nav-links:hover .nav-link-active:hover {
+  border-bottom-color: rgba(255, 255, 255, 0.6);
+}
+
 html[data-theme="light"] .nav-link {
   color: var(--text-main);
 }
 
 html[data-theme="light"] .nav-link:hover {
   color: var(--text-main);
+  border-bottom-color: rgba(27, 43, 35, 0.32);
+}
+
+html[data-theme="light"] .nav-link-active {
+  color: var(--text-main);
+  border-bottom-color: rgba(27, 43, 35, 0.32);
+}
+
+html[data-theme="light"] .nav-links:hover .nav-link-active {
+  border-bottom-color: transparent;
+}
+
+html[data-theme="light"] .nav-links:hover .nav-link-active:hover {
   border-bottom-color: rgba(27, 43, 35, 0.32);
 }
 
