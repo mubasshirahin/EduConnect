@@ -1,9 +1,14 @@
 import React from "react";
 import eduConnectLogo from "../assets/educonnect-logo.png";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
-function Navbar({ onLoginClick, onRegisterClick, onLogout, authUser, theme, onToggleTheme }) {
+function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme }) {
+  const { language, setLanguage, t } = useLanguage();
   const isDark = theme === "dark";
-  const themeLabel = isDark ? "Light Mode" : "Night Mode";
+  const themeLabel = isDark ? t("common.lightMode") : t("common.nightMode");
+  const themeButtonLabel = isDark ? t("common.lightModeShort") : t("common.nightModeShort");
+  const nextLanguage = language === "en" ? "bn" : "en";
+  const languageCode = language === "en" ? "EN" : "বাং";
 
   return (
     <nav className="navbar">
@@ -17,25 +22,25 @@ function Navbar({ onLoginClick, onRegisterClick, onLogout, authUser, theme, onTo
         {!authUser && (
           <div className="nav-links">
             <a className="nav-link" href="#home">
-              Home
+              {t("navbar.home")}
             </a>
             <a className="nav-link" href="#about">
-              About Us
+              {t("navbar.about")}
             </a>
             <a className="nav-link" href="#jobs">
-              Job Board
+              {t("navbar.jobs")}
             </a>
             <a className="nav-link" href="#reviews">
-              Reviews
+              {t("navbar.reviews")}
             </a>
           </div>
         )}
         <div className="nav-actions">
           <button
-            className={`btn-theme ${isDark ? "btn-theme-light" : "btn-theme-dark"}`}
+            className={`btn-theme ${isDark ? "btn-theme-light" : "btn-theme-dark"} ${language === "bn" ? "btn-theme-lang-bn" : "btn-theme-lang-en"}`}
             type="button"
             onClick={onToggleTheme}
-            aria-label={`Switch to ${isDark ? "Light Mode" : "Night Mode"}`}
+            aria-label={`Switch to ${themeLabel}`}
           >
             <span className="btn-theme-track">
               <span className="btn-theme-thumb" aria-hidden="true">
@@ -51,23 +56,59 @@ function Navbar({ onLoginClick, onRegisterClick, onLogout, authUser, theme, onTo
                   </svg>
                 )}
               </span>
-              <span className="btn-theme-text">{themeLabel}</span>
+              <span className="btn-theme-text">{themeButtonLabel}</span>
             </span>
           </button>
           {authUser ? (
             <div className="nav-user-block">
-              <span className="nav-user-name">{authUser.name || "User"}</span>
+              <span className="nav-user-name">{authUser.name || t("common.userFallback")}</span>
               <span className="nav-user-role">{authUser.role}</span>
             </div>
           ) : (
             <>
               <button className="btn btn-ghost" type="button" onClick={onLoginClick}>
-                Login
+                {t("navbar.login")}
               </button>
               <button className="btn btn-primary" type="button" onClick={onRegisterClick}>
-                Register
+                {t("navbar.register")}
+              </button>
+              <button
+                className="language-icon-button"
+                type="button"
+                onClick={() => setLanguage(nextLanguage)}
+                aria-label={`${t("navbar.languageLabel")}: ${languageCode}`}
+                title={`${t("navbar.languageLabel")}: ${languageCode}`}
+              >
+                <span className="language-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M3 12h18" />
+                    <path d="M12 3a14.5 14.5 0 0 1 0 18" />
+                    <path d="M12 3a14.5 14.5 0 0 0 0 18" />
+                  </svg>
+                </span>
+                <span className="language-icon-code">{languageCode}</span>
               </button>
             </>
+          )}
+          {authUser && (
+            <button
+              className="language-icon-button"
+              type="button"
+              onClick={() => setLanguage(nextLanguage)}
+              aria-label={`${t("navbar.languageLabel")}: ${languageCode}`}
+              title={`${t("navbar.languageLabel")}: ${languageCode}`}
+            >
+              <span className="language-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M3 12h18" />
+                  <path d="M12 3a14.5 14.5 0 0 1 0 18" />
+                  <path d="M12 3a14.5 14.5 0 0 0 0 18" />
+                </svg>
+              </span>
+              <span className="language-icon-code">{languageCode}</span>
+            </button>
           )}
         </div>
       </div>

@@ -1,73 +1,34 @@
 import React from "react";
 import Footer from "../components/Footer";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function AboutUs() {
-  const values = [
-    {
-      title: "Trusted Connections",
-      description: "We help students and guardians discover tutors with clearer profiles, honest reviews, and a smoother hiring experience.",
-    },
-    {
-      title: "Simple Hiring Flow",
-      description: "From posting tuition needs to shortlisting applicants, EduConnect keeps the process organized and less stressful.",
-    },
-    {
-      title: "Growth For Tutors",
-      description: "Teachers get a dedicated space to showcase experience, manage opportunities, and build long-term trust with families.",
-    },
-  ];
-  const team = [
-    {
-      name: "Team Member 1",
-      role: "Platform Supervision",
-      university: "University Name",
-      intro: "Supports the overall flow and daily direction of the platform.",
-    },
-    {
-      name: "Team Member 2",
-      role: "Student Support",
-      university: "University Name",
-      intro: "Helps students with guidance, questions, and platform use.",
-    },
-    {
-      name: "Team Member 3",
-      role: "Tutor Coordination",
-      university: "University Name",
-      intro: "Works with tutors to keep communication and activity organized.",
-    },
-    {
-      name: "Team Member 4",
-      role: "Content & Communication",
-      university: "University Name",
-      intro: "Manages updates, messaging, and public-facing communication.",
-    },
-  ];
+  const { t } = useLanguage();
+  const values = t("about.values");
+  const team = t("about.team");
+  const storyCards = t("about.storyCards");
 
   return (
     <div className="about-page">
       <section className="about-hero section">
         <div className="container about-hero-grid">
           <div className="about-hero-copy">
-            <span className="eyebrow">About EduConnect</span>
-            <h1>Building a better way for students and tutors to find each other.</h1>
-            <p className="about-intro">
-              EduConnect is designed to make tuition hiring more transparent, more reliable, and much easier to navigate for everyone involved.
-            </p>
+            <span className="eyebrow">{t("about.eyebrow")}</span>
+            <h1>{t("about.title")}</h1>
+            <p className="about-intro">{t("about.intro")}</p>
             <div className="about-cta-row">
               <a className="btn btn-primary" href="#jobs">
-                Explore Job Board
+                {t("about.exploreJobs")}
               </a>
               <a className="btn btn-ghost" href="#home">
-                Back to Home
+                {t("about.backHome")}
               </a>
             </div>
           </div>
           <div className="about-highlight-card">
-            <p className="about-highlight-label">Our Mission</p>
-            <h2>Connect the right learner with the right educator, faster and with more confidence.</h2>
-            <p>
-              We want families to feel informed and tutors to feel visible. Every part of the platform is shaped around clarity, trust, and momentum.
-            </p>
+            <p className="about-highlight-label">{t("about.missionLabel")}</p>
+            <h2>{t("about.missionTitle")}</h2>
+            <p>{t("about.missionBody")}</p>
           </div>
         </div>
       </section>
@@ -75,10 +36,8 @@ function AboutUs() {
       <section className="section section-muted">
         <div className="container">
           <div className="about-section-heading">
-            <h2 className="section-title">What We Focus On</h2>
-            <p>
-              The platform is built around a few practical goals that improve everyday tutoring workflows.
-            </p>
+            <h2 className="section-title">{t("about.focusTitle")}</h2>
+            <p>{t("about.focusSubtitle")}</p>
           </div>
           <div className="about-values-grid">
             {values.map((value) => (
@@ -93,30 +52,21 @@ function AboutUs() {
 
       <section className="section">
         <div className="container about-story-grid">
-          <article className="about-story-card">
-            <p className="about-story-label">Why It Matters</p>
-            <h2>Too much time is usually lost between searching, verifying, and contacting.</h2>
-            <p>
-              EduConnect brings those steps into one place so users can compare opportunities, review profiles, and move forward without scattered conversations.
-            </p>
-          </article>
-          <article className="about-story-card">
-            <p className="about-story-label">Where We Are Going</p>
-            <h2>We are shaping the platform into a dependable hub for modern tuition matching.</h2>
-            <p>
-              As the product grows, our direction stays the same: reduce friction, improve trust, and support stronger educational outcomes.
-            </p>
-          </article>
+          {storyCards.map((card) => (
+            <article className="about-story-card" key={card.label}>
+              <p className="about-story-label">{card.label}</p>
+              <h2>{card.title}</h2>
+              <p>{card.body}</p>
+            </article>
+          ))}
         </div>
       </section>
 
       <section className="section section-muted">
         <div className="container">
           <div className="about-section-heading">
-            <h2 className="section-title">Meet Our Team</h2>
-            <p>
-              EduConnect is currently managed by a student team, with each member supporting a specific part of the platform.
-            </p>
+            <h2 className="section-title">{t("about.teamTitle")}</h2>
+            <p>{t("about.teamSubtitle")}</p>
           </div>
           <div className="about-team-grid">
             {team.map((member) => (

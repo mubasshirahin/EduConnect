@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import TermsModal from "./TermsModal";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function AuthModal({ mode, onClose, onAuthSuccess }) {
+  const { t } = useLanguage();
   const isLogin = mode === "login";
-  const title = isLogin ? "Login" : "Register";
-  const subtitle = isLogin
-    ? "Access your guardian or tutor dashboard."
-    : "Create your EduConnect account in minutes.";
+  const title = isLogin ? t("auth.loginTitle") : t("auth.registerTitle");
+  const subtitle = isLogin ? t("auth.loginSubtitle") : t("auth.registerSubtitle");
 
   const [status, setStatus] = useState({ type: "", message: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -41,17 +41,17 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
 
       const contentType = response.headers.get("content-type") || "";
       const raw = await response.text();
-      const data =
-        contentType.includes("application/json") && raw
-          ? JSON.parse(raw)
-          : raw
-            ? { message: raw }
-            : {};
+      const data = contentType.includes("application/json") && raw ? JSON.parse(raw) : raw ? { message: raw } : {};
+
       if (!response.ok) {
-        throw new Error(data.message || "Request failed.");
+        throw new Error(data.message || t("auth.requestFailed"));
       }
 
-      setStatus({ type: "success", message: data.message || `${title} successful.` });
+      setStatus({
+        type: "success",
+        message: data.message || (isLogin ? t("auth.loginSuccess") : t("auth.registerSuccess")),
+      });
+
       if (form) {
         form.reset();
       }
@@ -59,7 +59,7 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
         onAuthSuccess?.(data.user, data.token);
       }
     } catch (error) {
-      setStatus({ type: "error", message: error.message || "Something went wrong." });
+      setStatus({ type: "error", message: error.message || t("auth.somethingWentWrong") });
     } finally {
       setIsLoading(false);
     }
@@ -80,18 +80,17 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Request failed.");
+        throw new Error(data.message || t("auth.requestFailed"));
       }
 
-      setStatus({ type: "success", message: "Password reset link sent to your email!" });
+      setStatus({ type: "success", message: t("auth.resetSent") });
       setResetEmail("");
-      
+
       setTimeout(() => {
         setIsForgotPassword(false);
       }, 3000);
-      
     } catch (error) {
-      setStatus({ type: "error", message: error.message || "Something went wrong." });
+      setStatus({ type: "error", message: error.message || t("auth.somethingWentWrong") });
     } finally {
       setIsLoading(false);
     }
@@ -102,30 +101,23 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
     setStatus({ type: "", message: "" });
   };
 
-  // Forgot Password View
   if (isForgotPassword) {
     return (
       <div className="auth-overlay" role="dialog" aria-modal="true">
         <div className="auth-modal">
           <div className="auth-modal-header">
             <div>
-              <h3>Reset Password</h3>
-              <p>Enter your email to receive a reset link</p>
+              <h3>{t("auth.resetTitle")}</h3>
+              <p>{t("auth.resetSubtitle")}</p>
             </div>
-            <button className="auth-close" type="button" onClick={onClose} aria-label="Close">
-              ✕
+            <button className="auth-close" type="button" onClick={onClose} aria-label={t("common.close")}>
+              ×
             </button>
           </div>
           <form className="auth-form" onSubmit={handleForgotPassword}>
             <label className="form-group">
-              <span>Email Address</span>
-              <input 
-                type="email" 
-                value={resetEmail}
-                onChange={(e) => setResetEmail(e.target.value)}
-                placeholder="you@example.com" 
-                required 
-              />
+              <span>{t("auth.emailAddress")}</span>
+              <input type="email" value={resetEmail} onChange={(event) => setResetEmail(event.target.value)} placeholder="you@example.com" required />
             </label>
             {status.message && (
               <p className={`auth-status ${status.type === "error" ? "auth-status-error" : "auth-status-success"}`}>
@@ -133,24 +125,18 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
               </p>
             )}
             <button className="btn btn-primary" type="submit" disabled={isLoading}>
-              {isLoading ? "Sending..." : "Send Reset Link"}
+              {isLoading ? t("auth.sending") : t("auth.sendResetLink")}
             </button>
-            <button 
-              type="button" 
-              className="btn btn-ghost" 
-              onClick={handleBackToLogin}
-              style={{ marginTop: '0.5rem' }}
-            >
-              Back to Login
+            <button type="button" className="btn btn-ghost" onClick={handleBackToLogin} style={{ marginTop: "0.5rem" }}>
+              {t("auth.backToLogin")}
             </button>
           </form>
         </div>
-        <button className="auth-backdrop" type="button" onClick={onClose} aria-label="Close" />
+        <button className="auth-backdrop" type="button" onClick={onClose} aria-label={t("common.close")} />
       </div>
     );
   }
 
-  // Main Login/Register View
   return (
     <div className="auth-overlay" role="dialog" aria-modal="true" aria-label={title}>
       <div className="auth-modal">
@@ -159,69 +145,64 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
             <h3>{title}</h3>
             <p>{subtitle}</p>
           </div>
-          <button className="auth-close" type="button" onClick={onClose} aria-label="Close">
-            ✕
+          <button className="auth-close" type="button" onClick={onClose} aria-label={t("common.close")}>
+            ×
           </button>
         </div>
         <form className="auth-form" onSubmit={handleSubmit}>
           {!isLogin && (
             <label className="form-group">
-              <span>Full Name</span>
-              <input type="text" name="registerName" placeholder="Jane Doe" required />
+              <span>{t("auth.fullName")}</span>
+              <input type="text" name="registerName" placeholder={t("auth.namePlaceholder")} required />
             </label>
           )}
           <label className="form-group">
-            <span>{isLogin ? "Login As" : "Register As"}</span>
+            <span>{isLogin ? t("auth.loginAs") : t("auth.registerAs")}</span>
             <div className="role-group">
               <label className="role-option">
                 <input type="radio" name="role" value="teacher" required />
-                <span>Teacher</span>
+                <span>{t("auth.teacher")}</span>
               </label>
               <label className="role-option">
                 <input type="radio" name="role" value="student" required />
-                <span>Student</span>
+                <span>{t("auth.student")}</span>
               </label>
               {isLogin && (
                 <label className="role-option">
                   <input type="radio" name="role" value="admin" required />
-                  <span>Admin</span>
+                  <span>{t("auth.admin")}</span>
                 </label>
               )}
             </div>
           </label>
           <label className="form-group">
-            <span>Email</span>
+            <span>{t("auth.email")}</span>
             <input type="email" name="email" placeholder="you@example.com" required />
           </label>
           <label className="form-group">
-            <span>Password</span>
-            <input type="password" name="password" placeholder="Enter your password" required />
+            <span>{t("auth.password")}</span>
+            <input type="password" name="password" placeholder={t("auth.passwordPlaceholder")} required />
             {isLogin && (
-              <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
-                <span 
-                  onClick={() => setIsForgotPassword(true)} 
-                  style={{ color: 'var(--accent)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.8rem' }}
+              <div style={{ textAlign: "right", marginTop: "0.5rem" }}>
+                <span
+                  onClick={() => setIsForgotPassword(true)}
+                  style={{ color: "var(--accent)", textDecoration: "underline", cursor: "pointer", fontSize: "0.8rem" }}
                 >
-                  Forgot Password?
+                  {t("auth.forgotPassword")}
                 </span>
               </div>
             )}
           </label>
           {!isLogin && (
             <label className="form-group checkbox-group">
-              <input
-                type="checkbox"
-                checked={agreeToTerms}
-                onChange={(e) => setAgreeToTerms(e.target.checked)}
-                required
-              />
+              <input type="checkbox" checked={agreeToTerms} onChange={(event) => setAgreeToTerms(event.target.checked)} required />
               <span>
-                I agree to the 
-                <span 
-                  onClick={() => setShowTerms(true)} 
-                  style={{ color: 'var(--accent)', textDecoration: 'underline', cursor: 'pointer', marginLeft: '4px' }}
+                {t("auth.agreePrefix")}{" "}
+                <span
+                  onClick={() => setShowTerms(true)}
+                  style={{ color: "var(--accent)", textDecoration: "underline", cursor: "pointer" }}
                 >
-                  Terms & Conditions
+                  {t("auth.termsAndConditions")}
                 </span>
               </span>
             </label>
@@ -232,11 +213,11 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
             </p>
           )}
           <button className="btn btn-primary" type="submit" disabled={isLoading}>
-            {isLoading ? "Please wait..." : title}
+            {isLoading ? t("auth.pleaseWait") : title}
           </button>
         </form>
       </div>
-      <button className="auth-backdrop" type="button" onClick={onClose} aria-label="Close" />
+      <button className="auth-backdrop" type="button" onClick={onClose} aria-label={t("common.close")} />
       {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
     </div>
   );

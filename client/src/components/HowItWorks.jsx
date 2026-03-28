@@ -1,15 +1,18 @@
 import React from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function HowItWorks() {
+  const { t } = useLanguage();
+  const steps = t("home.steps");
+
   return (
     <section className="section section-muted">
       <div className="container flow-content">
-        <h2 className="section-title">How It Works</h2>
+        <h2 className="section-title">{t("home.howItWorksTitle")}</h2>
         <ol className="steps-list">
-          <li>Guardian requests a tutor through chat.</li>
-          <li>Admin verifies and creates a tuition post.</li>
-          <li>Tutors apply to the tuition opportunity.</li>
-          <li>Admin selects the best tutor.</li>
+          {steps.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
         </ol>
       </div>
     </section>

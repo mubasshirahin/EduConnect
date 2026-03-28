@@ -1,15 +1,18 @@
 import React from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer className="footer">
       <div className="container">
         <div className="footer-links">
-          <a href="#home">Home</a>
-          <a href="#about">About Us</a>
-          <a href="#terms">Terms of Service</a>
+          <a href="#home">{t("navbar.home")}</a>
+          <a href="#about">{t("navbar.about")}</a>
+          <a href="#terms">{t("footer.terms")}</a>
         </div>
-        <p>&copy; 2026 EduConnect. All rights reserved.</p>
+        <p>&copy; 2026 EduConnect. {t("footer.rights")}</p>
       </div>
     </footer>
   );
