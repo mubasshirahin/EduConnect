@@ -40,7 +40,6 @@ function TermsOfService() {
           </div>
 
           <aside className="terms-summary-card">
-            <div className="terms-orb" aria-hidden="true" />
             <p className="terms-summary-label">{t("terms.summaryLabel")}</p>
             <h2>{t("terms.summaryTitle")}</h2>
             <p>{t("terms.summaryBody")}</p>

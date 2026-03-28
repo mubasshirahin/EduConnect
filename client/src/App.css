@@ -1057,17 +1057,6 @@ html[data-theme="light"] .role-option {
   gap: 1rem;
 }
 
-.terms-orb {
-  position: absolute;
-  top: -38px;
-  right: -28px;
-  width: 128px;
-  height: 128px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.25), rgba(63, 169, 113, 0.18) 48%, transparent 70%);
-  pointer-events: none;
-}
-
 .terms-summary-label,
 .terms-note-label {
   font-size: 0.82rem;
