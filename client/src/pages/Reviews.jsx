@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-function Reviews({ authUser }) {
+function Reviews() {
   const [reviews, setReviews] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -9,85 +9,86 @@ function Reviews({ authUser }) {
     const loadReviews = async () => {
       try {
         setIsLoading(true);
+        setLoadError("");
+
         const response = await fetch("/api/reviews");
-        if (!response.ok) throw new Error("Failed to load reviews.");
+        if (!response.ok) {
+          throw new Error("Failed to load reviews.");
+        }
+
         const data = await response.json();
-        setReviews(data);
+        setReviews(Array.isArray(data) ? data : []);
       } catch (error) {
         setLoadError(error.message || "Failed to load reviews.");
       } finally {
         setIsLoading(false);
       }
     };
+
     loadReviews();
   }, []);
+  const totalReviews = reviews.length;
+  const averageRating = totalReviews
+    ? (reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / totalReviews).toFixed(1)
+    : "0.0";
 
   return (
-    <div className="job-board">
-      <header className="job-board-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '40px' }}>
-        <div>
+    <div className="job-board reviews-page">
+      <header className="job-board-header reviews-hero">
+        <div className="reviews-hero-copy">
           <p className="eyebrow">Voices of EduConnect</p>
-          <h1 style={{ letterSpacing: '-1px' }}>Community Feedback</h1>
+          <h1>Community Reviews</h1>
           <p className="job-board-subtitle">
-            Experience shared by our community members.
+            Honest feedback from students and guardians who used EduConnect to find the right tutor.
           </p>
+        </div>
+
+        <div className="reviews-summary-card">
+          <strong>{averageRating}</strong>
+          <span>Average rating</span>
+          <p>Based on {totalReviews} community review{totalReviews === 1 ? "" : "s"}.</p>
         </div>
       </header>
 
-      <div style={{ padding: '40px 0' }}>
-        {isLoading ? (
-          <div className="job-empty"><h3>Loading reviews...</h3></div>
-        ) : loadError ? (
-          <div className="job-empty"><h3>{loadError}</h3><p>Check server connection.</p></div>
-        ) : reviews.length === 0 ? (
-          <div className="job-empty"><h3>No feedback yet.</h3></div>
-        ) : (
-
-          <div style={{ 
-            display: 'grid', 
-            
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-            gap: '20px' 
-          }}>
-            {reviews.map((rev) => (
-              <article key={rev._id} style={{
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: '1px solid rgba(255, 255, 255, 0.05)',
-                borderRadius: '16px',
-                padding: '24px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                transition: 'transform 0.3s ease'
-              }}>
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
-                    <div style={{ flexGrow: 1 }}>
-                      <h3 style={{ color: '#64ffda', margin: 0, fontSize: '1.15rem', lineHeight: '1.2' }}>{rev.name}</h3>
-                      <span style={{ fontSize: '0.75rem', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        {rev.role || "Guardian"}
-                      </span>
+      <section className="reviews-layout">
+        <div className="reviews-content">
+          {isLoading ? (
+            <div className="job-empty">
+              <h3>Loading reviews...</h3>
+              <p>Please wait while we pull the latest feedback.</p>
+            </div>
+          ) : loadError ? (
+            <div className="job-empty">
+              <h3>{loadError}</h3>
+              <p>Check the server connection and try again.</p>
+            </div>
+          ) : reviews.length === 0 ? (
+            <div className="job-empty">
+              <h3>No feedback yet.</h3>
+              <p>Be the first one to share your experience with EduConnect.</p>
+            </div>
+          ) : (
+            <div className="reviews-grid">
+              {reviews.map((review) => (
+                <article key={review._id} className="review-card">
+                  <div className="review-card-top">
+                    <div>
+                      <h3>{review.name}</h3>
+                      <span className="review-role">{review.role || "Community Member"}</span>
+                      <p>{new Date(review.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
                     </div>
-                    <div style={{ color: '#ffb400', fontSize: '0.8rem', marginLeft: '10px' }}>
-                      {"★".repeat(rev.rating)}
+                    <div className="review-rating" aria-label={`${review.rating} out of 5 stars`}>
+                      {"★".repeat(review.rating)}
+                      {"☆".repeat(5 - review.rating)}
                     </div>
                   </div>
-
-                  <p style={{ 
-                    fontSize: '0.95rem', 
-                    lineHeight: '1.6', 
-                    opacity: 0.85, 
-                    margin: 0,
-                    fontStyle: 'italic'
-                  }}>
-                    "{rev.comment}"
-                  </p>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
-      </div>
+                  <p className="review-comment">"{review.comment}"</p>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

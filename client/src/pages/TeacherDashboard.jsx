@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import ReviewSubmissionCard from "../components/ReviewSubmissionCard";
 
 function TeacherDashboard({ authUser }) {
   const [appliedCount, setAppliedCount] = useState(0);
@@ -131,6 +132,13 @@ function TeacherDashboard({ authUser }) {
           </div>
         </article>
       </section>
+
+      <ReviewSubmissionCard
+        authorName={authUser?.name}
+        role="teacher"
+        title="Share your teaching experience"
+        description="Leave a short review about how EduConnect is working for you as a teacher."
+      />
     </div>
   );
 }
