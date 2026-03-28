@@ -87,9 +87,37 @@ export const translations = {
       namePlaceholder: "Jane Doe",
     },
     terms: {
+      eyebrow: "Terms of Service",
       title: "Terms & Conditions",
       subtitle: "Please read before agreeing",
+      intro:
+        "These terms explain the basic responsibilities that help keep EduConnect safe, respectful, and reliable for everyone using the platform.",
+      backHome: "Back to Home",
+      learnMore: "Learn About Us",
+      summaryLabel: "Quick Summary",
+      summaryTitle: "A few simple rules keep the platform fair for students, tutors, and guardians.",
+      summaryBody:
+        "We ask every user to use accurate information, protect account access, and communicate professionally throughout the tutoring process.",
+      sectionsTitle: "What You Agree To",
+      noteLabel: "Before You Continue",
+      noteTitle: "Using EduConnect means agreeing to act responsibly and respectfully.",
+      noteBody:
+        "If you create an account, apply to opportunities, or communicate through the platform, these terms apply to your activity on EduConnect.",
       understand: "I Understand",
+      highlights: [
+        {
+          title: "Use real information",
+          description: "Profiles, contact details, and activity on the platform should stay honest and up to date.",
+        },
+        {
+          title: "Protect your account",
+          description: "Keep your login credentials safe and avoid sharing access with anyone else.",
+        },
+        {
+          title: "Respect others",
+          description: "Conversations and applications should stay professional, helpful, and free from harassment.",
+        },
+      ],
       sections: [
         {
           title: "1. Acceptance of Terms",
@@ -273,9 +301,37 @@ export const translations = {
       namePlaceholder: "আপনার নাম লিখুন",
     },
     terms: {
+      eyebrow: "শর্তাবলি",
       title: "শর্তাবলি",
       subtitle: "সম্মত হওয়ার আগে অনুগ্রহ করে পড়ুন",
+      intro:
+        "EduConnect ব্যবহার করার সময় প্ল্যাটফর্মটিকে নিরাপদ, সম্মানজনক এবং বিশ্বস্ত রাখার জন্য এই মৌলিক দায়িত্বগুলো প্রযোজ্য।",
+      backHome: "হোমে ফিরে যান",
+      learnMore: "আমাদের সম্পর্কে",
+      summaryLabel: "সংক্ষিপ্ত সারাংশ",
+      summaryTitle: "কিছু সহজ নীতি প্ল্যাটফর্মটিকে শিক্ষার্থী, টিউটর এবং অভিভাবকদের জন্য ন্যায্য রাখে।",
+      summaryBody:
+        "আমরা চাই প্রত্যেক ব্যবহারকারী সঠিক তথ্য দিক, নিজের account সুরক্ষিত রাখুক এবং tutoring process-এ পেশাদার যোগাযোগ বজায় রাখুক।",
+      sectionsTitle: "আপনি যাতে সম্মত হচ্ছেন",
+      noteLabel: "আগে জেনে নিন",
+      noteTitle: "EduConnect ব্যবহার করা মানে দায়িত্বশীল এবং সম্মানজনক আচরণে সম্মত হওয়া।",
+      noteBody:
+        "আপনি account খুললে, opportunity-তে আবেদন করলে অথবা প্ল্যাটফর্মের মাধ্যমে যোগাযোগ করলে, এই শর্তাবলি আপনার সকল কার্যকলাপে প্রযোজ্য হবে।",
       understand: "আমি বুঝেছি",
+      highlights: [
+        {
+          title: "সঠিক তথ্য ব্যবহার করুন",
+          description: "প্রোফাইল, যোগাযোগের তথ্য এবং কার্যকলাপ সত্য ও হালনাগাদ রাখুন।",
+        },
+        {
+          title: "অ্যাকাউন্ট নিরাপদ রাখুন",
+          description: "লগইন তথ্য সুরক্ষিত রাখুন এবং অন্যকারোর সঙ্গে share করবেন না।",
+        },
+        {
+          title: "অন্যদের সম্মান করুন",
+          description: "সব যোগাযোগ ও আবেদনে পেশাদারিত্ব, সহযোগিতা এবং হয়রানিমুক্ত আচরণ বজায় রাখুন।",
+        },
+      ],
       sections: [
         {
           title: "১. শর্ত গ্রহণ",
