@@ -13,6 +13,7 @@ function HowItWorks() {
       "Guardian requests a tutor through chat.",
       "Admin verifies and creates a tuition post.",
       "Tutors apply to the tuition opportunity.",
+      "Admin selects the best tutor.",
     ];
 
     if (actionableSteps.includes(step)) {
@@ -31,6 +32,8 @@ function HowItWorks() {
               const clickable = [
                 "Guardian requests a tutor through chat.",
                 "Admin verifies and creates a tuition post.",
+                "Tutors apply to the tuition opportunity.",
+                "Admin selects the best tutor.",
               ].includes(step);
 
               return (
