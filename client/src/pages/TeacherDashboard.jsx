@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 function TeacherDashboard({ authUser }) {
   const [appliedCount, setAppliedCount] = useState(0);
+  const [profileCompletion, setProfileCompletion] = useState(0);
 
   useEffect(() => {
     if (!authUser?.email) {
@@ -13,6 +14,21 @@ function TeacherDashboard({ authUser }) {
       .then((jobs) => setAppliedCount(jobs.length))
       .catch(() => setAppliedCount(0));
   }, [authUser]);
+
+  useEffect(() => {
+    const completionKey = authUser?.email
+      ? `profileCompletionPercent:${authUser.email}`
+      : "profileCompletionPercent:guest";
+    const readCompletion = () => {
+      const raw = localStorage.getItem(completionKey);
+      const parsed = Number.parseInt(raw || "0", 10);
+      const safe = Number.isFinite(parsed) ? Math.min(100, Math.max(0, parsed)) : 0;
+      setProfileCompletion(safe);
+    };
+    readCompletion();
+    window.addEventListener("storage", readCompletion);
+    return () => window.removeEventListener("storage", readCompletion);
+  }, [authUser?.email]);
 
   return (
     <div>
@@ -83,7 +99,7 @@ function TeacherDashboard({ authUser }) {
           <p>Check the latest tuition requests around you.</p>
         </article>
         <article className="teacher-tile teacher-profile">
-          <div className="progress-ring">100%</div>
+          <div className="progress-ring">{profileCompletion}%</div>
           <div>
             <h3>Profile Completed</h3>
             <p>Keep your profile updated for faster matching.</p>

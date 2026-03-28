@@ -10,7 +10,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
           <div className="sidebar-avatar">T</div>
           <div>
             <p className="sidebar-name">{user?.name || "Teacher Name"}</p>
-            <p className="sidebar-meta">ID: 385346</p>
+            <p className="sidebar-meta">ID: {user?.tutorId || "-"}</p>
           </div>
         </div>
         <a className="sidebar-edit" href="#profile">
