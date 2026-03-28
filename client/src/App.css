@@ -1227,6 +1227,46 @@ html[data-theme="light"] .role-option {
   box-shadow: var(--shadow-soft);
 }
 
+.blog-form-card,
+.blog-post-card {
+  background: linear-gradient(180deg, rgba(63, 169, 113, 0.12), rgba(20, 29, 23, 0.9));
+  border: 1px solid rgba(91, 207, 144, 0.3);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 14px 30px rgba(5, 12, 8, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.blog-post-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 40px rgba(5, 12, 8, 0.35);
+}
+
+.blog-form .form-group input,
+.blog-form .form-group textarea {
+  width: 100%;
+  background: rgba(22, 30, 25, 0.86);
+  border: 1px solid rgba(91, 207, 144, 0.2);
+  color: var(--text-main);
+}
+
+.blog-form .form-group textarea {
+  min-height: 150px;
+}
+
+.blog-post-card h2 {
+  color: var(--text-main);
+  font-size: 1.4rem;
+}
+
+.blog-post-card p {
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+
+.blog-post-card .blog-post-header span {
+  opacity: 0.95;
+}
+
 .teacher-dashboard {
   display: grid;
   grid-template-columns: 240px 1fr;

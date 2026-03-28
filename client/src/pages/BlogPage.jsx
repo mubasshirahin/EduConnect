@@ -84,9 +84,9 @@ function BlogPage() {
       </div>
 
       {showForm && (
-        <div className="dashboard-card" style={{ marginBottom: "2rem" }}>
+        <div className="dashboard-card blog-form-card" style={{ marginBottom: "2rem" }}>
           <h3>Share Your Study Tips</h3>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="blog-form">
             <div className="form-group">
               <label>Your Name</label>
               <input
@@ -136,7 +136,6 @@ function BlogPage() {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 required
-                style={{ width: "100%", borderRadius: "8px", padding: "0.5rem" }}
               />
             </div>
             <div className="form-group">
@@ -163,8 +162,8 @@ function BlogPage() {
       ) : (
         <div style={{ display: "grid", gap: "1.5rem" }}>
           {blogs.map(blog => (
-            <div key={blog._id} className="dashboard-card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+            <div key={blog._id} className="dashboard-card blog-post-card">
+              <div className="blog-post-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
                 <h2 style={{ marginBottom: "0" }}>{blog.title}</h2>
                 <span style={{
                   background: blog.authorRole === "teacher" ? "#3fa971" : "#5bcf90",
