@@ -24,6 +24,7 @@ import AdminNotices from "./pages/AdminNotices";
 import AdminSettings from "./pages/AdminSettings";
 import TermsOfService from "./pages/TermsOfService";
 import AboutUs from "./pages/AboutUs";
+import BlogPage from "./pages/BlogPage";
 import { useLanguage } from "./i18n/LanguageContext.jsx";
 import "./App.css";
 
@@ -103,6 +104,8 @@ function App() {
     content = <TermsOfService />;
   } else if (route === "#about") {
     content = <AboutUs />;
+  } else if (route === "#blog") {
+    content = <BlogPage />;
   } else if (route.startsWith("#jobs")) {
     content = <JobBoard authUser={authUser} onRequireLogin={openLogin} />;
   } else if (route.startsWith("#reviews") && !authUser) {
