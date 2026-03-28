@@ -22,6 +22,16 @@ function StepPopup({ step, onClose }) {
         "Admin posts verified tuition opportunity.",
       ],
     },
+    "Tutors apply to the tuition opportunity.": {
+      title: "Tutor Application Process",
+      description:
+        "Tutors browse verified job posts and submit applications with their profile and availability.",
+      points: [
+        "Tutor checks the posted tuition opportunity details.",
+        "Tutor submits application with experience and expected fees.",
+        "Admin reviews tutor applications and selects the best match.",
+      ],
+    },
   };
 
   const info = defaultDetails[step] || {
