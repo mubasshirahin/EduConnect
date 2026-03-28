@@ -56,27 +56,23 @@ router.post("/login", async (req, res, next) => {
   try {
     const email = req.body.email?.trim().toLowerCase();
     const password = req.body.password;
-    const role = req.body.role?.trim().toLowerCase();
 
-    if (!email || !password || !role) {
-      return res.status(400).json({ message: "Email, password, and role are required." });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required." });
     }
-    if (!["teacher", "student", "admin"].includes(role)) {
-      return res.status(400).json({ message: "Role must be teacher, student, or admin." });
+
+    const adminAccountsRaw = process.env.ADMIN_ACCOUNTS;
+    if (!adminAccountsRaw) {
+      return res.status(500).json({ message: "ADMIN_ACCOUNTS is missing in .env." });
     }
-    if (role === "admin") {
-      const adminAccountsRaw = process.env.ADMIN_ACCOUNTS;
-      if (!adminAccountsRaw) {
-        return res.status(500).json({ message: "ADMIN_ACCOUNTS is missing in .env." });
-      }
-      const pairs = adminAccountsRaw.split(",").map((entry) => entry.trim());
-      const match = pairs.find((entry) => {
-        const [accEmail, accPass] = entry.split(":");
-        return accEmail?.toLowerCase() === email.toLowerCase() && accPass === password;
-      });
-      if (!match) {
-        return res.status(403).json({ message: "Invalid admin credentials." });
-      }
+
+    const pairs = adminAccountsRaw.split(",").map((entry) => entry.trim());
+    const adminMatch = pairs.find((entry) => {
+      const [accEmail, accPass] = entry.split(":");
+      return accEmail?.toLowerCase() === email.toLowerCase() && accPass === password;
+    });
+
+    if (adminMatch) {
       let adminUser = await User.findOne({ email: email.toLowerCase() });
       if (!adminUser) {
         adminUser = await User.create({
@@ -98,7 +94,7 @@ router.post("/login", async (req, res, next) => {
     }
 
     const user = await User.findOne({ email });
-    if (!user || user.role !== role) {
+    if (!user || user.role === "admin") {
       return res.status(401).json({ message: "Invalid email or password." });
     }
     if (user.isBlocked) {
