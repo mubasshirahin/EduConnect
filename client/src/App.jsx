@@ -21,6 +21,7 @@ import StudentShell from "./components/StudentShell";
 import AdminShell from "./components/AdminShell";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminNotices from "./pages/AdminNotices";
+import AdminSettings from "./pages/AdminSettings";
 import TermsOfService from "./pages/TermsOfService";
 import AboutUs from "./pages/AboutUs";
 import { useLanguage } from "./i18n/LanguageContext.jsx";
@@ -230,7 +231,7 @@ function App() {
   if (authUser?.role === "admin" && route.startsWith("#settings")) {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
-        <UpdateSoon title={t("navbar.settings")} />
+        <AdminSettings authUser={authUser} onLogout={handleLogout} />
       </AdminShell>
     );
   }
