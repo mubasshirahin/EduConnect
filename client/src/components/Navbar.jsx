@@ -9,13 +9,15 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
   const themeButtonLabel = isDark ? t("common.lightModeShort") : t("common.nightModeShort");
   const nextLanguage = language === "en" ? "bn" : "en";
   const languageCode = language === "en" ? "EN" : "বাং";
-  const activeSection = currentRoute?.startsWith("#about")
-    ? "#about"
-    : currentRoute?.startsWith("#jobs")
-      ? "#jobs"
-      : currentRoute?.startsWith("#reviews")
-        ? "#reviews"
-        : "#home";
+  const activeSection = currentRoute === "#home" || !currentRoute
+    ? "#home"
+    : currentRoute?.startsWith("#about")
+      ? "#about"
+      : currentRoute?.startsWith("#jobs")
+        ? "#jobs"
+        : currentRoute?.startsWith("#reviews")
+          ? "#reviews"
+          : null;
 
   return (
     <nav className="navbar">
