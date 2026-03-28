@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
+import ReviewSubmissionCard from "../components/ReviewSubmissionCard";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
-function Reviews() {
+function Reviews({ showSubmission = false, submissionProps }) {
+  const { t } = useLanguage();
   const [reviews, setReviews] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -13,13 +16,13 @@ function Reviews() {
 
         const response = await fetch("/api/reviews");
         if (!response.ok) {
-          throw new Error("Failed to load reviews.");
+          throw new Error(t("reviewsPage.submitError"));
         }
 
         const data = await response.json();
         setReviews(Array.isArray(data) ? data : []);
       } catch (error) {
-        setLoadError(error.message || "Failed to load reviews.");
+        setLoadError(error.message || t("reviewsPage.submitError"));
       } finally {
         setIsLoading(false);
       }
@@ -33,20 +36,29 @@ function Reviews() {
     : "0.0";
 
   return (
-    <div className="job-board reviews-page">
+    <div className={`job-board reviews-page ${showSubmission ? "reviews-page-with-submission" : ""}`}>
+      {showSubmission ? (
+        <ReviewSubmissionCard
+          authorName={submissionProps?.authorName}
+          role={submissionProps?.role}
+          title={submissionProps?.title}
+          description={submissionProps?.description}
+        />
+      ) : null}
+
       <header className="job-board-header reviews-hero">
         <div className="reviews-hero-copy">
-          <p className="eyebrow">Voices of EduConnect</p>
-          <h1>Community Reviews</h1>
+          {!showSubmission ? <p className="eyebrow">{t("reviewsPage.communityEyebrow")}</p> : null}
+          <h1>{t("reviewsPage.communityTitle")}</h1>
           <p className="job-board-subtitle">
-            Honest feedback from students and guardians who used EduConnect to find the right tutor.
+            {t("reviewsPage.communitySubtitle")}
           </p>
         </div>
 
         <div className="reviews-summary-card">
           <strong>{averageRating}</strong>
-          <span>Average rating</span>
-          <p>Based on {totalReviews} community review{totalReviews === 1 ? "" : "s"}.</p>
+          <span>{t("reviewsPage.averageRating")}</span>
+          <p>{t("reviewsPage.basedOn").replace("{count}", totalReviews).replace("{suffix}", totalReviews === 1 ? "" : "s")}</p>
         </div>
       </header>
 
@@ -54,18 +66,18 @@ function Reviews() {
         <div className="reviews-content">
           {isLoading ? (
             <div className="job-empty">
-              <h3>Loading reviews...</h3>
-              <p>Please wait while we pull the latest feedback.</p>
+              <h3>{t("reviewsPage.loadingTitle")}</h3>
+              <p>{t("reviewsPage.loadingBody")}</p>
             </div>
           ) : loadError ? (
             <div className="job-empty">
               <h3>{loadError}</h3>
-              <p>Check the server connection and try again.</p>
+              <p>{t("jobBoard.errorBody")}</p>
             </div>
           ) : reviews.length === 0 ? (
             <div className="job-empty">
-              <h3>No feedback yet.</h3>
-              <p>Be the first one to share your experience with EduConnect.</p>
+              <h3>{t("reviewsPage.noFeedbackTitle")}</h3>
+              <p>{t("reviewsPage.noFeedbackBody")}</p>
             </div>
           ) : (
             <div className="reviews-grid">
@@ -74,10 +86,10 @@ function Reviews() {
                   <div className="review-card-top">
                     <div>
                       <h3>{review.name}</h3>
-                      <span className="review-role">{review.role || "Community Member"}</span>
+                      <span className="review-role">{review.role || t("reviewsPage.communityMember")}</span>
                       <p>{new Date(review.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
                     </div>
-                    <div className="review-rating" aria-label={`${review.rating} out of 5 stars`}>
+                    <div className="review-rating" aria-label={t("reviewsPage.outOfStars").replace("{rating}", review.rating)}>
                       {"★".repeat(review.rating)}
                       {"☆".repeat(5 - review.rating)}
                     </div>

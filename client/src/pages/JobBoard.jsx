@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function JobBoard({ authUser, onRequireLogin }) {
+  const { t } = useLanguage();
   const [isPostOpen, setIsPostOpen] = useState(false);
   const [jobs, setJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -109,10 +111,10 @@ function JobBoard({ authUser, onRequireLogin }) {
     <div className="job-board">
       <header className="job-board-header">
         <div>
-          <p className="eyebrow">Teacher Job Timeline</p>
-          <h1>Job Board</h1>
+          <p className="eyebrow">{t("jobBoard.eyebrow")}</p>
+          <h1>{t("jobBoard.title")}</h1>
           <p className="job-board-subtitle">
-            Latest tuition jobs posted by teachers, shown in order.
+            {t("jobBoard.subtitle")}
           </p>
         </div>
         <div className="job-board-actions">
@@ -126,19 +128,19 @@ function JobBoard({ authUser, onRequireLogin }) {
 
       <div className="job-timeline">
         {isLoading ? (
-          <div className="job-empty">
-            <h3>Loading jobs...</h3>
-            <p>Please wait a moment.</p>
+            <div className="job-empty">
+            <h3>{t("jobBoard.loadingTitle")}</h3>
+            <p>{t("jobBoard.loadingBody")}</p>
           </div>
         ) : loadError ? (
           <div className="job-empty">
             <h3>{loadError}</h3>
-            <p>Make sure the server is running.</p>
+            <p>{t("jobBoard.errorBody")}</p>
           </div>
         ) : jobs.length === 0 ? (
           <div className="job-empty">
-            <h3>No jobs posted yet</h3>
-            <p>Guardians can add new tuition posts from the dashboard.</p>
+            <h3>{t("jobBoard.emptyTitle")}</h3>
+            <p>{t("jobBoard.emptyBody")}</p>
           </div>
         ) : (
           jobs.map((job, index) => (
@@ -149,13 +151,13 @@ function JobBoard({ authUser, onRequireLogin }) {
                 <p className="job-meta">{job.postedBy}</p>
                 <div className="job-details">
                   <span>
-                    <strong>Location:</strong> {job.location}
+                    <strong>{t("jobBoard.location")}:</strong> {job.location}
                   </span>
                   <span>
-                    <strong>Schedule:</strong> {job.schedule}
+                    <strong>{t("jobBoard.schedule")}:</strong> {job.schedule}
                   </span>
                   <span>
-                    <strong>Salary:</strong> {job.rate}
+                    <strong>{t("jobBoard.salary")}:</strong> {job.rate}
                   </span>
                 </div>
                   {isTeacher || !authUser ? (
@@ -163,15 +165,15 @@ function JobBoard({ authUser, onRequireLogin }) {
                       {job.applicants?.some((app) => app.email === authUser?.email?.toLowerCase()) ? (
                         <>
                           <button className="btn btn-primary" type="button" disabled>
-                            Applied
+                            {t("jobBoard.applied")}
                           </button>
                           <button className="btn btn-ghost" type="button" onClick={() => handleWithdraw(job)}>
-                            Withdraw Apply
+                            {t("jobBoard.withdraw")}
                           </button>
                         </>
                       ) : (
                         <button className="btn btn-primary" type="button" onClick={() => handleApply(job)}>
-                          Apply
+                          {t("jobBoard.apply")}
                         </button>
                       )}
                     </div>
@@ -182,12 +184,12 @@ function JobBoard({ authUser, onRequireLogin }) {
         )}
       </div>
       {isPostOpen && (
-        <div className="auth-overlay" role="dialog" aria-modal="true" aria-label="Create Job Post">
+        <div className="auth-overlay" role="dialog" aria-modal="true" aria-label={t("jobBoard.createTitle")}>
           <div className="auth-modal">
             <div className="auth-modal-header">
               <div>
-                <h3>Create Job Post</h3>
-                <p>Publish a new tuition opportunity.</p>
+                <h3>{t("jobBoard.createTitle")}</h3>
+                <p>{t("jobBoard.createSubtitle")}</p>
               </div>
               <button className="auth-close" type="button" onClick={() => setIsPostOpen(false)}>
                 ?
@@ -195,23 +197,23 @@ function JobBoard({ authUser, onRequireLogin }) {
             </div>
             <form className="auth-form" onSubmit={handlePostJob}>
               <label className="form-group">
-                <span>Title</span>
-                <input type="text" name="title" placeholder="Physics Tutor - Class 10" required />
+                <span>{t("jobBoard.fieldTitle")}</span>
+                <input type="text" name="title" placeholder={t("jobBoard.titlePlaceholder")} required />
               </label>
               <label className="form-group">
-                <span>Location</span>
-                <input type="text" name="location" placeholder="Dhaka" required />
+                <span>{t("jobBoard.fieldLocation")}</span>
+                <input type="text" name="location" placeholder={t("jobBoard.locationPlaceholder")} required />
               </label>
               <label className="form-group">
-                <span>Schedule</span>
-                <input type="text" name="schedule" placeholder="Mon/Wed, 6:00pm - 8:00pm" required />
+                <span>{t("jobBoard.fieldSchedule")}</span>
+                <input type="text" name="schedule" placeholder={t("jobBoard.schedulePlaceholder")} required />
               </label>
               <label className="form-group">
-                <span>Salary</span>
-                <input type="text" name="rate" placeholder="BDT 6,000 / month" required />
+                <span>{t("jobBoard.fieldSalary")}</span>
+                <input type="text" name="rate" placeholder={t("jobBoard.salaryPlaceholder")} required />
               </label>
               <button className="btn btn-primary" type="submit">
-                Post Job
+                {t("jobBoard.postJob")}
               </button>
             </form>
           </div>

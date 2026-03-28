@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function TeacherShell({ user, onLogout, children, currentRoute }) {
+  const { t } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const hideTopbar = currentRoute?.startsWith("#reviews");
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -27,7 +30,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
           </div>
         </div>
         <a className="sidebar-edit" href="#profile">
-          Edit Profile
+          {t("dashboard.editProfile")}
         </a>
         <button
           className="sidebar-toggle"
@@ -41,7 +44,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
           <a
             className={`sidebar-link ${currentRoute?.startsWith("#home") ? "sidebar-link-active" : ""}`}
             href="#home"
-            aria-label="Home"
+            aria-label={t("dashboard.home")}
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
@@ -50,12 +53,12 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
                 <path d="M5 10v10h5v-6h4v6h5V10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="sidebar-text">Home</span>
+            <span className="sidebar-text">{t("dashboard.home")}</span>
           </a>
           <a
             className={`sidebar-link ${currentRoute?.startsWith("#jobs") ? "sidebar-link-active" : ""}`}
             href="#jobs"
-            aria-label="Job Board"
+            aria-label={t("dashboard.jobs")}
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
@@ -65,12 +68,12 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
                 <path d="M3 11h18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="sidebar-text">Job Board</span>
+            <span className="sidebar-text">{t("dashboard.jobs")}</span>
           </a>
           <a
             className={`sidebar-link ${currentRoute?.startsWith("#status") ? "sidebar-link-active" : ""}`}
             href="#status"
-            aria-label="Status"
+            aria-label={t("dashboard.status")}
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
@@ -79,12 +82,12 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
                 <path d="M7 15l4-4 3 3 5-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="sidebar-text">Status</span>
+            <span className="sidebar-text">{t("dashboard.status")}</span>
           </a>
           <a
             className={`sidebar-link ${currentRoute?.startsWith("#messages") ? "sidebar-link-active" : ""}`}
             href="#messages"
-            aria-label="Messages"
+            aria-label={t("dashboard.messages")}
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
@@ -92,13 +95,26 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="sidebar-text">Messages</span>
+            <span className="sidebar-text">{t("dashboard.messages")}</span>
+          </a>
+          <a
+            className={`sidebar-link ${currentRoute?.startsWith("#reviews") ? "sidebar-link-active" : ""}`}
+            href="#reviews"
+            aria-label={t("dashboard.reviews")}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <span className="sidebar-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3l2.8 5.67 6.26.91-4.53 4.42 1.07 6.25L12 17.27 6.4 20.25l1.07-6.25L2.94 9.58l6.26-.91L12 3z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            <span className="sidebar-text">{t("dashboard.reviews")}</span>
           </a>
           <a
             className={`sidebar-link ${currentRoute?.startsWith("#settings") ? "sidebar-link-active" : ""}`}
             href="#settings"
-            aria-label="Settings"
-            title="Open settings"
+            aria-label={t("dashboard.settings")}
+            title={t("dashboard.settings")}
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
@@ -107,7 +123,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
                 <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.08V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-.4-1.08 1.7 1.7 0 0 0-1-.6 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.08-.4H2.9a2 2 0 1 1 0-4H3a1.7 1.7 0 0 0 1.08-.4 1.7 1.7 0 0 0 .6-1A1.7 1.7 0 0 0 4.34 6.33l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6A1.7 1.7 0 0 0 10.4 2.9V2.8a2 2 0 1 1 4 0V3a1.7 1.7 0 0 0 .4 1.08 1.7 1.7 0 0 0 1 .6 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 .6 1 1.7 1.7 0 0 0 1.08.4h.09a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.08.4 1.7 1.7 0 0 0-.6 1Z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="sidebar-text">Settings</span>
+            <span className="sidebar-text">{t("dashboard.settings")}</span>
           </a>
           <button
             className="sidebar-link sidebar-link-logout"
@@ -116,7 +132,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
               setIsMobileMenuOpen(false);
               onLogout();
             }}
-            aria-label="Logout"
+            aria-label={t("dashboard.logout")}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -125,28 +141,30 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
                 <path d="M21 12H9" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="sidebar-text">Logout</span>
+            <span className="sidebar-text">{t("dashboard.logout")}</span>
           </button>
         </nav>
       </aside>
       <main className="teacher-main">
-        <header className="teacher-topbar">
-          <div>
-            <p className="eyebrow">Dashboard</p>
-            <h1>Teacher Dashboard</h1>
-          </div>
-          <button
-            className="teacher-mobile-menu-button"
-            type="button"
-            aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-            aria-expanded={isMobileMenuOpen}
-            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-          >
-            <span />
-            <span />
-            <span />
-          </button>
-        </header>
+        {!hideTopbar ? (
+          <header className="teacher-topbar">
+            <div>
+              <p className="eyebrow">{t("dashboard.dashboardLabel")}</p>
+              <h1>{t("dashboard.teacherDashboard")}</h1>
+            </div>
+            <button
+              className="teacher-mobile-menu-button"
+              type="button"
+              aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={isMobileMenuOpen}
+              onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            >
+              <span />
+              <span />
+              <span />
+            </button>
+          </header>
+        ) : null}
         {children}
       </main>
     </div>

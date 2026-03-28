@@ -61,12 +61,11 @@ router.post("/login", async (req, res, next) => {
       return res.status(400).json({ message: "Email and password are required." });
     }
 
-    const adminAccountsRaw = process.env.ADMIN_ACCOUNTS;
-    if (!adminAccountsRaw) {
-      return res.status(500).json({ message: "ADMIN_ACCOUNTS is missing in .env." });
-    }
-
-    const pairs = adminAccountsRaw.split(",").map((entry) => entry.trim());
+    const adminAccountsRaw = process.env.ADMIN_ACCOUNTS || "";
+    const pairs = adminAccountsRaw
+      .split(",")
+      .map((entry) => entry.trim())
+      .filter(Boolean);
     const adminMatch = pairs.find((entry) => {
       const [accEmail, accPass] = entry.split(":");
       return accEmail?.toLowerCase() === email.toLowerCase() && accPass === password;
@@ -94,7 +93,7 @@ router.post("/login", async (req, res, next) => {
     }
 
     const user = await User.findOne({ email });
-    if (!user || user.role === "admin") {
+    if (!user) {
       return res.status(401).json({ message: "Invalid email or password." });
     }
     if (user.isBlocked) {
