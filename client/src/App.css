@@ -1396,6 +1396,7 @@ html[data-theme="light"] .role-option {
   height: 46px;
   border-radius: 14px;
   padding: 0;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
