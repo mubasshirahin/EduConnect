@@ -32,6 +32,16 @@ function StepPopup({ step, onClose }) {
         "Admin reviews tutor applications and selects the best match.",
       ],
     },
+    "Admin selects the best tutor.": {
+      title: "Admin Tutor Selection",
+      description:
+        "Admin evaluates tutor applications and selects the best qualified tutor for the tuition post.",
+      points: [
+        "Admin checks tutor profiles, ratings, and availability.",
+        "Admin selects the tutor that best fits the requirement.",
+        "Selected tutor receives the assignment and guardian is notified.",
+      ],
+    },
   };
 
   const info = defaultDetails[step] || {
