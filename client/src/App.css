@@ -1751,10 +1751,46 @@ html[data-theme="light"] .role-option {
   margin-top: 0.4rem;
   border-radius: 10px;
   border: 1px solid var(--border-soft);
-  background: #121823;
+  background: #0f1624;
   color: var(--text-main);
   padding: 0.55rem 0.7rem;
   font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.profile-field textarea {
+  margin-top: 0.4rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  background: #0f1624;
+  color: var(--text-main);
+  padding: 0.6rem 0.75rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 110px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.profile-field input[type="file"] {
+  padding: 0.45rem 0.6rem;
+  background: #0f1624;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+.profile-field input::placeholder,
+.profile-field textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.profile-field input:focus,
+.profile-field textarea:focus {
+  outline: none;
+  border-color: rgba(79, 156, 249, 0.7);
+  box-shadow: 0 0 0 3px rgba(79, 156, 249, 0.18);
+  background: #0b1220;
 }
 
 .profile-actions {

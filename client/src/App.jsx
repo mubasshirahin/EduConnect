@@ -26,19 +26,38 @@ import "./App.css";
 
 function App() {
   const { t } = useLanguage();
-  const [authUser, setAuthUser] = useState(null);
+  const generateTutorId = () =>
+    Math.floor(100000 + Math.random() * 900000).toString();
+  const [authUser, setAuthUser] = useState(() => {
+    const stored = localStorage.getItem("educonnect-auth-user");
+    if (!stored) return null;
+    try {
+      return JSON.parse(stored);
+    } catch {
+      return null;
+    }
+  });
   const [route, setRoute] = useState(window.location.hash || "#home");
   const [authMode, setAuthMode] = useState(null);
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem("educonnect-theme") || "dark";
   });
 
-  const handleAuthSuccess = (user) => {
-    setAuthUser(user);
+  const handleAuthSuccess = (user, token) => {
+    if (!user) return;
+    const needsTutorId = user.role === "teacher" && !user.tutorId;
+    const nextUser = needsTutorId ? { ...user, tutorId: generateTutorId() } : user;
+    setAuthUser(nextUser);
+    localStorage.setItem("educonnect-auth-user", JSON.stringify(nextUser));
+    if (token) {
+      localStorage.setItem("educonnect-auth-token", token);
+    }
   };
 
   const handleLogout = () => {
     setAuthUser(null);
+    localStorage.removeItem("educonnect-auth-user");
+    localStorage.removeItem("educonnect-auth-token");
     window.location.hash = "#home";
   };
 
@@ -58,6 +77,14 @@ function App() {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("educonnect-theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (!authUser) return;
+    if (authUser.role !== "teacher" || authUser.tutorId) return;
+    const nextUser = { ...authUser, tutorId: generateTutorId() };
+    setAuthUser(nextUser);
+    localStorage.setItem("educonnect-auth-user", JSON.stringify(nextUser));
+  }, [authUser]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
@@ -268,8 +295,8 @@ function App() {
         <AuthModal
           mode={authMode}
           onClose={closeAuth}
-          onAuthSuccess={(user) => {
-            handleAuthSuccess(user);
+          onAuthSuccess={(user, token) => {
+            handleAuthSuccess(user, token);
             closeAuth();
           }}
         />
