@@ -2182,6 +2182,104 @@ html[data-theme="light"] .role-option {
   color: var(--text-soft);
 }
 
+.settings-page {
+  padding: 1rem 0 2rem;
+}
+
+.settings-hero,
+.settings-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+}
+
+.settings-hero {
+  padding: 1.6rem 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+}
+
+.settings-hero h2,
+.settings-card h3 {
+  color: var(--text-main);
+}
+
+.settings-hero p,
+.settings-card p,
+.settings-field p,
+.settings-status {
+  color: var(--text-soft);
+}
+
+.settings-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.settings-card {
+  padding: 1.5rem;
+}
+
+.settings-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.settings-row,
+.settings-toggle,
+.settings-field {
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 1rem;
+  background: var(--bg-muted);
+}
+
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.settings-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+}
+
+.settings-field {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.settings-field select {
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  background: #0f1624;
+  color: var(--text-main);
+  padding: 0.7rem 0.8rem;
+  font-family: inherit;
+}
+
+.settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.settings-status {
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
 @keyframes riseIn {
   from {
     opacity: 0;
@@ -2221,6 +2319,11 @@ html[data-theme="light"] .role-option {
 
   .teacher-cards {
     grid-template-columns: 1fr;
+  }
+
+  .settings-hero {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .terms-hero-copy h1 {

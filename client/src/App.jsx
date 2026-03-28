@@ -8,6 +8,7 @@ import ProfilePage from "./pages/ProfilePage";
 import UpdateSoon from "./pages/UpdateSoon";
 import TeacherStatus from "./pages/TeacherStatus";
 import StudentStatus from "./pages/StudentStatus";
+import TeacherSettings from "./pages/TeacherSettings";
 import ApplicantProfile from "./pages/ApplicantProfile";
 import MessagesPage from "./pages/MessagesPage";
 import AdminUsers from "./pages/AdminUsers";
@@ -191,7 +192,11 @@ function App() {
   if (authUser?.role === "teacher" && (route.startsWith("#messages") || route.startsWith("#settings"))) {
     content = (
       <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
-        {route.startsWith("#messages") ? <MessagesPage authUser={authUser} route={route} /> : <UpdateSoon title={t("navbar.settings")} />}
+        {route.startsWith("#messages") ? (
+          <MessagesPage authUser={authUser} route={route} />
+        ) : (
+          <TeacherSettings authUser={authUser} onLogout={handleLogout} />
+        )}
       </TeacherShell>
     );
   }
