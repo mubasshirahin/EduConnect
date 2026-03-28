@@ -15,8 +15,8 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { name, rating, comment } = req.body;
-    const newReview = new Review({ name, rating, comment });
+    const { name, role, rating, comment } = req.body;
+    const newReview = new Review({ name, role, rating, comment });
     await newReview.save();
     res.status(201).json(newReview);
   } catch (err) {

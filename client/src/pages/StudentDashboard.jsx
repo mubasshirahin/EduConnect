@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import ReviewSubmissionCard from "../components/ReviewSubmissionCard";
 
 function StudentDashboard({ user, onLogout }) {
   const [notice, setNotice] = useState(null);
@@ -49,6 +50,13 @@ function StudentDashboard({ user, onLogout }) {
         <h2>Welcome</h2>
         <p>Here you will manage tutor requests and chat with admins.</p>
       </section>
+
+      <ReviewSubmissionCard
+        authorName={user?.name}
+        role="student"
+        title="Share your learning experience"
+        description="Tell others how EduConnect helped you find a tutor or manage your learning needs."
+      />
     </div>
   );
 }
