@@ -5,6 +5,7 @@ const blogSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true },
     content: { type: String, required: true },
     author: { type: String, required: true, trim: true },
+    authorRole: { type: String, enum: ["student", "teacher"], default: "student" },
     authorEmail: { type: String, required: true, trim: true, lowercase: true },
     status: { 
       type: String, 
