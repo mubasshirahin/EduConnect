@@ -1,17 +1,20 @@
 import React, { useState } from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 const initialState = {
   rating: 5,
   comment: "",
 };
 
-function ReviewSubmissionCard({ authorName, role, title, description }) {
+function ReviewSubmissionCard({ authorName, role, title, description, sectionId }) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState(initialState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
 
-  const normalizedRole = role === "teacher" ? "Teacher" : "Student";
+  const normalizedRole = role === "teacher" ? t("auth.teacher") : t("auth.student");
+  const roleLabel = role === "teacher" ? t("reviewsPage.teacherFeedback") : t("reviewsPage.studentFeedback");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -34,7 +37,7 @@ function ReviewSubmissionCard({ authorName, role, title, description }) {
     };
 
     if (!payload.comment) {
-      setSubmitError("Please write a short review before submitting.");
+      setSubmitError(t("reviewsPage.emptyError"));
       return;
     }
 
@@ -52,46 +55,46 @@ function ReviewSubmissionCard({ authorName, role, title, description }) {
       const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        throw new Error(data?.message || "Failed to submit review.");
+        throw new Error(data?.message || t("reviewsPage.submitError"));
       }
 
       setFormData(initialState);
-      setSubmitSuccess("Your review has been submitted.");
+      setSubmitSuccess(t("reviewsPage.submitSuccess"));
     } catch (error) {
-      setSubmitError(error.message || "Failed to submit review.");
+      setSubmitError(error.message || t("reviewsPage.submitError"));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <section className="dashboard-card review-submit-card">
+    <section className="dashboard-card review-submit-card" id={sectionId}>
       <div className="review-submit-copy">
-        <p className="eyebrow">{normalizedRole} Feedback</p>
+        <p className="eyebrow">{roleLabel}</p>
         <h2>{title}</h2>
         <p>{description}</p>
       </div>
 
       <form className="reviews-form" onSubmit={handleSubmit}>
         <label>
-          <span>Rating</span>
+          <span>{t("reviewsPage.ratingLabel")}</span>
           <select name="rating" value={formData.rating} onChange={handleChange}>
-            <option value={5}>5 stars</option>
-            <option value={4}>4 stars</option>
-            <option value={3}>3 stars</option>
-            <option value={2}>2 stars</option>
-            <option value={1}>1 star</option>
+            <option value={5}>5</option>
+            <option value={4}>4</option>
+            <option value={3}>3</option>
+            <option value={2}>2</option>
+            <option value={1}>1</option>
           </select>
         </label>
 
         <label>
-          <span>Your review</span>
+          <span>{t("reviewsPage.reviewLabel")}</span>
           <textarea
             name="comment"
             rows="4"
             value={formData.comment}
             onChange={handleChange}
-            placeholder="Write a short review about your experience"
+            placeholder={t("reviewsPage.reviewPlaceholder")}
           />
         </label>
 
@@ -99,7 +102,7 @@ function ReviewSubmissionCard({ authorName, role, title, description }) {
         {submitSuccess ? <p className="form-message form-success">{submitSuccess}</p> : null}
 
         <button className="btn btn-primary review-submit-button" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Submitting..." : "Submit review"}
+          {isSubmitting ? t("reviewsPage.submitting") : t("reviewsPage.submit")}
         </button>
       </form>
     </section>

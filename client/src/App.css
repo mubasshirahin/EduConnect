@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Merriweather:wght@700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Merriweather:wght@700&display=swap");
 
 :root {
   --bg-page: #0e1411;
@@ -54,6 +54,24 @@ body {
     var(--bg-page);
   color: var(--text-main);
   line-height: 1.65;
+}
+
+html[data-language="bn"] body,
+html[data-language="bn"] button,
+html[data-language="bn"] input,
+html[data-language="bn"] select,
+html[data-language="bn"] textarea {
+  font-family: "Hind Siliguri", "Noto Sans Bengali", sans-serif;
+}
+
+html[data-language="bn"] h1,
+html[data-language="bn"] h2,
+html[data-language="bn"] h3,
+html[data-language="bn"] .section-title,
+html[data-language="bn"] .job-board-header h1,
+html[data-language="bn"] .teacher-topbar h1 {
+  font-family: "Hind Siliguri", "Noto Sans Bengali", sans-serif;
+  letter-spacing: 0;
 }
 
 a {
@@ -435,10 +453,15 @@ html[data-theme="light"] .btn-primary {
 }
 
 .navbar .btn-theme-lang-bn .btn-theme-text {
-  font-size: 0.66rem;
-  font-weight: 700;
+  font-size: 0.92rem;
+  font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
+}
+
+.navbar .btn-theme-lang-bn .btn-theme-track {
+  width: 152px;
+  flex: 0 0 152px;
 }
 
 .navbar .btn-theme-light .btn-theme-track {
@@ -458,7 +481,7 @@ html[data-theme="light"] .btn-primary {
 }
 
 .navbar .btn-theme-light.btn-theme-lang-bn .btn-theme-thumb {
-  left: 100px;
+  left: 116px;
 }
 
 .navbar .btn-theme-light .btn-theme-text {
@@ -1874,6 +1897,17 @@ html[data-theme="light"] .role-option {
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
+.reviews-form select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 4rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.15rem center;
+  background-size: 14px;
+}
+
 .reviews-form textarea {
   resize: vertical;
   min-height: 132px;
@@ -1899,6 +1933,15 @@ html[data-theme="light"] .role-option {
 
 .review-submit-card {
   margin-top: 1.4rem;
+}
+
+.reviews-page-with-submission {
+  padding-top: 0.9rem;
+}
+
+.reviews-page-with-submission .review-submit-card {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
 }
 
 .review-submit-copy {

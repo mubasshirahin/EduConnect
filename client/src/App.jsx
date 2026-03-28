@@ -28,7 +28,7 @@ import { useLanguage } from "./i18n/LanguageContext.jsx";
 import "./App.css";
 
 function App() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const generateTutorId = () =>
     Math.floor(100000 + Math.random() * 900000).toString();
   const [authUser, setAuthUser] = useState(() => {
@@ -82,6 +82,10 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
+    document.documentElement.setAttribute("data-language", language);
+  }, [language]);
+
+  useEffect(() => {
     if (!authUser) return;
     if (authUser.role !== "teacher" || authUser.tutorId) return;
     const nextUser = { ...authUser, tutorId: generateTutorId() };
@@ -101,7 +105,7 @@ function App() {
     content = <AboutUs />;
   } else if (route.startsWith("#jobs")) {
     content = <JobBoard authUser={authUser} onRequireLogin={openLogin} />;
-  } else if (route.startsWith("#reviews")) {
+  } else if (route.startsWith("#reviews") && !authUser) {
     content = <Reviews />;
   } else if (route.startsWith("#profile")) {
     content = <ProfilePage authUser={authUser} />;
@@ -117,13 +121,13 @@ function App() {
   } else if (authUser?.role === "teacher") {
     content = (
       <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
-        {route === "#reviews" ? <Reviews /> : <TeacherDashboard authUser={authUser} />}
+        <TeacherDashboard authUser={authUser} />
       </TeacherShell>
     );
   } else if (authUser?.role === "student") {
     content = (
       <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
-        {route === "#reviews" ? <Reviews /> : <StudentDashboard user={authUser} />}
+        <StudentDashboard user={authUser} />
       </StudentShell>
     );
   } else if (authUser?.role === "admin") {
@@ -142,10 +146,42 @@ function App() {
     );
   }
 
+  if (authUser?.role === "teacher" && route.startsWith("#reviews")) {
+    content = (
+      <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <Reviews
+          showSubmission
+          submissionProps={{
+            authorName: authUser?.name,
+            role: "teacher",
+            title: t("reviewsPage.teacherTitle"),
+            description: t("reviewsPage.teacherDescription"),
+          }}
+        />
+      </TeacherShell>
+    );
+  }
+
   if (authUser?.role === "student" && route.startsWith("#jobs")) {
     content = (
       <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <JobBoard authUser={authUser} onRequireLogin={openLogin} />
+      </StudentShell>
+    );
+  }
+
+  if (authUser?.role === "student" && route.startsWith("#reviews")) {
+    content = (
+      <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <Reviews
+          showSubmission
+          submissionProps={{
+            authorName: authUser?.name,
+            role: "student",
+            title: t("reviewsPage.studentTitle"),
+            description: t("reviewsPage.studentDescription"),
+          }}
+        />
       </StudentShell>
     );
   }

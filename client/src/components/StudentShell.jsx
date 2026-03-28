@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function StudentShell({ user, onLogout, children, currentRoute }) {
+  const { t } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
@@ -14,7 +16,7 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
           </div>
         </div>
         <a className="sidebar-edit" href="#profile">
-          Edit Profile
+          {t("dashboard.editProfile")}
         </a>
         <button
           className="sidebar-toggle"
@@ -28,7 +30,7 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
           <a
             className={`sidebar-link ${currentRoute?.startsWith("#home") ? "sidebar-link-active" : ""}`}
             href="#home"
-            aria-label="Home"
+            aria-label={t("dashboard.home")}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -36,12 +38,12 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
                 <path d="M5 10v10h5v-6h4v6h5V10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="sidebar-text">Home</span>
+            <span className="sidebar-text">{t("dashboard.home")}</span>
           </a>
           <a
             className={`sidebar-link ${currentRoute?.startsWith("#jobs") ? "sidebar-link-active" : ""}`}
             href="#jobs"
-            aria-label="Job Board"
+            aria-label={t("dashboard.jobs")}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -50,12 +52,12 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
                 <path d="M3 11h18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="sidebar-text">Job Board</span>
+            <span className="sidebar-text">{t("dashboard.jobs")}</span>
           </a>
           <a
             className={`sidebar-link ${currentRoute?.startsWith("#status") ? "sidebar-link-active" : ""}`}
             href="#status"
-            aria-label="Status"
+            aria-label={t("dashboard.status")}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -63,24 +65,36 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
                 <path d="M7 15l4-4 3 3 5-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="sidebar-text">Status</span>
+            <span className="sidebar-text">{t("dashboard.status")}</span>
           </a>
           <a
             className={`sidebar-link ${currentRoute?.startsWith("#messages") ? "sidebar-link-active" : ""}`}
             href="#messages"
-            aria-label="Messages"
+            aria-label={t("dashboard.messages")}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="sidebar-text">Messages</span>
+            <span className="sidebar-text">{t("dashboard.messages")}</span>
+          </a>
+          <a
+            className={`sidebar-link ${currentRoute?.startsWith("#reviews") ? "sidebar-link-active" : ""}`}
+            href="#reviews"
+            aria-label={t("dashboard.reviews")}
+          >
+            <span className="sidebar-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3l2.8 5.67 6.26.91-4.53 4.42 1.07 6.25L12 17.27 6.4 20.25l1.07-6.25L2.94 9.58l6.26-.91L12 3z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            <span className="sidebar-text">{t("dashboard.reviews")}</span>
           </a>
           <a
             className={`sidebar-link ${currentRoute?.startsWith("#settings") ? "sidebar-link-active" : ""}`}
             href="#settings"
-            aria-label="Settings"
+            aria-label={t("dashboard.settings")}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -92,9 +106,9 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
                 <path d="M20 12V3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="sidebar-text">Settings</span>
+            <span className="sidebar-text">{t("dashboard.settings")}</span>
           </a>
-          <button className="sidebar-link sidebar-link-logout" type="button" onClick={onLogout} aria-label="Logout">
+          <button className="sidebar-link sidebar-link-logout" type="button" onClick={onLogout} aria-label={t("dashboard.logout")}>
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -102,7 +116,7 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
                 <path d="M21 12H9" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="sidebar-text">Logout</span>
+            <span className="sidebar-text">{t("dashboard.logout")}</span>
           </button>
         </nav>
       </aside>
