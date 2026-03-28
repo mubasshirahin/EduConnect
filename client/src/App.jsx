@@ -20,6 +20,7 @@ import StudentShell from "./components/StudentShell";
 import AdminShell from "./components/AdminShell";
 import AdminDashboard from "./pages/AdminDashboard";
 import TermsOfService from "./pages/TermsOfService";
+import AboutUs from "./pages/AboutUs";
 import "./App.css";
 
 function App() {
@@ -64,6 +65,8 @@ function App() {
 
   if (route === "#terms") {
     content = <TermsOfService />;
+  } else if (route === "#about") {
+    content = <AboutUs />;
   } else if (route.startsWith("#jobs")) {
     content = <JobBoard authUser={authUser} onRequireLogin={openLogin} />;
   } else if (route.startsWith("#reviews")) {
