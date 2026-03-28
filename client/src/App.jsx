@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import JobBoard from "./pages/JobBoard";
-import Reviews from "./pages/Reviews"; 
+import Reviews from "./pages/Reviews";
 import ProfilePage from "./pages/ProfilePage";
 import UpdateSoon from "./pages/UpdateSoon";
 import TeacherStatus from "./pages/TeacherStatus";
@@ -21,9 +21,11 @@ import AdminShell from "./components/AdminShell";
 import AdminDashboard from "./pages/AdminDashboard";
 import TermsOfService from "./pages/TermsOfService";
 import AboutUs from "./pages/AboutUs";
+import { useLanguage } from "./i18n/LanguageContext.jsx";
 import "./App.css";
 
 function App() {
+  const { t } = useLanguage();
   const generateTutorId = () =>
     Math.floor(100000 + Math.random() * 900000).toString();
   const [authUser, setAuthUser] = useState(() => {
@@ -87,7 +89,7 @@ function App() {
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
- 
+
   let content = <Home onRequestTutor={openLogin} />;
 
   if (route === "#terms") {
@@ -105,38 +107,29 @@ function App() {
     content = <ApplicantProfile email={email} authUser={authUser} />;
   } else if (route.startsWith("#messages") || route.startsWith("#settings")) {
     const titleMap = {
-      "#messages": "Messages",
-      "#settings": "Settings",
+      "#messages": t("navbar.messages"),
+      "#settings": t("navbar.settings"),
     };
     content = <UpdateSoon title={route.startsWith("#messages") ? titleMap["#messages"] : titleMap["#settings"]} />;
-  } 
-  
-  else if (authUser?.role === "teacher") {
+  } else if (authUser?.role === "teacher") {
     content = (
       <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         {route === "#reviews" ? <Reviews /> : <TeacherDashboard authUser={authUser} />}
       </TeacherShell>
     );
-  } 
-  
-
-  else if (authUser?.role === "student") {
+  } else if (authUser?.role === "student") {
     content = (
       <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         {route === "#reviews" ? <Reviews /> : <StudentDashboard user={authUser} />}
       </StudentShell>
     );
-  } 
-  
-
-  else if (authUser?.role === "admin") {
+  } else if (authUser?.role === "admin") {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         {route === "#reviews" ? <Reviews /> : <AdminDashboard />}
       </AdminShell>
     );
   }
-
 
   if (authUser?.role === "teacher" && route.startsWith("#jobs")) {
     content = (
@@ -197,11 +190,7 @@ function App() {
   if (authUser?.role === "teacher" && (route.startsWith("#messages") || route.startsWith("#settings"))) {
     content = (
       <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
-        {route.startsWith("#messages") ? (
-          <MessagesPage authUser={authUser} route={route} />
-        ) : (
-          <UpdateSoon title="Settings" />
-        )}
+        {route.startsWith("#messages") ? <MessagesPage authUser={authUser} route={route} /> : <UpdateSoon title={t("navbar.settings")} />}
       </TeacherShell>
     );
   }
@@ -211,7 +200,7 @@ function App() {
       <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         {route.startsWith("#status") ? <StudentStatus authUser={authUser} /> : null}
         {route.startsWith("#messages") ? <MessagesPage authUser={authUser} route={route} /> : null}
-        {route.startsWith("#settings") ? <UpdateSoon title="Settings" /> : null}
+        {route.startsWith("#settings") ? <UpdateSoon title={t("navbar.settings")} /> : null}
       </StudentShell>
     );
   }
@@ -235,7 +224,7 @@ function App() {
   if (authUser?.role === "admin" && route.startsWith("#settings")) {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
-        <UpdateSoon title="Settings" />
+        <UpdateSoon title={t("navbar.settings")} />
       </AdminShell>
     );
   }
@@ -300,14 +289,7 @@ function App() {
 
   return (
     <>
-      <Navbar
-        authUser={authUser}
-        onLoginClick={openLogin}
-        onRegisterClick={openRegister}
-        onLogout={handleLogout}
-        theme={theme}
-        onToggleTheme={toggleTheme}
-      />
+      <Navbar authUser={authUser} onLoginClick={openLogin} onRegisterClick={openRegister} theme={theme} onToggleTheme={toggleTheme} />
       {content}
       {authMode && (
         <AuthModal

@@ -1,23 +1,21 @@
 import React from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function Features() {
+  const { t } = useLanguage();
+  const features = t("home.features");
+
   return (
     <section className="section">
       <div className="container">
-        <h2 className="section-title">Why Choose EduConnect?</h2>
+        <h2 className="section-title">{t("home.featuresTitle")}</h2>
         <div className="feature-grid">
-          <article className="feature-card">
-            <h3>Verified Tutors</h3>
-            <p>All tutors are reviewed before being recommended.</p>
-          </article>
-          <article className="feature-card">
-            <h3>Admin Moderation</h3>
-            <p>Guardians chat with admin to ensure correct tutor matching.</p>
-          </article>
-          <article className="feature-card">
-            <h3>Easy Application</h3>
-            <p>Tutors can easily browse and apply for tuition posts.</p>
-          </article>
+          {features.map((feature) => (
+            <article className="feature-card" key={feature.title}>
+              <h3>{feature.title}</h3>
+              <p>{feature.description}</p>
+            </article>
+          ))}
         </div>
       </div>
     </section>
