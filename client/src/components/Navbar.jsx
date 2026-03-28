@@ -17,7 +17,9 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
         ? "#jobs"
         : currentRoute?.startsWith("#reviews")
           ? "#reviews"
-          : null;
+          : currentRoute?.startsWith("#blog")
+            ? "#blog"
+            : null;
 
   return (
     <nav className="navbar">
@@ -41,6 +43,9 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
             </a>
             <a className={`nav-link ${activeSection === "#reviews" ? "nav-link-active" : ""}`} href="#reviews">
               {t("navbar.reviews")}
+            </a>
+            <a className={`nav-link ${activeSection === "#blog" ? "nav-link-active" : ""}`} href="#blog">
+              {t("navbar.blog")}
             </a>
           </div>
         )}
