@@ -1209,6 +1209,8 @@ html[data-theme="light"] .role-option {
   grid-template-columns: 240px 1fr;
   min-height: calc(100vh - 78px);
   background: var(--bg-page);
+  align-items: start;
+  position: relative;
 }
 
 .teacher-dashboard-collapsed {
@@ -1224,6 +1226,12 @@ html[data-theme="light"] .role-option {
   gap: 1.2rem;
   transition: width 0.2s ease;
   overflow: hidden;
+  min-width: 0;
+}
+
+.teacher-mobile-backdrop,
+.teacher-mobile-menu-button {
+  display: none;
 }
 
 .sidebar-profile {
@@ -1363,6 +1371,7 @@ html[data-theme="light"] .role-option {
 
 .teacher-main {
   padding: 2rem 2.4rem 3rem;
+  min-width: 0;
 }
 
 .teacher-topbar {
@@ -1377,6 +1386,29 @@ html[data-theme="light"] .role-option {
   font-family: "Merriweather", serif;
   font-size: clamp(1.9rem, 3vw, 2.6rem);
   color: var(--text-main);
+}
+
+.teacher-mobile-menu-button {
+  border: 1px solid var(--border-soft);
+  background: var(--bg-surface);
+  color: var(--text-main);
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+}
+
+.teacher-mobile-menu-button span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
 }
 
 .teacher-topbar-actions {
@@ -1438,6 +1470,7 @@ html[data-theme="light"] .role-option {
   align-items: center;
   gap: 0.9rem;
   box-shadow: var(--shadow-soft);
+  min-width: 0;
 }
 
 .stat-card-link {
@@ -1511,6 +1544,7 @@ html[data-theme="light"] .role-option {
   display: flex;
   align-items: center;
   gap: 1rem;
+  min-width: 0;
 }
 
 .progress-ring {
@@ -2313,6 +2347,22 @@ html[data-theme="light"] .role-option {
     flex-direction: column;
   }
 
+  .teacher-dashboard {
+    grid-template-columns: 200px 1fr;
+  }
+
+  .teacher-main {
+    padding: 1.5rem 1.4rem 2.5rem;
+  }
+
+  .teacher-topbar {
+    margin-bottom: 1.4rem;
+  }
+
+  .notice-board {
+    padding: 1.4rem 1.35rem;
+  }
+
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2332,6 +2382,169 @@ html[data-theme="light"] .role-option {
 }
 
 @media (max-width: 640px) {
+  .teacher-dashboard,
+  .teacher-dashboard-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-sidebar {
+    position: fixed;
+    top: 78px;
+    left: 0.95rem;
+    right: 0.95rem;
+    z-index: 35;
+    padding: 1rem;
+    border: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+    border-radius: 20px;
+    box-shadow: var(--shadow-strong);
+    gap: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+  }
+
+  .teacher-dashboard-mobile-menu-open .teacher-sidebar {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .teacher-mobile-backdrop {
+    position: fixed;
+    inset: 78px 0 0;
+    border: none;
+    background: rgba(6, 12, 9, 0.48);
+    z-index: 30;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+  }
+
+  .teacher-mobile-backdrop-visible {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .sidebar-profile {
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    justify-items: start;
+    text-align: left;
+    gap: 0.75rem;
+  }
+
+  .sidebar-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 1rem;
+  }
+
+  .sidebar-edit {
+    margin: 0;
+    align-self: flex-start;
+  }
+
+  .sidebar-toggle {
+    display: none;
+  }
+
+  .teacher-dashboard-collapsed .sidebar-profile,
+  .teacher-dashboard-collapsed .sidebar-name,
+  .teacher-dashboard-collapsed .sidebar-meta,
+  .teacher-dashboard-collapsed .sidebar-edit {
+    opacity: 1;
+    height: auto;
+    overflow: visible;
+  }
+
+  .teacher-dashboard-collapsed .sidebar-nav {
+    gap: 0.65rem;
+  }
+
+  .teacher-dashboard-collapsed .sidebar-link,
+  .sidebar-link {
+    justify-content: flex-start;
+    padding: 0.75rem 0.85rem;
+  }
+
+  .teacher-dashboard-collapsed .sidebar-text,
+  .sidebar-text {
+    display: inline-flex;
+  }
+
+  .sidebar-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0;
+  }
+
+  .sidebar-link-logout {
+    margin-top: 0;
+  }
+
+  .teacher-main {
+    padding: 1rem 0.95rem 2rem;
+  }
+
+  .teacher-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .teacher-mobile-menu-button {
+    display: inline-flex;
+  }
+
+  .teacher-topbar h1 {
+    font-size: clamp(1.5rem, 7vw, 2rem);
+  }
+
+  .notice-board {
+    padding: 1.1rem 1rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .notice-header {
+    align-items: flex-start;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .teacher-cards {
+    gap: 1rem;
+  }
+
+  .teacher-tile {
+    padding: 1.2rem;
+  }
+
+  .teacher-profile {
+    align-items: flex-start;
+  }
+
+  .progress-ring {
+    width: 56px;
+    height: 56px;
+  }
+
   .container {
     width: min(var(--container), calc(100% - 1.25rem));
   }

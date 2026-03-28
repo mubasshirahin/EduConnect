@@ -1,10 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 function TeacherShell({ user, onLogout, children, currentRoute }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [currentRoute]);
 
   return (
-    <div className={`teacher-dashboard ${isCollapsed ? "teacher-dashboard-collapsed" : ""}`}>
+    <div
+      className={`teacher-dashboard ${isCollapsed ? "teacher-dashboard-collapsed" : ""} ${isMobileMenuOpen ? "teacher-dashboard-mobile-menu-open" : ""}`}
+    >
+      <button
+        className={`teacher-mobile-backdrop ${isMobileMenuOpen ? "teacher-mobile-backdrop-visible" : ""}`}
+        type="button"
+        aria-label="Close navigation menu"
+        onClick={() => setIsMobileMenuOpen(false)}
+      />
       <aside className="teacher-sidebar">
         <div className="sidebar-profile">
           <div className="sidebar-avatar">T</div>
@@ -29,6 +42,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
             className={`sidebar-link ${currentRoute?.startsWith("#home") ? "sidebar-link-active" : ""}`}
             href="#home"
             aria-label="Home"
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -42,6 +56,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
             className={`sidebar-link ${currentRoute?.startsWith("#jobs") ? "sidebar-link-active" : ""}`}
             href="#jobs"
             aria-label="Job Board"
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -56,6 +71,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
             className={`sidebar-link ${currentRoute?.startsWith("#status") ? "sidebar-link-active" : ""}`}
             href="#status"
             aria-label="Status"
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -69,6 +85,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
             className={`sidebar-link ${currentRoute?.startsWith("#messages") ? "sidebar-link-active" : ""}`}
             href="#messages"
             aria-label="Messages"
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -82,6 +99,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
             href="#settings"
             aria-label="Settings"
             title="Open settings"
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -91,7 +109,15 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
             </span>
             <span className="sidebar-text">Settings</span>
           </a>
-          <button className="sidebar-link sidebar-link-logout" type="button" onClick={onLogout} aria-label="Logout">
+          <button
+            className="sidebar-link sidebar-link-logout"
+            type="button"
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              onLogout();
+            }}
+            aria-label="Logout"
+          >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -109,6 +135,17 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
             <p className="eyebrow">Dashboard</p>
             <h1>Teacher Dashboard</h1>
           </div>
+          <button
+            className="teacher-mobile-menu-button"
+            type="button"
+            aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={isMobileMenuOpen}
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
         </header>
         {children}
       </main>
