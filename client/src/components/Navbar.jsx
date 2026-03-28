@@ -2,13 +2,20 @@ import React from "react";
 import eduConnectLogo from "../assets/educonnect-logo.png";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 
-function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme }) {
+function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme, currentRoute }) {
   const { language, setLanguage, t } = useLanguage();
   const isDark = theme === "dark";
   const themeLabel = isDark ? t("common.lightMode") : t("common.nightMode");
   const themeButtonLabel = isDark ? t("common.lightModeShort") : t("common.nightModeShort");
   const nextLanguage = language === "en" ? "bn" : "en";
   const languageCode = language === "en" ? "EN" : "বাং";
+  const activeSection = currentRoute?.startsWith("#about")
+    ? "#about"
+    : currentRoute?.startsWith("#jobs")
+      ? "#jobs"
+      : currentRoute?.startsWith("#reviews")
+        ? "#reviews"
+        : "#home";
 
   return (
     <nav className="navbar">
@@ -21,16 +28,16 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme 
         </div>
         {!authUser && (
           <div className="nav-links">
-            <a className="nav-link" href="#home">
+            <a className={`nav-link ${activeSection === "#home" ? "nav-link-active" : ""}`} href="#home">
               {t("navbar.home")}
             </a>
-            <a className="nav-link" href="#about">
+            <a className={`nav-link ${activeSection === "#about" ? "nav-link-active" : ""}`} href="#about">
               {t("navbar.about")}
             </a>
-            <a className="nav-link" href="#jobs">
+            <a className={`nav-link ${activeSection === "#jobs" ? "nav-link-active" : ""}`} href="#jobs">
               {t("navbar.jobs")}
             </a>
-            <a className="nav-link" href="#reviews">
+            <a className={`nav-link ${activeSection === "#reviews" ? "nav-link-active" : ""}`} href="#reviews">
               {t("navbar.reviews")}
             </a>
           </div>
