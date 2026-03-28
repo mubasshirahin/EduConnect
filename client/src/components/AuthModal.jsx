@@ -23,13 +23,13 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
 
     const formData = new FormData(form);
     const payload = {
-      email: formData.get("email"),
-      password: formData.get("password"),
-      role: formData.get("role"),
+      email: formData.get("email")?.toString().trim().toLowerCase(),
+      password: formData.get("password")?.toString(),
+      role: formData.get("role")?.toString().trim().toLowerCase(),
     };
 
     if (!isLogin) {
-      payload.name = formData.get("registerName");
+      payload.name = formData.get("registerName")?.toString().trim();
     }
 
     try {
@@ -74,7 +74,7 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
       const response = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: resetEmail }),
+        body: JSON.stringify({ email: resetEmail.trim().toLowerCase() }),
       });
 
       const data = await response.json();

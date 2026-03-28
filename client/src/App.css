@@ -646,11 +646,195 @@ html[data-theme="light"] .role-option {
   background: var(--bg-surface);
 }
 
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.7rem;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.footer-links a {
+  opacity: 0.88;
+  transition: opacity 0.2s ease;
+}
+
+.footer-links a:hover {
+  opacity: 1;
+}
+
 .footer .container {
   padding: 1.3rem 0;
   text-align: center;
   color: var(--text-soft);
   font-size: 0.95rem;
+}
+
+.about-page {
+  min-height: 100vh;
+}
+
+.about-hero {
+  padding: 5.5rem 0 4.5rem;
+}
+
+.about-hero-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.85fr;
+  gap: 1.4rem;
+  align-items: stretch;
+}
+
+.about-hero-copy,
+.about-highlight-card,
+.about-value-card,
+.about-story-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+}
+
+.about-hero-copy {
+  border-radius: 28px;
+  padding: 2.3rem;
+}
+
+.about-hero-copy h1 {
+  font-family: "Merriweather", serif;
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  line-height: 1.14;
+  margin-bottom: 1rem;
+}
+
+.about-intro {
+  max-width: 60ch;
+  color: var(--text-soft);
+  font-size: 1.03rem;
+}
+
+.about-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1.7rem;
+}
+
+.about-highlight-card {
+  border-radius: 28px;
+  padding: 2rem;
+  background:
+    radial-gradient(circle at top right, rgba(91, 207, 144, 0.18), transparent 42%),
+    var(--bg-surface);
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.about-highlight-label,
+.about-story-label {
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.about-highlight-card h2,
+.about-story-card h2 {
+  font-size: clamp(1.4rem, 2vw, 1.8rem);
+  line-height: 1.3;
+  color: var(--text-main);
+}
+
+.about-highlight-card p,
+.about-section-heading p,
+.about-value-card p,
+.about-story-card p {
+  color: var(--text-soft);
+}
+
+.about-section-heading {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 2.2rem;
+}
+
+.about-values-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.2rem;
+}
+
+.about-value-card,
+.about-story-card {
+  border-radius: 22px;
+  padding: 1.6rem;
+}
+
+.about-value-card h3 {
+  color: var(--text-main);
+  margin-bottom: 0.65rem;
+}
+
+.about-story-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem;
+}
+
+.about-team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.1rem;
+}
+
+.about-team-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 22px;
+  padding: 1.5rem 1.2rem;
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+}
+
+.about-team-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  margin: 0 auto 0.9rem;
+  display: grid;
+  place-items: center;
+  background: rgba(63, 169, 113, 0.16);
+  border: 1px solid rgba(63, 169, 113, 0.3);
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.about-team-card h3 {
+  color: var(--text-main);
+  margin-bottom: 0.35rem;
+}
+
+.about-team-role {
+  color: var(--text-soft);
+  font-weight: 600;
+}
+
+.about-team-university {
+  color: var(--accent);
+  font-size: 0.9rem;
+  margin-top: 0.35rem;
+}
+
+.about-team-intro {
+  color: var(--text-soft);
+  font-size: 0.92rem;
+  margin-top: 0.7rem;
+  line-height: 1.6;
 }
 
 .dashboard {
@@ -1563,6 +1747,13 @@ html[data-theme="light"] .role-option {
     padding: 4.7rem 0;
   }
 
+  .about-hero-grid,
+  .about-values-grid,
+  .about-story-grid,
+  .about-team-grid {
+    grid-template-columns: 1fr;
+  }
+
   .feature-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1657,6 +1848,11 @@ html[data-theme="light"] .role-option {
     padding-top: 4.8rem;
   }
 
+  .nav-links {
+    gap: 0.8rem;
+    font-size: 0.92rem;
+  }
+
   .feature-grid {
     grid-template-columns: 1fr;
   }
@@ -1667,6 +1863,22 @@ html[data-theme="light"] .role-option {
 
   .steps-list li {
     padding-left: 2.8rem;
+  }
+
+  .about-hero {
+    padding-top: 4.3rem;
+  }
+
+  .about-hero-copy,
+  .about-highlight-card,
+  .about-value-card,
+  .about-story-card {
+    padding: 1.35rem;
+  }
+
+  .about-cta-row {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 .checkbox-group {

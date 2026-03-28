@@ -18,7 +18,11 @@ const createToken = (userId) => {
 
 router.post("/register", async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    const name = req.body.name?.trim();
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
+    const role = req.body.role?.trim().toLowerCase();
+
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: "Name, email, password, and role are required." });
     }
@@ -50,7 +54,10 @@ router.post("/register", async (req, res, next) => {
 
 router.post("/login", async (req, res, next) => {
   try {
-    const { email, password, role } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
+    const role = req.body.role?.trim().toLowerCase();
+
     if (!email || !password || !role) {
       return res.status(400).json({ message: "Email, password, and role are required." });
     }
@@ -118,7 +125,7 @@ router.post("/login", async (req, res, next) => {
 // Forgot Password - Request reset link
 router.post("/forgot-password", async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
     
     if (!email) {
       return res.status(400).json({ message: "Email is required." });
@@ -149,7 +156,8 @@ router.post("/forgot-password", async (req, res, next) => {
 // Reset Password - Set new password
 router.post("/reset-password", async (req, res, next) => {
   try {
-    const { token, newPassword } = req.body;
+    const token = req.body.token?.trim();
+    const newPassword = req.body.newPassword;
     
     if (!token || !newPassword) {
       return res.status(400).json({ message: "Token and new password are required." });
