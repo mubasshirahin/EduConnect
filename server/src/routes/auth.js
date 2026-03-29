@@ -56,9 +56,13 @@ router.post("/login", async (req, res, next) => {
   try {
     const email = req.body.email?.trim().toLowerCase();
     const password = req.body.password;
+    const role = req.body.role?.trim().toLowerCase();
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required." });
+    if (!email || !password || !role) {
+      return res.status(400).json({ message: "Email, password, and role are required." });
+    }
+    if (!["teacher", "student", "admin"].includes(role)) {
+      return res.status(400).json({ message: "Role must be teacher, student, or admin." });
     }
 
     const adminAccountsRaw = process.env.ADMIN_ACCOUNTS || "";
@@ -72,6 +76,9 @@ router.post("/login", async (req, res, next) => {
     });
 
     if (adminMatch) {
+      if (role !== "admin") {
+        return res.status(401).json({ message: "Selected role does not match this account." });
+      }
       let adminUser = await User.findOne({ email: email.toLowerCase() });
       if (!adminUser) {
         adminUser = await User.create({
@@ -95,6 +102,9 @@ router.post("/login", async (req, res, next) => {
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password." });
+    }
+    if (user.role !== role) {
+      return res.status(401).json({ message: "Selected role does not match this account." });
     }
     if (user.isBlocked) {
       return res.status(403).json({ message: "Account is blocked." });

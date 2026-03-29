@@ -14,6 +14,7 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
   const [showTerms, setShowTerms] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
+  const roleLabel = isLogin ? t("auth.loginAs") : t("auth.registerAs");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -25,11 +26,11 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
     const payload = {
       email: formData.get("email")?.toString().trim().toLowerCase(),
       password: formData.get("password")?.toString(),
+      role: formData.get("role")?.toString().trim().toLowerCase(),
     };
 
     if (!isLogin) {
       payload.name = formData.get("registerName")?.toString().trim();
-      payload.role = formData.get("role")?.toString().trim().toLowerCase();
     }
 
     try {
@@ -156,21 +157,25 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
               <input type="text" name="registerName" placeholder={t("auth.namePlaceholder")} required />
             </label>
           )}
-          {!isLogin && (
-            <label className="form-group">
-              <span>{t("auth.registerAs")}</span>
-              <div className="role-group">
+          <label className="form-group">
+            <span>{roleLabel}</span>
+            <div className="role-group">
+              {isLogin && (
                 <label className="role-option">
-                  <input type="radio" name="role" value="teacher" required />
-                  <span>{t("auth.teacher")}</span>
+                  <input type="radio" name="role" value="admin" required />
+                  <span>{t("auth.admin")}</span>
                 </label>
-                <label className="role-option">
-                  <input type="radio" name="role" value="student" required />
-                  <span>{t("auth.student")}</span>
-                </label>
-              </div>
-            </label>
-          )}
+              )}
+              <label className="role-option">
+                <input type="radio" name="role" value="teacher" required />
+                <span>{t("auth.teacher")}</span>
+              </label>
+              <label className="role-option">
+                <input type="radio" name="role" value="student" required />
+                <span>{t("auth.student")}</span>
+              </label>
+            </div>
+          </label>
           <label className="form-group">
             <span>{t("auth.email")}</span>
             <input type="email" name="email" placeholder="you@example.com" required />
