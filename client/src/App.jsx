@@ -9,6 +9,7 @@ import UpdateSoon from "./pages/UpdateSoon";
 import TeacherStatus from "./pages/TeacherStatus";
 import StudentStatus from "./pages/StudentStatus";
 import TeacherSettings from "./pages/TeacherSettings";
+import StudentSettings from "./pages/StudentSettings";
 import ApplicantProfile from "./pages/ApplicantProfile";
 import MessagesPage from "./pages/MessagesPage";
 import AdminUsers from "./pages/AdminUsers";
@@ -247,7 +248,7 @@ function App() {
       <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         {route.startsWith("#status") ? <StudentStatus authUser={authUser} /> : null}
         {route.startsWith("#messages") ? <MessagesPage authUser={authUser} route={route} /> : null}
-        {route.startsWith("#settings") ? <UpdateSoon title={t("navbar.settings")} /> : null}
+        {route.startsWith("#settings") ? <StudentSettings authUser={authUser} onLogout={handleLogout} /> : null}
       </StudentShell>
     );
   }
