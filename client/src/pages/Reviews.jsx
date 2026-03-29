@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReviewSubmissionCard from "../components/ReviewSubmissionCard";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 
-function Reviews({ showSubmission = false, submissionProps }) {
+function Reviews({ showSubmission = false, submissionProps, showTotalCounter = false }) {
   const { t } = useLanguage();
   const [reviews, setReviews] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,6 +44,13 @@ function Reviews({ showSubmission = false, submissionProps }) {
           title={submissionProps?.title}
           description={submissionProps?.description}
         />
+      ) : null}
+
+      {showTotalCounter ? (
+        <div className="reviews-total-banner" aria-live="polite">
+          <span>{t("reviewsPage.totalReviewsLabel")}</span>
+          <strong>{totalReviews}</strong>
+        </div>
       ) : null}
 
       <header className="job-board-header reviews-hero">

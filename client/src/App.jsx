@@ -178,6 +178,7 @@ function App() {
       <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <Reviews
           showSubmission
+          showTotalCounter
           submissionProps={{
             authorName: authUser?.name,
             role: "student",

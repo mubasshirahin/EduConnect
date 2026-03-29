@@ -1781,6 +1781,34 @@ html[data-theme="light"] .role-option {
   padding-bottom: 5rem;
 }
 
+.reviews-total-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  margin: 0.6rem 0 1.25rem;
+  background:
+    linear-gradient(125deg, rgba(63, 169, 113, 0.18), rgba(63, 169, 113, 0.06)),
+    var(--bg-surface);
+  border: 1px solid rgba(63, 169, 113, 0.24);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+.reviews-total-banner span {
+  color: var(--text-soft);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.reviews-total-banner strong {
+  color: var(--text-main);
+  font-size: clamp(1.5rem, 4vw, 2.1rem);
+}
+
 .reviews-hero {
   align-items: stretch;
   gap: 1.5rem;
