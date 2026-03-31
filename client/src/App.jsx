@@ -57,6 +57,10 @@ function App() {
     if (token) {
       localStorage.setItem("educonnect-auth-token", token);
     }
+
+    // After login, redirect to home so role-based dashboards render for signed-in users.
+    window.location.hash = "#home";
+    setRoute("#home");
   };
 
   const handleLogout = () => {
@@ -106,7 +110,7 @@ function App() {
   } else if (route === "#about") {
     content = <AboutUs />;
   } else if (route === "#blog") {
-    content = <BlogPage />;
+    content = <BlogPage authUser={authUser} onRequireLogin={openLogin} />;
   } else if (route.startsWith("#jobs")) {
     content = <JobBoard authUser={authUser} onRequireLogin={openLogin} />;
   } else if (route.startsWith("#reviews") && !authUser) {
