@@ -367,6 +367,7 @@ function App() {
             handleAuthSuccess(user, token);
             closeAuth();
           }}
+          onSwitchMode={(nextMode) => setAuthMode(nextMode)}
         />
       )}
     </>

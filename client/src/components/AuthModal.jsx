@@ -2,11 +2,17 @@ import React, { useState } from "react";
 import TermsModal from "./TermsModal";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 
-function AuthModal({ mode, onClose, onAuthSuccess }) {
+function AuthModal({ mode, onClose, onAuthSuccess, onSwitchMode }) {
   const { t } = useLanguage();
   const isLogin = mode === "login";
   const title = isLogin ? t("auth.loginTitle") : t("auth.registerTitle");
   const subtitle = isLogin ? t("auth.loginSubtitle") : t("auth.registerSubtitle");
+
+  const switchMode = () => {
+    if (typeof onSwitchMode === "function") {
+      onSwitchMode(isLogin ? "register" : "login");
+    }
+  };
 
   const [status, setStatus] = useState({ type: "", message: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -216,6 +222,13 @@ function AuthModal({ mode, onClose, onAuthSuccess }) {
           <button className="btn btn-primary" type="submit" disabled={isLoading}>
             {isLoading ? t("auth.pleaseWait") : title}
           </button>
+          <p style={{ marginTop: "1rem", fontSize: "0.9rem", textAlign: "center", color: "var(--text-soft)" }}>
+            {isLogin ? (
+              <>Don&apos;t have an account? <span onClick={switchMode} style={{ color: "var(--accent)", cursor: "pointer", textDecoration: "underline" }}>Sign up</span></>
+            ) : (
+              <>Already have an account? <span onClick={switchMode} style={{ color: "var(--accent)", cursor: "pointer", textDecoration: "underline" }}>Log in</span></>
+            )}
+          </p>
         </form>
       </div>
       <button className="auth-backdrop" type="button" onClick={onClose} aria-label={t("common.close")} />
