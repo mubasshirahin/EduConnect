@@ -4,6 +4,8 @@ const jobSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
     location: { type: String, required: true, trim: true },
+    subject: { type: String, trim: true, default: "" },
+    classLevel: { type: String, trim: true, default: "" },
     schedule: { type: String, required: true, trim: true },
     rate: { type: String, required: true, trim: true },
     postedBy: { type: String, required: true, trim: true },
