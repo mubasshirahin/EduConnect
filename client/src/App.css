@@ -632,6 +632,8 @@ html[data-theme="light"] .btn-primary {
 .auth-modal {
   position: relative;
   width: min(520px, calc(100% - 2rem));
+  max-height: 90vh;
+  overflow: hidden;
   background:
     linear-gradient(180deg, rgba(25, 36, 30, 0.98), rgba(18, 27, 22, 0.98)),
     var(--bg-surface);
@@ -641,6 +643,8 @@ html[data-theme="light"] .btn-primary {
   padding: 2rem 1.8rem;
   z-index: 1;
   animation: riseIn 320ms ease-out;
+  display: flex;
+  flex-direction: column;
 }
 
 html[data-theme="light"] .auth-modal {
@@ -679,6 +683,9 @@ html[data-theme="light"] .auth-modal {
 .auth-form {
   display: grid;
   gap: 1rem;
+  overflow-y: auto;
+  max-height: calc(90vh - 165px);
+  padding-right: 0.25rem;
 }
 
 .form-group {
