@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-function BlogPage() {
+function BlogPage({ authUser, onRequireLogin }) {
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -10,6 +10,17 @@ function BlogPage() {
   const [message, setMessage] = useState("");
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (authUser) {
+      setAuthorName(authUser.name || "");
+      setRole(authUser.role || "student");
+    } else {
+      setAuthorName("");
+      setRole("student");
+      setShowForm(false);
+    }
+  }, [authUser]);
 
   useEffect(() => {
     fetchBlogs();
@@ -31,26 +42,34 @@ function BlogPage() {
     e.preventDefault();
     setMessage("");
 
-    if (!authorName.trim()) {
-      setMessage("Please enter your name.");
+    if (!authUser) {
+      setMessage("You must log in to submit a blog post.");
       return;
     }
 
-    const user = JSON.parse(localStorage.getItem("educonnect-auth-user") || "{}");
-    const authorEmail = user.email || "guest@example.com";
+    if (!title.trim() || !content.trim()) {
+      setMessage("Title and content are required.");
+      return;
+    }
+
+    const token = localStorage.getItem("educonnect-auth-token");
+    if (!token) {
+      setMessage("Invalid session. Please log in again.");
+      return;
+    }
 
     try {
       const response = await fetch("/api/blogs", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          title: title,
-          content: content,
-          author: authorName,
-          authorRole: role,
-          authorEmail: authorEmail,
-          tags: tags.split(",").map(tag => tag.trim())
-        })
+          title,
+          content,
+          tags: tags.split(",").map((tag) => tag.trim()),
+        }),
       });
 
       if (response.ok) {
@@ -58,12 +77,11 @@ function BlogPage() {
         setTitle("");
         setContent("");
         setTags("");
-        setAuthorName("");
-        setRole("student");
         setShowForm(false);
         fetchBlogs();
       } else {
-        setMessage("Failed to submit. Please try again.");
+        const data = await response.json().catch(() => null);
+        setMessage(data?.message || "Failed to submit. Please try again.");
       }
     } catch (error) {
       setMessage("Error submitting blog.");
@@ -76,14 +94,39 @@ function BlogPage() {
 
   return (
     <div className="container" style={{ padding: "2rem 0 4rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-        <h1>Study Tips & Blog</h1>
-        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
-          {showForm ? "Cancel" : "Write a Post"}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.8rem" }}>
+        <button
+          className="btn"
+          style={{ backgroundColor: "var(--primary)", color: "#fff", borderColor: "var(--primary)", padding: "0.7rem 1rem" }}
+          onClick={() => {
+            window.location.hash = "#home";
+          }}
+        >
+          ← Back to Dashboard
+        </button>
+        <h1 style={{ margin: "0 auto" }}>Study Tips & Blog</h1>
+      </div>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "2rem" }}>
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            if (!authUser) {
+              onRequireLogin?.();
+              return;
+            }
+            setShowForm((prev) => !prev);
+          }}
+        >
+          {showForm ? "Cancel" : authUser ? "Write a Post" : "Login to Write"}
         </button>
       </div>
+      {!authUser && (
+        <p style={{ color: "var(--text-soft)", marginBottom: "1rem" }}>
+          You must be logged in to write a blog post. Click the button to login/register.
+        </p>
+      )}
 
-      {showForm && (
+      {showForm && authUser && (
         <div className="dashboard-card blog-form-card" style={{ marginBottom: "2rem" }}>
           <h3>Share Your Study Tips</h3>
           <form onSubmit={handleSubmit} className="blog-form">
@@ -92,33 +135,13 @@ function BlogPage() {
               <input
                 type="text"
                 value={authorName}
-                onChange={(e) => setAuthorName(e.target.value)}
-                placeholder="Enter your name"
+                readOnly
                 required
               />
             </div>
             <div className="form-group">
               <label>I am a</label>
-              <div style={{ display: "flex", gap: "1rem" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <input
-                    type="radio"
-                    value="student"
-                    checked={role === "student"}
-                    onChange={(e) => setRole(e.target.value)}
-                  />
-                  <span>Student</span>
-                </label>
-                <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <input
-                    type="radio"
-                    value="teacher"
-                    checked={role === "teacher"}
-                    onChange={(e) => setRole(e.target.value)}
-                  />
-                  <span>Teacher</span>
-                </label>
-              </div>
+              <input type="text" value={role || "student"} readOnly />
             </div>
             <div className="form-group">
               <label>Title</label>
