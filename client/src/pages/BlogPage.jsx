@@ -38,6 +38,53 @@ function BlogPage({ authUser, onRequireLogin }) {
     }
   };
 
+  const getAverageRating = (ratings) => {
+    if (!ratings || ratings.length === 0) return 0;
+    const total = ratings.reduce((sum, r) => sum + (r.rating || 0), 0);
+    return total / ratings.length;
+  };
+
+  const getUserRating = (ratings) => {
+    if (!authUser || !ratings) return null;
+    const userRating = ratings.find((r) => r.email?.toLowerCase() === authUser.email?.toLowerCase());
+    return userRating?.rating ?? null;
+  };
+
+  const handleRate = async (blogId, value) => {
+    if (!authUser) {
+      onRequireLogin?.();
+      return;
+    }
+
+    const token = localStorage.getItem("educonnect-auth-token");
+    if (!token) {
+      setMessage("Invalid session. Please log in again.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/blogs/${blogId}/rate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ rating: value }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        setMessage(data?.message || "Could not set rating.");
+        return;
+      }
+
+      await fetchBlogs();
+      setMessage("Rating saved.");
+    } catch (error) {
+      setMessage("Error submitting rating.");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
@@ -204,6 +251,47 @@ function BlogPage({ authUser, onRequireLogin }) {
                 {blog.tags?.length > 0 && ` • Tags: ${blog.tags.join(", ")}`}
               </p>
               <p style={{ whiteSpace: "pre-wrap" }}>{blog.content}</p>
+
+              <div style={{ marginTop: "1rem" }}>
+                <p style={{ margin: "0 0 .4rem 0", fontSize: "0.88rem", color: "var(--text-soft)" }}>
+                  Average rating: {getAverageRating(blog.ratings).toFixed(1)} / 5 ({blog.ratings?.length || 0} votes)
+                </p>
+                <p style={{ margin: "0 0 .8rem 0", fontSize: "0.88rem", color: "var(--text-soft)" }}>
+                  Your rating: {getUserRating(blog.ratings) || "Not rated"}
+                </p>
+                <div style={{ display: "flex", gap: "0.25rem" }}>
+                  {Array.from({ length: 5 }, (_, i) => i + 1).map((star) => {
+                    const isAuthor = authUser?.email?.toLowerCase() === blog.authorEmail?.toLowerCase();
+                    const currentRating = getUserRating(blog.ratings);
+                    const filled = star <= (currentRating || Math.round(getAverageRating(blog.ratings)));
+                    return (
+                      <button
+                        key={`${blog._id}-star-${star}`}
+                        className="btn"
+                        style={{
+                          minWidth: "32px",
+                          height: "32px",
+                          padding: "0",
+                          background: filled ? "#FFD700" : "#eaeaea",
+                          border: "1px solid #ccc",
+                          color: filled ? "#333" : "#777",
+                          borderRadius: "4px",
+                          cursor: isAuthor ? "not-allowed" : "pointer",
+                        }}
+                        disabled={isAuthor}
+                        onClick={() => !isAuthor && handleRate(blog._id, star)}
+                      >
+                        ★
+                      </button>
+                    );
+                  })}
+                </div>
+                {authUser?.email?.toLowerCase() === blog.authorEmail?.toLowerCase() && (
+                  <p style={{ fontSize: "0.8rem", color: "#ff6347", marginTop: "0.5rem" }}>
+                    You cannot rate your own post.
+                  </p>
+                )}
+              </div>
             </div>
           ))}
         </div>
