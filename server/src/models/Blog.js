@@ -13,6 +13,13 @@ const blogSchema = new mongoose.Schema(
       default: "pending"
     },
     tags: [{ type: String }],
+    ratings: [
+      {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        email: { type: String, required: true, lowercase: true },
+        rating: { type: Number, required: true, min: 1, max: 5 },
+      }
+    ],
   },
   { timestamps: true }
 );

@@ -81,4 +81,42 @@ router.post("/", authenticate, async (req, res, next) => {
   }
 });
 
+// Rate a blog post (authenticated users only, not the author)
+router.post('/:id/rate', authenticate, async (req, res, next) => {
+  try {
+    const blogId = req.params.id;
+    const { rating } = req.body;
+
+    if (!rating || typeof rating !== 'number' || rating < 1 || rating > 5) {
+      return res.status(400).json({ message: 'Rating must be an integer between 1 and 5.' });
+    }
+
+    const blog = await Blog.findById(blogId);
+    if (!blog) {
+      return res.status(404).json({ message: 'Blog post not found.' });
+    }
+
+    if (blog.authorEmail && req.user.email && blog.authorEmail.toLowerCase() === req.user.email.toLowerCase()) {
+      return res.status(403).json({ message: 'You cannot rate your own blog post.' });
+    }
+
+    const existing = blog.ratings.find((r) => r.userId.equals(req.user._id));
+    if (existing) {
+      existing.rating = rating;
+    } else {
+      blog.ratings.push({
+        userId: req.user._id,
+        email: req.user.email,
+        rating,
+      });
+    }
+
+    await blog.save();
+
+    res.json(blog);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
