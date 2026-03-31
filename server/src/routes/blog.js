@@ -40,6 +40,35 @@ const authenticate = async (req, res, next) => {
   }
 };
 
+const optionalAuthenticate = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return next();
+    }
+
+    const token = authHeader.split(" ")[1];
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      return res.status(500).json({ message: "Server configuration error." });
+    }
+
+    try {
+      const payload = jwt.verify(token, secret);
+      const user = await User.findById(payload.sub);
+      if (user && !user.isBlocked) {
+        req.user = user;
+      }
+    } catch (error) {
+      // ignore invalid token for optional authentication
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Get all blogs
 router.get("/", async (req, res, next) => {
   try {
@@ -114,6 +143,76 @@ router.post('/:id/rate', authenticate, async (req, res, next) => {
     await blog.save();
 
     res.json(blog);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Add a comment to a blog (everyone allowed, auth optional)
+router.post('/:id/comments', optionalAuthenticate, async (req, res, next) => {
+  try {
+    const blogId = req.params.id;
+    const { content } = req.body;
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({ message: 'Comment content is required.' });
+    }
+
+    const blog = await Blog.findById(blogId);
+    if (!blog) {
+      return res.status(404).json({ message: 'Blog not found.' });
+    }
+
+    const comment = {
+      authorId: req.user ? req.user._id : undefined,
+      authorName: req.user ? req.user.name : 'Anonymous',
+      authorEmail: req.user ? req.user.email : undefined,
+      content: content.trim(),
+      createdAt: new Date(),
+      replies: [],
+    };
+
+    blog.comments.push(comment);
+    await blog.save();
+
+    res.status(201).json(blog);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Add a reply to a comment in a blog (everyone allowed, auth optional)
+router.post('/:id/comments/:commentId/replies', optionalAuthenticate, async (req, res, next) => {
+  try {
+    const { id: blogId, commentId } = req.params;
+    const { content } = req.body;
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({ message: 'Reply content is required.' });
+    }
+
+    const blog = await Blog.findById(blogId);
+    if (!blog) {
+      return res.status(404).json({ message: 'Blog not found.' });
+    }
+
+    const comment = blog.comments.id(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: 'Comment not found.' });
+    }
+
+    const reply = {
+      authorId: req.user ? req.user._id : undefined,
+      authorName: req.user ? req.user.name : 'Anonymous',
+      authorEmail: req.user ? req.user.email : undefined,
+      content: content.trim(),
+      createdAt: new Date(),
+    };
+
+    comment.replies.push(reply);
+    await blog.save();
+
+    res.status(201).json(blog);
   } catch (error) {
     next(error);
   }

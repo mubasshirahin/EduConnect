@@ -50,6 +50,88 @@ function BlogPage({ authUser, onRequireLogin }) {
     return userRating?.rating ?? null;
   };
 
+  const [openComments, setOpenComments] = useState({});
+  const [commentInputs, setCommentInputs] = useState({});
+  const [replyInputs, setReplyInputs] = useState({});
+
+  const toggleComments = (blogId) => {
+    setOpenComments((prev) => ({ ...prev, [blogId]: !prev[blogId] }));
+  };
+
+  const handleCommentInputChange = (blogId, value) => {
+    setCommentInputs((prev) => ({ ...prev, [blogId]: value }));
+  };
+
+  const handleReplyInputChange = (commentId, value) => {
+    setReplyInputs((prev) => ({ ...prev, [commentId]: value }));
+  };
+
+  const handlePostComment = async (blogId) => {
+    const content = (commentInputs[blogId] || "").trim();
+    if (!content) {
+      setMessage("Comment cannot be empty.");
+      return;
+    }
+
+    const token = localStorage.getItem("educonnect-auth-token");
+
+    try {
+      const response = await fetch(`/api/blogs/${blogId}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ content }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        setMessage(data?.message || "Could not post comment.");
+        return;
+      }
+
+      setCommentInputs((prev) => ({ ...prev, [blogId]: "" }));
+      setMessage("Comment posted.");
+      await fetchBlogs();
+    } catch (error) {
+      setMessage("Error posting comment.");
+    }
+  };
+
+  const handlePostReply = async (blogId, commentId) => {
+    const content = (replyInputs[commentId] || "").trim();
+    if (!content) {
+      setMessage("Reply cannot be empty.");
+      return;
+    }
+
+    const token = localStorage.getItem("educonnect-auth-token");
+
+    try {
+      const response = await fetch(`/api/blogs/${blogId}/comments/${commentId}/replies`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ content }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        setMessage(data?.message || "Could not post reply.");
+        return;
+      }
+
+      setReplyInputs((prev) => ({ ...prev, [commentId]: "" }));
+      setMessage("Reply posted.");
+      await fetchBlogs();
+    } catch (error) {
+      setMessage("Error posting reply.");
+    }
+  };
+
   const handleRate = async (blogId, value) => {
     if (!authUser) {
       onRequireLogin?.();
@@ -290,6 +372,76 @@ function BlogPage({ authUser, onRequireLogin }) {
                   <p style={{ fontSize: "0.8rem", color: "#ff6347", marginTop: "0.5rem" }}>
                     You cannot rate your own post.
                   </p>
+                )}
+              </div>
+
+              <div style={{ marginTop: "1rem", borderTop: "1px solid #eaeaea", paddingTop: "1rem" }}>
+                <button
+                  className="btn"
+                  style={{ marginBottom: "0.75rem", backgroundColor: "var(--primary)", color: "#fff", borderColor: "var(--primary)" }}
+                  onClick={() => toggleComments(blog._id)}
+                >
+                  {openComments[blog._id] ? "Hide Comments" : `Show Comments (${blog.comments?.length || 0})`}
+                </button>
+
+                {openComments[blog._id] && (
+                  <div style={{ marginTop: "0.5rem", backgroundColor: "#f0faf2", borderRadius: "10px", padding: "0.8rem" }}>
+                    {blog.comments?.length === 0 ? (
+                      <p style={{ color: "var(--text-soft)" }}>No comments yet. Be first to comment!</p>
+                    ) : (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                        {blog.comments.map((comment) => (
+                          <div key={comment._id} style={{ backgroundColor: "#e8f7ec", padding: "0.75rem", borderRadius: "8px", border: "1px solid #d3edd9" }}>
+                            <p style={{ margin: "0 0 0.25rem 0", fontWeight: "bold" }}>
+                              {comment.authorName || "Anonymous"} <span style={{ color: "var(--text-soft)", fontWeight: "normal" }}>• {new Date(comment.createdAt).toLocaleString()}</span>
+                            </p>
+                            <p style={{ margin: "0 0 0.5rem 0" }}>{comment.content}</p>
+
+                            <div style={{ paddingLeft: "0.75rem", borderLeft: "2px solid #ececec" }}>
+                              {comment.replies?.map((reply) => (
+                                <div key={reply._id} style={{ marginBottom: "0.5rem" }}>
+                                  <p style={{ margin: "0", fontWeight: "bold", fontSize: "0.9rem" }}>
+                                    {reply.authorName || "Anonymous"} <span style={{ color: "var(--text-soft)", fontWeight: "normal", fontSize: "0.8rem" }}>• {new Date(reply.createdAt).toLocaleString()}</span>
+                                  </p>
+                                  <p style={{ margin: "0.15rem 0 0 0", fontSize: "0.9rem" }}>{reply.content}</p>
+                                </div>
+                              ))}
+
+                              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.3rem", backgroundColor: "#e6f8e7", border: "1px solid #bce8c5", borderRadius: "8px", padding: "0.5rem" }}>
+                                <textarea
+                                  rows="2"
+                                  value={replyInputs[comment._id] || ""}
+                                  onChange={(e) => handleReplyInputChange(comment._id, e.target.value)}
+                                  placeholder="Write a reply..."
+                                  style={{ flex: 1, resize: "vertical", backgroundColor: "#dff6dc", border: "1px solid #8fd089", borderRadius: "6px", padding: "0.4rem" }}
+                                />
+                                <button className="btn" style={{ backgroundColor: "var(--primary)", color: "#fff", borderColor: "var(--primary)" }} onClick={() => handlePostReply(blog._id, comment._id)}>
+                                  Reply
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div style={{ marginTop: "0.75rem", backgroundColor: "#e6f8e7", border: "1px solid #bce8c5", borderRadius: "8px", padding: "0.75rem" }}>
+                      <textarea
+                        rows="3"
+                        value={commentInputs[blog._id] || ""}
+                        onChange={(e) => handleCommentInputChange(blog._id, e.target.value)}
+                        placeholder="Write a comment..."
+                        style={{ width: "100%", resize: "vertical", backgroundColor: "#dff6dc", border: "1px solid #8fd089", borderRadius: "6px", padding: "0.4rem" }}
+                      />
+                      <button
+                        className="btn"
+                        style={{ marginTop: "0.4rem", backgroundColor: "var(--primary)", color: "#fff", borderColor: "var(--primary)" }}
+                        onClick={() => handlePostComment(blog._id)}
+                      >
+                        Post Comment
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>

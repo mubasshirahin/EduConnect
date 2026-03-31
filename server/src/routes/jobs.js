@@ -20,11 +20,11 @@ router.get("/", async (req, res, next) => {
 });
 router.post("/", async (req, res, next) => {
   try {
-    const { title, location, schedule, rate, postedBy, postedByEmail } = req.body;
+    const { title, subject, classLevel, location, schedule, rate, postedBy, postedByEmail } = req.body;
     if (!title || !location || !schedule || !rate || !postedBy || !postedByEmail) {
       return res.status(400).json({ message: "All fields are required." });
     }
-    const job = await Job.create({ title, location, schedule, rate, postedBy, postedByEmail });
+    const job = await Job.create({ title, subject: subject || "", classLevel: classLevel || "", location, schedule, rate, postedBy, postedByEmail });
     res.status(201).json(job);
   } catch (error) {
     next(error);
