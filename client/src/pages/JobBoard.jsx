@@ -7,6 +7,8 @@ function JobBoard({ authUser, onRequireLogin }) {
   const [filteredJobs, setFilteredJobs] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const [applyStatus, setApplyStatus] = useState({ type: "", message: "" });
+  const [pendingApplyJob, setPendingApplyJob] = useState(null);
   const [isPostOpen, setIsPostOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isClassPickerOpen, setIsClassPickerOpen] = useState(false);
@@ -124,11 +126,20 @@ function JobBoard({ authUser, onRequireLogin }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: authUser.email, name: authUser.name || "Teacher" }),
       })
-        .then((res) => res.json())
+        .then(async (res) => {
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data?.message || "Failed to apply for this job.");
+          }
+          return data;
+        })
         .then((updatedJob) => {
           setJobs((prev) => prev.map((item) => (item._id === updatedJob._id ? updatedJob : item)));
+          setApplyStatus({ type: "success", message: "Application submitted successfully." });
         })
-        .catch(() => {});
+        .catch((error) => {
+          setApplyStatus({ type: "error", message: error.message || "Failed to apply for this job." });
+        });
     }
   };
 
@@ -145,9 +156,27 @@ function JobBoard({ authUser, onRequireLogin }) {
         .then((res) => res.json())
         .then((updatedJob) => {
           setJobs((prev) => prev.map((item) => (item._id === updatedJob._id ? updatedJob : item)));
-        })
+      })
         .catch(() => {});
     }
+  };
+
+  const openApplyConfirmation = (job) => {
+    if (!authUser) {
+      onRequireLogin?.();
+      return;
+    }
+
+    if (!authUser.email) {
+      return;
+    }
+
+    const alreadyApplied = job.applicants?.some((app) => app.email === authUser.email.toLowerCase());
+    if (alreadyApplied) {
+      return;
+    }
+
+    setPendingApplyJob(job);
   };
 
   const isTeacher = authUser?.role === "teacher";
@@ -229,6 +258,18 @@ function JobBoard({ authUser, onRequireLogin }) {
       setCurrentPage(safePage);
     }
   }, [currentPage, safePage]);
+
+  useEffect(() => {
+    if (!applyStatus.message) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setApplyStatus({ type: "", message: "" });
+    }, 2500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [applyStatus]);
 
   return (
     <div className="job-board">
@@ -513,10 +554,53 @@ function JobBoard({ authUser, onRequireLogin }) {
         </div>
       )}
 
+      {pendingApplyJob && (
+        <div className="auth-overlay" role="dialog" aria-modal="true">
+          <div className="auth-modal" style={{ maxWidth: "440px" }}>
+            <div className="auth-modal-header">
+              <div>
+                <h3>Apply Confirmation</h3>
+                <p>Are you sure to apply this job?</p>
+              </div>
+              <button className="auth-close" type="button" onClick={() => setPendingApplyJob(null)}>
+                Ã—
+              </button>
+            </div>
+            <div className="auth-form">
+              <div className="form-group">
+                <label>Job Title</label>
+                <input value={pendingApplyJob.title || ""} readOnly />
+              </div>
+              <div className="job-board-actions" style={{ marginTop: "1rem" }}>
+                <button
+                  className="btn btn-primary"
+                  type="button"
+                  onClick={() => {
+                    handleApply(pendingApplyJob);
+                    setPendingApplyJob(null);
+                  }}
+                >
+                  Yes, Apply
+                </button>
+                <button className="btn btn-ghost" type="button" onClick={() => setPendingApplyJob(null)}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {sortedJobs.length > 0 ? (
         <div className="job-board-count">
           Showing {pageStart + 1}–{Math.min(pageStart + pageJobs.length, sortedJobs.length)} of {sortedJobs.length} jobs
         </div>
+      ) : null}
+
+      {applyStatus.message ? (
+        <p className={`form-message ${applyStatus.type === "error" ? "form-error" : "form-success"}`}>
+          {applyStatus.message}
+        </p>
       ) : null}
 
       <div className="job-timeline">
@@ -572,7 +656,7 @@ function JobBoard({ authUser, onRequireLogin }) {
                           </button>
                         </>
                       ) : (
-                        <button className="btn btn-primary" type="button" onClick={() => handleApply(job)}>
+                        <button className="btn btn-primary" type="button" onClick={() => openApplyConfirmation(job)}>
                           {t("jobBoard.apply")}
                         </button>
                       )}
