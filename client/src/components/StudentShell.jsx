@@ -46,14 +46,16 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
         <a className="sidebar-edit" href="#profile">
           {t("dashboard.editProfile")}
         </a>
-        <button
-          className="sidebar-toggle"
-          type="button"
-          onClick={() => setIsCollapsed((prev) => !prev)}
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {isCollapsed ? "»" : "«"}
-        </button>
+        <div className="sidebar-toggle-row">
+          <button
+            className="sidebar-toggle"
+            type="button"
+            onClick={() => setIsCollapsed((prev) => !prev)}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? ">>" : "<<"}
+          </button>
+        </div>
         <nav className="sidebar-nav">
           <a
             className={`sidebar-link ${currentRoute?.startsWith("#home") ? "sidebar-link-active" : ""}`}

@@ -3,12 +3,70 @@ import React, { useEffect, useState } from "react";
 const EMPTY_REQUEST = {
   subject: "",
   classLevel: "",
+  medium: "",
   location: "",
   landmark: "",
   schedule: "",
   budget: "",
   details: "",
 };
+
+const REQUIRED_PROFILE_FIELDS = [
+  "name",
+  "email",
+  "phone",
+  "address",
+  "bscCurriculum",
+  "preferredClasses",
+  "hscInstitute",
+  "city",
+  "emergencyName",
+  "emergencyNumber",
+  "idCardImage",
+];
+
+const CLASS_OPTIONS = [
+  "Play",
+  "Nursery",
+  "KG",
+  "Class 1",
+  "Class 2",
+  "Class 3",
+  "Class 4",
+  "Class 5",
+  "Class 6",
+  "Class 7",
+  "Class 8",
+  "Class 9",
+  "Class 10",
+  "Class 11",
+  "Class 12",
+  "Admission Test",
+];
+
+const SUBJECT_OPTIONS = [
+  "Bangla",
+  "English",
+  "Mathematics",
+  "General Science",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  "Higher Math",
+  "ICT",
+  "Accounting",
+  "Finance",
+  "Economics",
+  "BGS",
+  "Religion",
+];
+
+const MEDIUM_OPTIONS = [
+  "Bangla Medium",
+  "English Medium",
+  "English Version",
+  "Madrasa",
+];
 
 function MessagesPage({ authUser, route }) {
   const [threads, setThreads] = useState([]);
@@ -19,8 +77,40 @@ function MessagesPage({ authUser, route }) {
   const [requestForm, setRequestForm] = useState(EMPTY_REQUEST);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isProfileReady, setIsProfileReady] = useState(false);
 
   const isStudent = authUser?.role === "student";
+
+  useEffect(() => {
+    if (!authUser?.email) {
+      setIsProfileReady(false);
+      return;
+    }
+
+    const profileStorageKey = `educonnect-profile:${authUser.email}`;
+    const syncProfileStatus = () => {
+      const stored = localStorage.getItem(profileStorageKey);
+      if (!stored) {
+        setIsProfileReady(false);
+        return;
+      }
+
+      try {
+        const profile = JSON.parse(stored);
+        const missing = REQUIRED_PROFILE_FIELDS.filter((field) => {
+          const value = profile?.[field];
+          return value === undefined || value === null || String(value).trim().length === 0;
+        });
+        setIsProfileReady(missing.length === 0);
+      } catch {
+        setIsProfileReady(false);
+      }
+    };
+
+    syncProfileStatus();
+    window.addEventListener("storage", syncProfileStatus);
+    return () => window.removeEventListener("storage", syncProfileStatus);
+  }, [authUser?.email]);
 
   useEffect(() => {
     const loadThreads = async () => {
@@ -203,10 +293,15 @@ function MessagesPage({ authUser, route }) {
 
   const handleSubmitTutorRequest = async (event) => {
     event.preventDefault();
+    if (!isProfileReady) {
+      setError("Please complete all starred profile fields before sending a tutor request.");
+      return;
+    }
     const message = [
       "Tutor request",
       `Subject: ${requestForm.subject.trim()}`,
       `Class level: ${requestForm.classLevel.trim()}`,
+      `Medium: ${requestForm.medium.trim()}`,
       `Location: ${requestForm.location.trim()}`,
       `Landmark: ${requestForm.landmark.trim() || "Not provided"}`,
       `Preferred schedule: ${requestForm.schedule.trim()}`,
@@ -223,6 +318,7 @@ function MessagesPage({ authUser, route }) {
   const emptyBody = isStudent
     ? "Send your subject, class, area, schedule, and budget to the admin team."
     : "Open a student conversation to review and reply.";
+  const requestBlocked = isStudent && !isProfileReady;
 
   return (
     <section className="messages-page">
@@ -237,20 +333,45 @@ function MessagesPage({ authUser, route }) {
             </p>
           </div>
           <form className="messages-request-form" onSubmit={handleSubmitTutorRequest}>
-            <input
+            <select
               name="subject"
-              placeholder="Subject"
               value={requestForm.subject}
               onChange={handleRequestChange}
               required
-            />
-            <input
+            >
+              <option value="">Select Subject</option>
+              {SUBJECT_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            <select
               name="classLevel"
-              placeholder="Class or level"
               value={requestForm.classLevel}
               onChange={handleRequestChange}
               required
-            />
+            >
+              <option value="">Select Class</option>
+              {CLASS_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            <select
+              name="medium"
+              value={requestForm.medium}
+              onChange={handleRequestChange}
+              required
+            >
+              <option value="">Select Medium</option>
+              {MEDIUM_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
             <input
               name="location"
               placeholder="Area or location"
@@ -286,7 +407,18 @@ function MessagesPage({ authUser, route }) {
               rows="3"
               required
             />
-            <button className="btn btn-primary" type="submit">
+            {requestBlocked ? (
+              <p className="messages-request-warning">
+                Complete all starred fields in your profile before sending this request.
+                <a href="#profile"> Open Profile</a>
+              </p>
+            ) : null}
+            {requestBlocked ? (
+              <p className="messages-request-error">
+                You cannot send this request until all starred profile fields are completed.
+              </p>
+            ) : null}
+            <button className="btn btn-primary" type="submit" disabled={requestBlocked}>
               Send Request to Admin
             </button>
           </form>
