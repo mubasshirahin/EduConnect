@@ -2306,10 +2306,63 @@ html[data-theme="light"] .reviews-form textarea {
   padding: 1.2rem 0 2rem;
 }
 
+.messages-request-card {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) 1fr;
+  gap: 1rem;
+  padding: 1.2rem;
+  margin-bottom: 1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+.messages-request-copy {
+  color: var(--text-main);
+}
+
+.messages-request-copy h3 {
+  margin: 0.25rem 0 0.6rem;
+}
+
+.messages-request-copy p:last-child {
+  color: var(--text-soft);
+}
+
+.messages-request-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.messages-request-form input,
+.messages-request-form textarea {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-page);
+  color: var(--text-main);
+  padding: 0.8rem 0.9rem;
+}
+
+.messages-request-form textarea {
+  grid-column: 1 / -1;
+  resize: vertical;
+}
+
+.messages-request-form button {
+  justify-self: start;
+}
+
 .messages-shell {
   display: grid;
   grid-template-columns: 260px 1fr;
   gap: 1rem;
+}
+
+.messages-shell-student {
+  grid-template-columns: 1fr;
 }
 
 .messages-list {
@@ -2352,6 +2405,15 @@ html[data-theme="light"] .reviews-form textarea {
   font-size: 0.85rem;
 }
 
+.thread-preview {
+  color: var(--text-soft);
+  font-size: 0.8rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
 .messages-chat {
   background: var(--bg-surface);
   border: 1px solid var(--border-soft);
@@ -2377,6 +2439,8 @@ html[data-theme="light"] .reviews-form textarea {
   display: grid;
   gap: 0.6rem;
   align-content: start;
+  max-height: 520px;
+  overflow-y: auto;
 }
 
 .message-bubble {
@@ -2384,6 +2448,14 @@ html[data-theme="light"] .reviews-form textarea {
   padding: 0.6rem 0.9rem;
   border-radius: 14px;
   font-size: 0.95rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.message-bubble p {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .message-out {
@@ -2398,6 +2470,11 @@ html[data-theme="light"] .reviews-form textarea {
   color: var(--text-main);
 }
 
+.message-time {
+  font-size: 0.75rem;
+  color: var(--text-soft);
+}
+
 .messages-input {
   display: flex;
   gap: 0.6rem;
@@ -2409,7 +2486,7 @@ html[data-theme="light"] .reviews-form textarea {
   flex: 1;
   border-radius: 999px;
   border: 1px solid var(--border-soft);
-  background: #121823;
+  background: var(--bg-page);
   color: var(--text-main);
   padding: 0.6rem 0.9rem;
 }
@@ -2417,6 +2494,13 @@ html[data-theme="light"] .reviews-form textarea {
 .messages-empty,
 .messages-empty-state {
   color: var(--text-soft);
+}
+
+@media (max-width: 900px) {
+  .messages-request-card,
+  .messages-request-form {
+    grid-template-columns: 1fr;
+  }
 }
 
 .profile-page {
