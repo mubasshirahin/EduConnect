@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 function ApplicantProfile({ email, authUser }) {
-  const profile = {
+  const [profile, setProfile] = useState({
     name: "Applicant Name",
     email,
     phone: "Not provided",
@@ -20,7 +20,20 @@ function ApplicantProfile({ email, authUser }) {
     emergencyRelation: "Not provided",
     emergencyNumber: "Not provided",
     emergencyAddress: "Not provided",
-  };
+    avatarUrl: "",
+  });
+
+  useEffect(() => {
+    const profileKey = `educonnect-profile:${email}`;
+    const stored = localStorage.getItem(profileKey);
+    if (stored) {
+      try {
+        setProfile((prev) => ({ ...prev, ...JSON.parse(stored) }));
+      } catch {
+        // use defaults
+      }
+    }
+  }, [email]);
 
   const renderField = (label, value) => (
     <div className="profile-field">
@@ -32,7 +45,13 @@ function ApplicantProfile({ email, authUser }) {
   return (
     <section className="profile-page">
       <div className="profile-hero">
-        <div className="profile-avatar">AP</div>
+        <div className="profile-avatar">
+          {profile.avatarUrl ? (
+            <img src={profile.avatarUrl} alt={profile.name} className="avatar-img" />
+          ) : (
+            profile.name?.charAt(0).toUpperCase() || "AP"
+          )}
+        </div>
         <div>
           <h2>{profile.name}</h2>
           <p>{profile.email}</p>

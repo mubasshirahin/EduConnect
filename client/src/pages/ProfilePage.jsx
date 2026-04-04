@@ -40,6 +40,7 @@ function ProfilePage({ authUser }) {
     emergencyRelation: "",
     emergencyNumber: "",
     emergencyAddress: "",
+    avatarUrl: "",
     bscInstitute: "",
     bscExamTitle: "",
     bscMajor: "",
@@ -116,6 +117,17 @@ function ProfilePage({ authUser }) {
   const handleFileChange = (event) => {
     const files = Array.from(event.target.files || []);
     setProfile((prev) => ({ ...prev, credentialsFiles: files.map((file) => file.name) }));
+  };
+
+  const handleAvatarChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfile((prev) => ({ ...prev, avatarUrl: reader.result }));
+    };
+    reader.readAsDataURL(file);
   };
 
   const completionFields = [
@@ -230,7 +242,28 @@ function ProfilePage({ authUser }) {
   return (
     <section className="profile-page">
       <div className="profile-hero">
-        <div className="profile-avatar">PI</div>
+        <div 
+          className={`profile-avatar ${isEditing ? "profile-avatar-editable" : ""}`}
+          onClick={() => isEditing && document.getElementById("avatar-upload").click()}
+        >
+          {profile.avatarUrl ? (
+            <img src={profile.avatarUrl} alt={profile.name} className="avatar-img" />
+          ) : (
+            profile.name?.charAt(0).toUpperCase() || "PI"
+          )}
+          {isEditing && (
+            <div className="avatar-overlay">
+              <span>Change</span>
+            </div>
+          )}
+        </div>
+        <input
+          id="avatar-upload"
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={handleAvatarChange}
+        />
         <div>
           <h2>{profile.name}</h2>
           <p>{profile.email}</p>
