@@ -562,9 +562,6 @@ function JobBoard({ authUser, onRequireLogin }) {
                 <h3>Apply Confirmation</h3>
                 <p>Are you sure to apply this job?</p>
               </div>
-              <button className="auth-close" type="button" onClick={() => setPendingApplyJob(null)}>
-                Ã—
-              </button>
             </div>
             <div className="auth-form">
               <div className="form-group">
