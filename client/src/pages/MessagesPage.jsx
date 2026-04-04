@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { markThreadSeen } from "../utils/messageNotifications.js";
 
 const EMPTY_REQUEST = {
   subject: "",
@@ -68,12 +69,59 @@ const MEDIUM_OPTIONS = [
   "Madrasa",
 ];
 
+const REQUEST_FIELD_LABELS = {
+  subject: "Subject",
+  classLevel: "Class level",
+  medium: "Medium",
+  location: "Location",
+  landmark: "Landmark",
+  schedule: "Preferred schedule",
+  budget: "Budget",
+  details: "Details",
+};
+
+const REQUEST_FIELD_PREFIXES = {
+  "Subject:": "subject",
+  "Class level:": "classLevel",
+  "Medium:": "medium",
+  "Location:": "location",
+  "Landmark:": "landmark",
+  "Preferred schedule:": "schedule",
+  "Budget:": "budget",
+  "Details:": "details",
+};
+
+function parseTutorRequest(text) {
+  const trimmed = text?.trim();
+  if (!trimmed || !trimmed.toLowerCase().startsWith("tutor request")) {
+    return null;
+  }
+
+  const lines = trimmed.split("\n").map((line) => line.trim()).filter(Boolean);
+  const fields = {};
+
+  lines.slice(1).forEach((line) => {
+    const entry = Object.entries(REQUEST_FIELD_PREFIXES).find(([prefix]) => line.startsWith(prefix));
+    if (!entry) {
+      return;
+    }
+    const [prefix, key] = entry;
+    fields[key] = line.slice(prefix.length).trim();
+  });
+
+  return {
+    title: lines[0],
+    fields,
+  };
+}
+
 function MessagesPage({ authUser, route }) {
   const [threads, setThreads] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [draft, setDraft] = useState("");
   const [pendingRecipient, setPendingRecipient] = useState(null);
   const [supportContact, setSupportContact] = useState(null);
+  const [adminContacts, setAdminContacts] = useState([]);
   const [requestForm, setRequestForm] = useState(EMPTY_REQUEST);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -119,6 +167,7 @@ function MessagesPage({ authUser, route }) {
         setActiveId(null);
         setPendingRecipient(null);
         setSupportContact(null);
+        setAdminContacts([]);
         setLoading(false);
         return;
       }
@@ -140,13 +189,18 @@ function MessagesPage({ authUser, route }) {
         }
 
         const nextThreads = await threadsResponse.json();
-        const nextSupport =
+        const nextAdmins =
           isStudent && adminsResponse?.ok
-            ? (await adminsResponse.json())[0] || null
+            ? await adminsResponse.json()
+            : [];
+        const nextSupport =
+          isStudent
+            ? nextAdmins[0] || null
             : null;
 
         setThreads(Array.isArray(nextThreads) ? nextThreads : []);
         setSupportContact(nextSupport);
+        setAdminContacts(Array.isArray(nextAdmins) ? nextAdmins : []);
 
         const supportEmail = nextSupport?.email?.toLowerCase() || null;
         const supportThread = supportEmail
@@ -193,6 +247,7 @@ function MessagesPage({ authUser, route }) {
         setActiveId(null);
         setPendingRecipient(null);
         setSupportContact(null);
+        setAdminContacts([]);
         setError(loadError.message || "Unable to load messages.");
       } finally {
         setLoading(false);
@@ -203,11 +258,29 @@ function MessagesPage({ authUser, route }) {
   }, [authUser, isStudent, route]);
 
   const activeThread = threads.find((thread) => thread._id === activeId) || null;
+  const latestTutorRequest = activeThread
+    ? [...(activeThread.messages || [])]
+        .reverse()
+        .map((message) => ({
+          message,
+          request: parseTutorRequest(message.text),
+        }))
+        .find((entry) => entry.request)
+    : null;
+
+  const getOtherParticipantEmail = (thread) =>
+    thread?.participants?.find((email) => email !== authUser?.email) || thread?.email || "";
 
   const getDisplayName = (thread) => {
-    const otherEmail = thread.participants?.find((email) => email !== authUser?.email) || thread.email;
+    const otherEmail = getOtherParticipantEmail(thread);
     const map = thread.participantNames || {};
-    return map[otherEmail] || otherEmail;
+    const mappedName = map[otherEmail];
+
+    if (!mappedName) {
+      return otherEmail;
+    }
+
+    return mappedName.toLowerCase() === otherEmail.toLowerCase() ? otherEmail : mappedName;
   };
 
   const getRecipientName = () => {
@@ -222,6 +295,24 @@ function MessagesPage({ authUser, route }) {
     }
     return pendingRecipient;
   };
+
+  const getLatestTutorRequest = (thread) =>
+    [...(thread?.messages || [])]
+      .reverse()
+      .map((message) => ({
+        message,
+        request: parseTutorRequest(message.text),
+      }))
+      .find((entry) => entry.request) || null;
+
+  useEffect(() => {
+    const latestMessage = activeThread?.messages?.[activeThread.messages.length - 1];
+    if (!authUser?.email || !activeThread?._id || !latestMessage?.createdAt) {
+      return;
+    }
+
+    markThreadSeen(authUser.email, activeThread._id, latestMessage.createdAt);
+  }, [activeThread, authUser?.email]);
 
   const sendMessage = async (text) => {
     const bodyText = text.trim();
@@ -241,38 +332,52 @@ function MessagesPage({ authUser, route }) {
     const toName =
       activeThread?.participantNames?.[toEmail] ||
       (supportContact?.email?.toLowerCase() === toEmail ? supportContact.name : undefined);
+    const adminEmails = adminContacts
+      .map((admin) => admin?.email?.toLowerCase())
+      .filter(Boolean);
+    const shouldBroadcastToAdmins = isStudent && adminEmails.includes(toEmail.toLowerCase());
+    const recipients = shouldBroadcastToAdmins ? adminEmails : [toEmail.toLowerCase()];
 
     try {
-      const response = await fetch("/api/messages/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          from: authUser.email,
-          to: toEmail,
-          text: bodyText,
-          fromName: authUser.name,
-          toName,
-        }),
-      });
+      const responses = await Promise.all(
+        recipients.map(async (recipientEmail) => {
+          const matchedAdmin = adminContacts.find(
+            (admin) => admin?.email?.toLowerCase() === recipientEmail
+          );
+          const response = await fetch("/api/messages/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from: authUser.email,
+              to: recipientEmail,
+              text: bodyText,
+              fromName: authUser.name,
+              toName: matchedAdmin?.name || toName || recipientEmail,
+            }),
+          });
 
-      if (!response.ok) {
-        throw new Error("Unable to send message.");
-      }
+          if (!response.ok) {
+            throw new Error("Unable to send message.");
+          }
 
-      const updatedThread = await response.json();
+          return response.json();
+        })
+      );
+
+      const updatedThread =
+        responses.find((thread) => thread?.participants?.includes(toEmail.toLowerCase())) ||
+        responses[0];
+
       setThreads((prev) => {
-        const exists = prev.some((thread) => thread._id === updatedThread._id);
-        if (exists) {
-          const replaced = prev.map((thread) =>
-            thread._id === updatedThread._id ? updatedThread : thread
-          );
-          return replaced.sort(
-            (a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime()
-          );
-        }
-        return [updatedThread, ...prev];
+        const threadMap = new Map(prev.map((thread) => [thread._id, thread]));
+        responses.forEach((thread) => {
+          threadMap.set(thread._id, thread);
+        });
+        return [...threadMap.values()].sort(
+          (a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime()
+        );
       });
-      setActiveId(updatedThread._id);
+      setActiveId(updatedThread?._id || null);
       setPendingRecipient(null);
       setDraft("");
       setError("");
@@ -436,6 +541,9 @@ function MessagesPage({ authUser, route }) {
             ) : (
               threads.map((thread) => {
                 const latestMessage = thread.messages?.[thread.messages.length - 1];
+                const requestEntry = getLatestTutorRequest(thread);
+                const otherEmail = getOtherParticipantEmail(thread);
+                const displayName = getDisplayName(thread);
                 return (
                   <button
                     key={thread._id}
@@ -443,10 +551,22 @@ function MessagesPage({ authUser, route }) {
                     type="button"
                     onClick={() => setActiveId(thread._id)}
                   >
-                    <span className="thread-name">{getDisplayName(thread)}</span>
-                    <span className="thread-email">
-                      {thread.participants?.find((email) => email !== authUser?.email) || ""}
-                    </span>
+                    {requestEntry ? <span className="thread-badge">Tuition Request</span> : null}
+                    <span className="thread-name">{displayName}</span>
+                    {displayName.toLowerCase() !== otherEmail.toLowerCase() ? (
+                      <span className="thread-email">{otherEmail}</span>
+                    ) : null}
+                    {requestEntry ? (
+                      <span className="thread-request-summary">
+                        {[
+                          requestEntry.request.fields.subject,
+                          requestEntry.request.fields.classLevel,
+                          requestEntry.request.fields.location,
+                        ]
+                          .filter(Boolean)
+                          .join(" • ")}
+                      </span>
+                    ) : null}
                     {latestMessage?.text ? (
                       <span className="thread-preview">{latestMessage.text.split("\n")[0]}</span>
                     ) : null}
@@ -466,7 +586,10 @@ function MessagesPage({ authUser, route }) {
                   {isStudent
                     ? "Share your tutor requirements here and admin will review them."
                     : activeThread
-                      ? activeThread.participants?.find((email) => email !== authUser?.email)
+                      ? getDisplayName(activeThread).toLowerCase() !==
+                        getOtherParticipantEmail(activeThread).toLowerCase()
+                        ? getOtherParticipantEmail(activeThread)
+                        : "Open the conversation to review and reply."
                       : pendingRecipient}
                 </p>
               </div>
@@ -484,19 +607,67 @@ function MessagesPage({ authUser, route }) {
             ) : error ? (
               <p className="messages-empty-state">{error}</p>
             ) : activeThread ? (
-              activeThread.messages.map((msg) => (
-                <div
-                  key={msg._id || msg.createdAt}
-                  className={`message-bubble ${
-                    msg.from === (authUser?.email || "me") ? "message-out" : "message-in"
-                  }`}
-                >
-                  <p>{msg.text}</p>
-                  <span className="message-time">
-                    {msg.createdAt ? new Date(msg.createdAt).toLocaleString() : ""}
-                  </span>
-                </div>
-              ))
+              <>
+                {!isStudent && latestTutorRequest ? (
+                  <section className="messages-request-summary-card">
+                    <div className="messages-request-summary-head">
+                      <div>
+                        <p className="eyebrow">Latest Tuition Request</p>
+                        <h4>{getDisplayName(activeThread)}</h4>
+                      </div>
+                      <span className="messages-request-summary-time">
+                        {latestTutorRequest.message.createdAt
+                          ? new Date(latestTutorRequest.message.createdAt).toLocaleString()
+                          : ""}
+                      </span>
+                    </div>
+                    <div className="messages-request-summary-grid">
+                      {Object.entries(REQUEST_FIELD_LABELS).map(([key, label]) =>
+                        latestTutorRequest.request.fields[key] ? (
+                          <div key={key} className="messages-request-summary-item">
+                            <span>{label}</span>
+                            <strong>{latestTutorRequest.request.fields[key]}</strong>
+                          </div>
+                        ) : null
+                      )}
+                    </div>
+                  </section>
+                ) : null}
+
+                {activeThread.messages.map((msg) => {
+                  const parsedRequest = parseTutorRequest(msg.text);
+
+                  return (
+                    <div
+                      key={msg._id || msg.createdAt}
+                      className={`message-bubble ${
+                        msg.from === (authUser?.email || "me") ? "message-out" : "message-in"
+                      } ${parsedRequest ? "message-request" : ""}`}
+                    >
+                      {parsedRequest ? (
+                        <div className="message-request-content">
+                          <span className="message-request-title">{parsedRequest.title}</span>
+                          <div className="message-request-grid">
+                            {Object.entries(REQUEST_FIELD_LABELS).map(([key, label]) =>
+                              parsedRequest.fields[key] ? (
+                                <div key={key} className="message-request-item">
+                                  <span>{label}</span>
+                                  <strong>{parsedRequest.fields[key]}</strong>
+                                </div>
+                              ) : null
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <p>{msg.text}</p>
+                      )}
+                      <span className="message-time">
+                        {msg.createdAt ? new Date(msg.createdAt).toLocaleString() : ""}
+                      </span>
+                    </div>
+                  );
+                })}
+              </>
             ) : pendingRecipient ? (
               <div className="messages-empty-state">
                 <h4>{emptyTitle}</h4>

@@ -119,6 +119,25 @@ function AdminShell({ user, onLogout, children, currentRoute }) {
             <span className="sidebar-text">Messages</span>
           </a>
           <a
+            className={`sidebar-link ${
+              currentRoute === "#admin-users" || currentRoute?.startsWith("#admin-user/")
+                ? "sidebar-link-active"
+                : ""
+            }`}
+            href="#admin-users"
+            aria-label="Users"
+          >
+            <span className="sidebar-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="9" cy="7" r="4" fill="none" stroke="currentColor" strokeWidth="2" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            <span className="sidebar-text">Users</span>
+          </a>
+          <a
             className={`sidebar-link ${currentRoute?.startsWith("#admin-teachers") ? "sidebar-link-active" : ""}`}
             href="#admin-teachers"
             aria-label="Teachers"

@@ -1,7 +1,48 @@
 import express from "express";
 import MessageThread from "../models/MessageThread.js";
+import User from "../models/User.js";
 
 const router = express.Router();
+
+const resolveParticipantNames = async (threads) => {
+  const normalizedThreads = Array.isArray(threads) ? threads : [threads];
+  const emails = [
+    ...new Set(
+      normalizedThreads.flatMap((thread) =>
+        (thread?.participants || []).map((participant) => participant.toLowerCase())
+      )
+    ),
+  ];
+
+  if (emails.length === 0) {
+    return normalizedThreads;
+  }
+
+  const users = await User.find({ email: { $in: emails } }).select("email name").lean();
+  const userNameMap = new Map(
+    users.map((entry) => [entry.email.toLowerCase(), entry.name])
+  );
+
+  return normalizedThreads.map((thread) => {
+    const plainThread = typeof thread.toObject === "function" ? thread.toObject() : { ...thread };
+    const participantNames = { ...(plainThread.participantNames || {}) };
+
+    (plainThread.participants || []).forEach((participant) => {
+      const normalizedEmail = participant.toLowerCase();
+      const existingName = participantNames[normalizedEmail];
+      const resolvedName = userNameMap.get(normalizedEmail);
+
+      if (!existingName || existingName.toLowerCase() === normalizedEmail) {
+        participantNames[normalizedEmail] = resolvedName || existingName || participant;
+      }
+    });
+
+    return {
+      ...plainThread,
+      participantNames,
+    };
+  });
+};
 
 router.get("/", async (req, res, next) => {
   try {
@@ -10,7 +51,8 @@ router.get("/", async (req, res, next) => {
       return res.status(400).json({ message: "User email is required." });
     }
     const threads = await MessageThread.find({ participants: user }).sort({ updatedAt: -1 });
-    res.json(threads);
+    const hydratedThreads = await resolveParticipantNames(threads);
+    res.json(hydratedThreads);
   } catch (error) {
     next(error);
   }
@@ -39,7 +81,8 @@ router.post("/send", async (req, res, next) => {
       update,
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
-    res.json(thread);
+    const [hydratedThread] = await resolveParticipantNames(thread);
+    res.json(hydratedThread);
   } catch (error) {
     next(error);
   }

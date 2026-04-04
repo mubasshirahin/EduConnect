@@ -1,6 +1,7 @@
 import React from "react";
 import eduConnectLogo from "../assets/educonnect-logo.png";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
+import MessageNotifications from "./MessageNotifications.jsx";
 
 function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme, currentRoute }) {
   const { language, setLanguage, t } = useLanguage();
@@ -101,6 +102,7 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
             </>
           ) : (
             <>
+              <MessageNotifications authUser={authUser} />
               <button
                 className="language-icon-button"
                 type="button"
