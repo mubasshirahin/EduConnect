@@ -11,6 +11,7 @@ function JobBoard({ authUser, onRequireLogin }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isClassPickerOpen, setIsClassPickerOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
     classLevel: "",
     subject: "",
@@ -18,6 +19,7 @@ function JobBoard({ authUser, onRequireLogin }) {
     minSalary: "",
     maxSalary: "",
   });
+  const PAGE_SIZE = 30;
 
   const classOptions = [
     "Play",
@@ -67,12 +69,14 @@ function JobBoard({ authUser, onRequireLogin }) {
     });
 
     setFilteredJobs(newFiltered);
+    setCurrentPage(1);
     setIsFilterOpen(false);
   };
 
   const clearFilters = () => {
     setFilters({ classLevel: "", subject: "", location: "", minSalary: "", maxSalary: "" });
     setFilteredJobs(null);
+    setCurrentPage(1);
   };
 
   const handleFilterChange = (event) => {
@@ -138,6 +142,7 @@ function JobBoard({ authUser, onRequireLogin }) {
         }
         const data = await response.json();
         setJobs(data);
+        setCurrentPage(1);
       } catch (error) {
         setLoadError(error.message || "Failed to load jobs.");
       } finally {
@@ -172,6 +177,7 @@ function JobBoard({ authUser, onRequireLogin }) {
       }
       const data = await response.json();
       setJobs((prev) => [data, ...prev]);
+      setCurrentPage(1);
       form.reset();
       setSelectedClass("");
       setIsPostOpen(false);
@@ -179,6 +185,26 @@ function JobBoard({ authUser, onRequireLogin }) {
       setLoadError(error.message || "Failed to post job.");
     }
   };
+
+  const sortedJobs = [...displayedJobs].sort((a, b) => {
+    const getTime = (job) => {
+      const stamp = job?.createdAt || job?.updatedAt || 0;
+      const time = new Date(stamp).getTime();
+      return Number.isFinite(time) ? time : 0;
+    };
+    return getTime(b) - getTime(a);
+  });
+  const totalPages = Math.ceil(sortedJobs.length / PAGE_SIZE);
+  const safeTotalPages = Math.max(totalPages, 1);
+  const safePage = Math.min(currentPage, safeTotalPages);
+  const pageStart = (safePage - 1) * PAGE_SIZE;
+  const pageJobs = sortedJobs.slice(pageStart, pageStart + PAGE_SIZE);
+
+  useEffect(() => {
+    if (currentPage !== safePage) {
+      setCurrentPage(safePage);
+    }
+  }, [currentPage, safePage]);
 
   return (
     <div className="job-board">
@@ -377,6 +403,12 @@ function JobBoard({ authUser, onRequireLogin }) {
         </div>
       )}
 
+      {sortedJobs.length > 0 ? (
+        <div className="job-board-count">
+          Showing {pageStart + 1}–{Math.min(pageStart + pageJobs.length, sortedJobs.length)} of {sortedJobs.length} jobs
+        </div>
+      ) : null}
+
       <div className="job-timeline">
         {isLoading ? (
             <div className="job-empty">
@@ -388,16 +420,16 @@ function JobBoard({ authUser, onRequireLogin }) {
             <h3>{loadError}</h3>
             <p>{t("jobBoard.errorBody")}</p>
           </div>
-        ) : displayedJobs.length === 0 ? (
+        ) : sortedJobs.length === 0 ? (
           <div className="job-empty">
             <h3>{t("jobBoard.emptyTitle")}</h3>
             <p>{t("jobBoard.emptyBody")}</p>
           </div>
         ) : (
           <>
-            {displayedJobs.map((job, index) => (
+            {pageJobs.map((job, index) => (
               <article key={job._id || job.id} className="job-card">
-                <div className="job-index">{String(index + 1).padStart(2, "0")}</div>
+                <div className="job-index">{String(pageStart + index + 1).padStart(2, "0")}</div>
                 <div className="job-body">
                 <h2>{job.title}</h2>
                 <p className="job-meta">{job.postedBy}</p>
@@ -443,6 +475,47 @@ function JobBoard({ authUser, onRequireLogin }) {
         )}
       </div>
 
+      {sortedJobs.length > 0 ? (
+        <div className="job-pagination" role="navigation" aria-label="Job board pages">
+          <button
+            className="job-page-button"
+            type="button"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={safePage === 1}
+          >
+            Prev
+          </button>
+          {Array.from({ length: totalPages }, (_, index) => {
+            const page = index + 1;
+            const isActive = page === safePage;
+            return (
+              <button
+                key={page}
+                className={`job-page-button ${isActive ? "job-page-button-active" : ""}`}
+                type="button"
+                onClick={() => setCurrentPage(page)}
+                aria-current={isActive ? "page" : undefined}
+              >
+                {page}
+              </button>
+            );
+          })}
+          <button
+            className="job-page-button"
+            type="button"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={safePage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+      ) : null}
+
+      {sortedJobs.length > 0 ? (
+        <div className="job-page-indicator">
+          Page {safePage} of {totalPages}
+        </div>
+      ) : null}
     </div>
   );
 }
