@@ -2524,7 +2524,7 @@ html[data-theme="light"] .reviews-form textarea {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: #222b3e;
+  background: var(--bg-muted);
   color: var(--text-main);
   font-weight: 700;
   display: grid;
@@ -2615,17 +2615,26 @@ html[data-theme="light"] .reviews-form textarea {
   letter-spacing: 0.05em;
 }
 
+.profile-required-mark {
+  margin-left: 0.22rem;
+  color: #ff7a7a;
+}
+
 .profile-field p {
   margin-top: 0.4rem;
   color: var(--text-main);
   font-weight: 600;
 }
 
+.profile-field-full {
+  grid-column: 1 / -1;
+}
+
 .profile-field input {
   margin-top: 0.4rem;
   border-radius: 10px;
   border: 1px solid var(--border-soft);
-  background: #0f1624;
+  background: var(--bg-page);
   color: var(--text-main);
   padding: 0.55rem 0.7rem;
   font-family: inherit;
@@ -2633,30 +2642,40 @@ html[data-theme="light"] .reviews-form textarea {
 }
 
 .profile-field textarea {
+  width: 100%;
   margin-top: 0.4rem;
   border-radius: 10px;
   border: 1px solid var(--border-soft);
-  background: #0f1624;
+  background: var(--bg-page);
   color: var(--text-main);
   padding: 0.6rem 0.75rem;
   font-family: inherit;
   resize: vertical;
-  min-height: 110px;
+  min-height: 72px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .profile-field input[type="file"] {
   padding: 0.45rem 0.6rem;
-  background: #0f1624;
-  border: 1px dashed rgba(255, 255, 255, 0.18);
+  background: var(--bg-page);
+  border: 1px dashed var(--border-soft);
   border-radius: 10px;
   color: var(--text-soft);
   cursor: pointer;
 }
 
+.profile-upload-preview {
+  display: block;
+  margin-top: 0.75rem;
+  width: min(100%, 320px);
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  object-fit: cover;
+}
+
 .profile-field input::placeholder,
 .profile-field textarea::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-soft);
 }
 
 .profile-field input:focus,
@@ -2664,7 +2683,7 @@ html[data-theme="light"] .reviews-form textarea {
   outline: none;
   border-color: rgba(79, 156, 249, 0.7);
   box-shadow: 0 0 0 3px rgba(79, 156, 249, 0.18);
-  background: #0b1220;
+  background: var(--bg-surface);
 }
 
 .notice-message-input {

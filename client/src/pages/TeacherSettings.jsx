@@ -50,7 +50,7 @@ function TeacherSettings({ authUser, onLogout }) {
         <div>
           <p className="tile-label">Teacher Dashboard</p>
           <h2>Settings</h2>
-          <p>Manage your visibility, notifications, and account actions from one place.</p>
+          <p>Keep your account settings simple and focused on the essentials.</p>
         </div>
         <a className="btn btn-primary" href="#profile">
           Edit Profile
@@ -59,7 +59,7 @@ function TeacherSettings({ authUser, onLogout }) {
 
       <div className="settings-grid">
         <section className="settings-card">
-          <h3>Account</h3>
+          <h3>Profile</h3>
           <div className="settings-list">
             <div className="settings-row">
               <div>
@@ -71,12 +71,6 @@ function TeacherSettings({ authUser, onLogout }) {
               <div>
                 <strong>Email</strong>
                 <p>{authUser?.email || "-"}</p>
-              </div>
-            </div>
-            <div className="settings-row">
-              <div>
-                <strong>Tutor ID</strong>
-                <p>{authUser?.tutorId || "-"}</p>
               </div>
             </div>
           </div>
@@ -106,18 +100,6 @@ function TeacherSettings({ authUser, onLogout }) {
                 type="checkbox"
                 checked={settings.messageNotifications}
                 onChange={(event) => updateSetting("messageNotifications", event.target.checked)}
-              />
-            </label>
-
-            <label className="settings-toggle">
-              <div>
-                <strong>Job alerts</strong>
-                <p>Get notified when matching tuition jobs appear.</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={settings.jobAlerts}
-                onChange={(event) => updateSetting("jobAlerts", event.target.checked)}
               />
             </label>
 

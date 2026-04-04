@@ -50,7 +50,7 @@ function StudentSettings({ authUser, onLogout }) {
         <div>
           <p className="tile-label">Student Dashboard</p>
           <h2>Settings</h2>
-          <p>Keep your preferences and account actions organized in one place.</p>
+          <p>Keep only the essentials you need for your account and support requests.</p>
         </div>
         <a className="btn btn-primary" href="#profile">
           Edit Profile
@@ -59,7 +59,7 @@ function StudentSettings({ authUser, onLogout }) {
 
       <div className="settings-grid">
         <section className="settings-card">
-          <h3>Account</h3>
+          <h3>Profile</h3>
           <div className="settings-list">
             <div className="settings-row">
               <div>
@@ -71,12 +71,6 @@ function StudentSettings({ authUser, onLogout }) {
               <div>
                 <strong>Email</strong>
                 <p>{authUser?.email || "-"}</p>
-              </div>
-            </div>
-            <div className="settings-row">
-              <div>
-                <strong>Role</strong>
-                <p>{authUser?.role || "student"}</p>
               </div>
             </div>
           </div>
@@ -97,35 +91,11 @@ function StudentSettings({ authUser, onLogout }) {
               />
             </label>
 
-            <label className="settings-toggle">
-              <div>
-                <strong>Tutor match alerts</strong>
-                <p>Get updates when new tutors or jobs match your requests.</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={settings.tutorMatchAlerts}
-                onChange={(event) => updateSetting("tutorMatchAlerts", event.target.checked)}
-              />
-            </label>
-
-            <label className="settings-toggle">
-              <div>
-                <strong>Weekly digest</strong>
-                <p>Receive a summary of new opportunities every week.</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={settings.weeklyDigest}
-                onChange={(event) => updateSetting("weeklyDigest", event.target.checked)}
-              />
-            </label>
-
             <div className="settings-field">
               <label htmlFor="student-support-preference">
                 <strong>Support preference</strong>
               </label>
-              <p>Choose how you prefer to hear back from the EduConnect team.</p>
+              <p>Choose how admin should follow up about your tutor request.</p>
               <select
                 id="student-support-preference"
                 value={settings.supportPreference}
@@ -144,9 +114,6 @@ function StudentSettings({ authUser, onLogout }) {
           <div className="settings-actions">
             <a className="btn btn-ghost" href="#messages">
               Open Messages
-            </a>
-            <a className="btn btn-ghost" href="#jobs">
-              Browse Jobs
             </a>
             <button className="btn btn-ghost" type="button" onClick={handleResetProfile}>
               Reset Saved Profile
