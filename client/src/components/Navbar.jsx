@@ -73,12 +73,7 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
               <span className="btn-theme-text">{themeButtonLabel}</span>
             </span>
           </button>
-          {authUser ? (
-            <div className="nav-user-block">
-              <span className="nav-user-name">{authUser.name || t("common.userFallback")}</span>
-              <span className="nav-user-role">{authUser.role}</span>
-            </div>
-          ) : (
+          {!authUser ? (
             <>
               <button className="btn btn-ghost" type="button" onClick={onLoginClick}>
                 {t("navbar.login")}
@@ -104,25 +99,30 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
                 <span className="language-icon-code">{languageCode}</span>
               </button>
             </>
-          )}
-          {authUser && (
-            <button
-              className="language-icon-button"
-              type="button"
-              onClick={() => setLanguage(nextLanguage)}
-              aria-label={`${t("navbar.languageLabel")}: ${languageCode}`}
-              title={`${t("navbar.languageLabel")}: ${languageCode}`}
-            >
-              <span className="language-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M3 12h18" />
-                  <path d="M12 3a14.5 14.5 0 0 1 0 18" />
-                  <path d="M12 3a14.5 14.5 0 0 0 0 18" />
-                </svg>
-              </span>
-              <span className="language-icon-code">{languageCode}</span>
-            </button>
+          ) : (
+            <>
+              <button
+                className="language-icon-button"
+                type="button"
+                onClick={() => setLanguage(nextLanguage)}
+                aria-label={`${t("navbar.languageLabel")}: ${languageCode}`}
+                title={`${t("navbar.languageLabel")}: ${languageCode}`}
+              >
+                <span className="language-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M3 12h18" />
+                    <path d="M12 3a14.5 14.5 0 0 1 0 18" />
+                    <path d="M12 3a14.5 14.5 0 0 0 0 18" />
+                  </svg>
+                </span>
+                <span className="language-icon-code">{languageCode}</span>
+              </button>
+              <div className="nav-user-block">
+                <span className="nav-user-name">{authUser.name || t("common.userFallback")}</span>
+                <span className="nav-user-role">{authUser.role}</span>
+              </div>
+            </>
           )}
         </div>
       </div>
