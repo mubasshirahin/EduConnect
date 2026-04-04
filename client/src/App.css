@@ -3191,7 +3191,7 @@ html[data-theme="light"] .reviews-form textarea {
 
 .class-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 12px;
   padding: 10px 0;
 }

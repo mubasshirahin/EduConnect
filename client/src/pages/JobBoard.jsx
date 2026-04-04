@@ -10,7 +10,9 @@ function JobBoard({ authUser, onRequireLogin }) {
   const [isPostOpen, setIsPostOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isClassPickerOpen, setIsClassPickerOpen] = useState(false);
+  const [isSubjectPickerOpen, setIsSubjectPickerOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
     classLevel: "",
@@ -37,6 +39,20 @@ function JobBoard({ authUser, onRequireLogin }) {
     "Class-10",
     "Class-11",
     "Class-12",
+  ];
+
+  const subjectOptions = [
+    "Bangla",
+    "English",
+    "Physics",
+    "Chemistry",
+    "Higher Math",
+    "General Math",
+    "Religion",
+    "Bangladesh and Global Science",
+    "Science",
+    "Math",
+    "Biology",
   ];
 
   const parseSalary = (rate) => {
@@ -180,6 +196,7 @@ function JobBoard({ authUser, onRequireLogin }) {
       setCurrentPage(1);
       form.reset();
       setSelectedClass("");
+      setSelectedSubject("");
       setIsPostOpen(false);
     } catch (error) {
       setLoadError(error.message || "Failed to post job.");
@@ -242,7 +259,7 @@ function JobBoard({ authUser, onRequireLogin }) {
                 <h3>{t("jobBoard.createTitle")}</h3>
                 <p>{t("jobBoard.createSubtitle")}</p>
               </div>
-              <button className="auth-close" type="button" onClick={() => { setIsPostOpen(false); setSelectedClass(""); }}>
+              <button className="auth-close" type="button" onClick={() => { setIsPostOpen(false); setSelectedClass(""); setSelectedSubject(""); }}>
                 ×
               </button>
             </div>
@@ -266,7 +283,15 @@ function JobBoard({ authUser, onRequireLogin }) {
 
               <div className="form-group">
                 <label htmlFor="subject">Subject</label>
-                <input id="subject" name="subject" placeholder="e.g. Physics" />
+                <input
+                  id="subject"
+                  name="subject"
+                  value={selectedSubject}
+                  readOnly
+                  onClick={() => setIsSubjectPickerOpen(true)}
+                  placeholder="Select Subject"
+                  required
+                />
               </div>
               <div className="form-group">
                 <label htmlFor="location">{t("jobBoard.fieldLocation")}</label>
@@ -284,7 +309,7 @@ function JobBoard({ authUser, onRequireLogin }) {
                 <button className="btn btn-primary" type="submit">
                   {t("jobBoard.postJob")}
                 </button>
-                <button className="btn btn-ghost" type="button" onClick={() => { setIsPostOpen(false); setSelectedClass(""); }}>
+                <button className="btn btn-ghost" type="button" onClick={() => { setIsPostOpen(false); setSelectedClass(""); setSelectedSubject(""); }}>
                   Cancel
                 </button>
               </div>
@@ -318,6 +343,38 @@ function JobBoard({ authUser, onRequireLogin }) {
                   }}
                 >
                   {c}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isSubjectPickerOpen && (
+        <div className="auth-overlay" style={{ zIndex: 1100 }}>
+          <div className="auth-backdrop" onClick={() => setIsSubjectPickerOpen(false)} />
+          <div className="auth-modal" style={{ maxWidth: "420px" }}>
+            <div className="auth-modal-header">
+              <div>
+                <h3>Select Subject</h3>
+                <p>Choose the subject for this tuition</p>
+              </div>
+              <button className="auth-close" type="button" onClick={() => setIsSubjectPickerOpen(false)}>
+                ×
+              </button>
+            </div>
+            <div className="class-grid">
+              {subjectOptions.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  className={`class-option-btn ${selectedSubject === s ? "selected" : ""}`}
+                  onClick={() => {
+                    setSelectedSubject(s);
+                    setIsSubjectPickerOpen(false);
+                  }}
+                >
+                  {s}
                 </button>
               ))}
             </div>
