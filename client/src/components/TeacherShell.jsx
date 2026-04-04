@@ -5,11 +5,33 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
   const { t } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState("");
   const hideTopbar = currentRoute?.startsWith("#reviews");
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [currentRoute]);
+
+  useEffect(() => {
+    if (!user?.email) return;
+    const profileKey = `educonnect-profile:${user.email}`;
+    const readProfile = () => {
+      const stored = localStorage.getItem(profileKey);
+      if (stored) {
+        try {
+          const profile = JSON.parse(stored);
+          setAvatarUrl(profile.avatarUrl || "");
+        } catch {
+          setAvatarUrl("");
+        }
+      } else {
+        setAvatarUrl("");
+      }
+    };
+    readProfile();
+    window.addEventListener("storage", readProfile);
+    return () => window.removeEventListener("storage", readProfile);
+  }, [user?.email]);
 
   return (
     <div
@@ -23,7 +45,13 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
       />
       <aside className="teacher-sidebar">
         <div className="sidebar-profile">
-          <div className="sidebar-avatar">T</div>
+          <div className="sidebar-avatar">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={user?.name} className="avatar-img" />
+            ) : (
+              user?.name?.charAt(0).toUpperCase() || "T"
+            )}
+          </div>
           <div>
             <p className="sidebar-name">{user?.name || "Teacher Name"}</p>
             <p className="sidebar-meta">ID: {user?.tutorId || "-"}</p>
