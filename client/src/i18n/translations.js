@@ -302,6 +302,10 @@ export const translations = {
           role: "Platform Supervision",
           university: "Ahsanullah University of Science and Technology",
           intro: "Supports the overall flow and daily direction of the platform.",
+          social: {
+            label: "GitHub: @mubasshirahin",
+            href: "https://github.com/mubasshirahin",
+          },
         },
         {
           name: "Afra Anan",

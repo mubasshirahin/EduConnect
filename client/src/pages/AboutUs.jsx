@@ -7,6 +7,24 @@ function AboutUs() {
   const values = t("about.values");
   const team = t("about.team");
   const storyCards = t("about.storyCards");
+  const socialAccounts = {
+    "Mubasshir Mehedi": {
+      label: "GitHub: @mubasshirahin",
+      href: "https://github.com/mubasshirahin",
+    },
+    "Afra Anan": {
+      label: "GitHub: @afra012",
+      href: "https://github.com/afra012",
+    },
+    "Irin Rahman Ratri": {
+      label: "GitHub: @irin123-hash",
+      href: "https://github.com/irin123-hash",
+    },
+    "Md Al Amin": {
+      label: "GitHub: @mdalamin505718",
+      href: "https://github.com/mdalamin505718",
+    },
+  };
 
   return (
     <div className="about-page">
@@ -69,17 +87,31 @@ function AboutUs() {
             <p>{t("about.teamSubtitle")}</p>
           </div>
           <div className="about-team-grid">
-            {team.map((member, index) => (
-              <article className="about-team-card" key={member.name}>
-                <div className="about-team-avatar" aria-hidden="true">
-                  {index + 1}
-                </div>
-                <h3>{member.name}</h3>
-                <p className="about-team-role">{member.role}</p>
-                <p className="about-team-university">{member.university}</p>
-                <p className="about-team-intro">{member.intro}</p>
-              </article>
-            ))}
+            {team.map((member, index) => {
+              const social = member.social ?? socialAccounts[member.name] ?? null;
+
+              return (
+                <article className="about-team-card" key={member.name}>
+                  <div className="about-team-avatar" aria-hidden="true">
+                    {index + 1}
+                  </div>
+                  <h3>{member.name}</h3>
+                  <p className="about-team-role">{member.role}</p>
+                  <p className="about-team-university">{member.university}</p>
+                  <p className="about-team-intro">{member.intro}</p>
+                  {social ? (
+                    <a
+                      className="about-team-social"
+                      href={social.href}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {social.label}
+                    </a>
+                  ) : null}
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
