@@ -351,9 +351,10 @@ function JobBoard({ authUser, onRequireLogin }) {
                 <button
                   key={c}
                   type="button"
-                  className={`class-option-btn ${selectedClass === c ? "selected" : ""}`}
+                  className={`class-option-btn ${(isPostOpen ? selectedClass : filters.classLevel) === c ? "selected" : ""}`}
                   onClick={() => {
-                    setSelectedClass(c);
+                    if (isPostOpen) setSelectedClass(c);
+                    if (isFilterOpen) setFilters(prev => ({ ...prev, classLevel: c }));
                     setIsClassPickerOpen(false);
                   }}
                 >
@@ -383,9 +384,10 @@ function JobBoard({ authUser, onRequireLogin }) {
                 <button
                   key={s}
                   type="button"
-                  className={`class-option-btn ${selectedSubject === s ? "selected" : ""}`}
+                  className={`class-option-btn ${(isPostOpen ? selectedSubject : filters.subject) === s ? "selected" : ""}`}
                   onClick={() => {
-                    setSelectedSubject(s);
+                    if (isPostOpen) setSelectedSubject(s);
+                    if (isFilterOpen) setFilters(prev => ({ ...prev, subject: s }));
                     setIsSubjectPickerOpen(false);
                   }}
                 >
@@ -415,9 +417,10 @@ function JobBoard({ authUser, onRequireLogin }) {
                 <button
                   key={loc}
                   type="button"
-                  className={`class-option-btn ${selectedLocation === loc ? "selected" : ""}`}
+                  className={`class-option-btn ${(isPostOpen ? selectedLocation : filters.location) === loc ? "selected" : ""}`}
                   onClick={() => {
-                    setSelectedLocation(loc);
+                    if (isPostOpen) setSelectedLocation(loc);
+                    if (isFilterOpen) setFilters(prev => ({ ...prev, location: loc }));
                     setIsLocationPickerOpen(false);
                   }}
                 >
@@ -448,8 +451,9 @@ function JobBoard({ authUser, onRequireLogin }) {
                   id="classLevel"
                   name="classLevel"
                   value={filters.classLevel}
-                  onChange={handleFilterChange}
-                  placeholder="e.g. 10th, A-Level"
+                  readOnly
+                  onClick={() => setIsClassPickerOpen(true)}
+                  placeholder="Select Class"
                 />
               </div>
               <div className="form-group">
@@ -458,8 +462,9 @@ function JobBoard({ authUser, onRequireLogin }) {
                   id="subject"
                   name="subject"
                   value={filters.subject}
-                  onChange={handleFilterChange}
-                  placeholder="e.g. Math, Physics"
+                  readOnly
+                  onClick={() => setIsSubjectPickerOpen(true)}
+                  placeholder="Select Subject"
                 />
               </div>
               <div className="form-group">
@@ -468,8 +473,9 @@ function JobBoard({ authUser, onRequireLogin }) {
                   id="location"
                   name="location"
                   value={filters.location}
-                  onChange={handleFilterChange}
-                  placeholder="e.g. London"
+                  readOnly
+                  onClick={() => setIsLocationPickerOpen(true)}
+                  placeholder="Select Location"
                 />
               </div>
               <div className="form-group">
