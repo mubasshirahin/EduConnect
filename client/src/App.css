@@ -1344,6 +1344,10 @@ html[data-theme="light"] .role-option {
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .sidebar-nav {
@@ -1351,6 +1355,11 @@ html[data-theme="light"] .role-option {
   gap: 0.85rem;
   justify-items: stretch;
   padding: 0 0.4rem;
+}
+
+.sidebar-toggle-row {
+  display: flex;
+  justify-content: center;
 }
 
 .sidebar-toggle {
@@ -1363,6 +1372,9 @@ html[data-theme="light"] .role-option {
   margin: 0 auto;
   cursor: pointer;
   font-weight: 700;
+  display: grid;
+  place-items: center;
+  align-self: center;
 }
 
 .teacher-dashboard-collapsed .sidebar-profile,
@@ -2337,6 +2349,7 @@ html[data-theme="light"] .reviews-form textarea {
 }
 
 .messages-request-form input,
+.messages-request-form select,
 .messages-request-form textarea {
   width: 100%;
   border-radius: 14px;
@@ -2346,6 +2359,25 @@ html[data-theme="light"] .reviews-form textarea {
   padding: 0.8rem 0.9rem;
 }
 
+.messages-request-form select {
+  color: var(--text-soft);
+  appearance: none;
+}
+
+.messages-request-form select:valid {
+  color: var(--text-main);
+}
+
+.messages-request-form select option {
+  color: var(--text-main);
+  background: var(--bg-surface);
+}
+
+.messages-request-form input::placeholder,
+.messages-request-form textarea::placeholder {
+  color: var(--text-soft);
+}
+
 .messages-request-form textarea {
   grid-column: 1 / -1;
   resize: vertical;
@@ -2353,6 +2385,35 @@ html[data-theme="light"] .reviews-form textarea {
 
 .messages-request-form button {
   justify-self: start;
+}
+
+.messages-request-warning {
+  grid-column: 1 / -1;
+  color: #ffb86b;
+  font-size: 0.92rem;
+}
+
+.messages-request-warning a {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.messages-request-error {
+  grid-column: 1 / -1;
+  color: #ff7a7a;
+  font-size: 0.92rem;
+}
+
+html[data-theme="light"] .messages-request-warning {
+  color: #c96a1a;
+}
+
+html[data-theme="light"] .messages-request-warning a {
+  color: var(--primary);
+}
+
+html[data-theme="light"] .messages-request-error {
+  color: #c23a3a;
 }
 
 .messages-shell {
