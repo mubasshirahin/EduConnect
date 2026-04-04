@@ -9,6 +9,8 @@ function JobBoard({ authUser, onRequireLogin }) {
   const [loadError, setLoadError] = useState("");
   const [isPostOpen, setIsPostOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isClassPickerOpen, setIsClassPickerOpen] = useState(false);
+  const [selectedClass, setSelectedClass] = useState("");
   const [filters, setFilters] = useState({
     classLevel: "",
     subject: "",
@@ -16,6 +18,24 @@ function JobBoard({ authUser, onRequireLogin }) {
     minSalary: "",
     maxSalary: "",
   });
+
+  const classOptions = [
+    "Play",
+    "Nursery",
+    "Kinder Garden",
+    "Class-1",
+    "Class-2",
+    "Class-3",
+    "Class-4",
+    "Class-5",
+    "Class-6",
+    "Class-7",
+    "Class-8",
+    "Class-9",
+    "Class-10",
+    "Class-11",
+    "Class-12",
+  ];
 
   const parseSalary = (rate) => {
     const parsed = Number(String(rate).replace(/[^0-9.]/g, ""));
@@ -153,6 +173,7 @@ function JobBoard({ authUser, onRequireLogin }) {
       const data = await response.json();
       setJobs((prev) => [data, ...prev]);
       form.reset();
+      setSelectedClass("");
       setIsPostOpen(false);
     } catch (error) {
       setLoadError(error.message || "Failed to post job.");
@@ -195,7 +216,7 @@ function JobBoard({ authUser, onRequireLogin }) {
                 <h3>{t("jobBoard.createTitle")}</h3>
                 <p>{t("jobBoard.createSubtitle")}</p>
               </div>
-              <button className="auth-close" type="button" onClick={() => setIsPostOpen(false)}>
+              <button className="auth-close" type="button" onClick={() => { setIsPostOpen(false); setSelectedClass(""); }}>
                 ×
               </button>
             </div>
@@ -206,8 +227,17 @@ function JobBoard({ authUser, onRequireLogin }) {
               </div>
               <div className="form-group">
                 <label htmlFor="classLevel">Class</label>
-                <input id="classLevel" name="classLevel" placeholder="e.g. 10th" />
+                <input
+                  id="classLevel"
+                  name="classLevel"
+                  value={selectedClass}
+                  readOnly
+                  onClick={() => setIsClassPickerOpen(true)}
+                  placeholder="Select Class"
+                  required
+                />
               </div>
+
               <div className="form-group">
                 <label htmlFor="subject">Subject</label>
                 <input id="subject" name="subject" placeholder="e.g. Physics" />
@@ -228,11 +258,43 @@ function JobBoard({ authUser, onRequireLogin }) {
                 <button className="btn btn-primary" type="submit">
                   {t("jobBoard.postJob")}
                 </button>
-                <button className="btn btn-ghost" type="button" onClick={() => setIsPostOpen(false)}>
+                <button className="btn btn-ghost" type="button" onClick={() => { setIsPostOpen(false); setSelectedClass(""); }}>
                   Cancel
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {isClassPickerOpen && (
+        <div className="auth-overlay" style={{ zIndex: 1100 }}>
+          <div className="auth-backdrop" onClick={() => setIsClassPickerOpen(false)} />
+          <div className="auth-modal" style={{ maxWidth: "420px" }}>
+            <div className="auth-modal-header">
+              <div>
+                <h3>Select Class</h3>
+                <p>Choose the class for this tuition</p>
+              </div>
+              <button className="auth-close" type="button" onClick={() => setIsClassPickerOpen(false)}>
+                ×
+              </button>
+            </div>
+            <div className="class-grid">
+              {classOptions.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  className={`class-option-btn ${selectedClass === c ? "selected" : ""}`}
+                  onClick={() => {
+                    setSelectedClass(c);
+                    setIsClassPickerOpen(false);
+                  }}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
