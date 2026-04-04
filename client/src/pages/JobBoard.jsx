@@ -11,8 +11,10 @@ function JobBoard({ authUser, onRequireLogin }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isClassPickerOpen, setIsClassPickerOpen] = useState(false);
   const [isSubjectPickerOpen, setIsSubjectPickerOpen] = useState(false);
+  const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
     classLevel: "",
@@ -53,6 +55,10 @@ function JobBoard({ authUser, onRequireLogin }) {
     "Science",
     "Math",
     "Biology",
+  ];
+
+  const locationOptions = [
+    "Adabor", "Aftabnagar", "Agargaon", "Airport Area", "Azimpur", "Badda", "Bakshi Bazar", "Banani", "Banglamotor", "Banasree", "Baridhara", "Basabo", "Bashundhara", "Bhatara", "Cantonment", "Chad Uddan", "Chak Bazar", "Dakshinkhan", "Darus Salam", "Demra", "Dhanmondi", "Dohar", "Elephant Road", "Farmgate", "Gabtoli", "Gandaria", "Gulistan", "Gulshan", "Hazaribagh", "Jatrabari", "Jigatola", "Jurain", "Kakrail", "Kalabagan", "Kamrangirchar", "Kanchpur", "Karwan Bazar", "Kawran Bazar", "Keraniganj", "Khilgaon", "Khilkhet", "Lalbagh", "Malibagh", "Mirpur", "Mohammadpur", "Motijheel", "Mugdapara", "Nawabganj", "New Market", "Niketon", "Nikunja", "Old Dhaka", "Paltan", "Panthapath", "Ramna", "Rampura", "Sabujbagh", "Savar", "Shahbagh", "Shahjadpur", "Shantinagar", "Shewrapara", "Shyamoli", "Sutrapur", "Tejgaon", "Tejgaon Industrial Area", "Tongi", "Turag", "Uttara", "Wari"
   ];
 
   const parseSalary = (rate) => {
@@ -197,6 +203,7 @@ function JobBoard({ authUser, onRequireLogin }) {
       form.reset();
       setSelectedClass("");
       setSelectedSubject("");
+      setSelectedLocation("");
       setIsPostOpen(false);
     } catch (error) {
       setLoadError(error.message || "Failed to post job.");
@@ -259,7 +266,7 @@ function JobBoard({ authUser, onRequireLogin }) {
                 <h3>{t("jobBoard.createTitle")}</h3>
                 <p>{t("jobBoard.createSubtitle")}</p>
               </div>
-              <button className="auth-close" type="button" onClick={() => { setIsPostOpen(false); setSelectedClass(""); setSelectedSubject(""); }}>
+              <button className="auth-close" type="button" onClick={() => { setIsPostOpen(false); setSelectedClass(""); setSelectedSubject(""); setSelectedLocation(""); }}>
                 ×
               </button>
             </div>
@@ -295,7 +302,15 @@ function JobBoard({ authUser, onRequireLogin }) {
               </div>
               <div className="form-group">
                 <label htmlFor="location">{t("jobBoard.fieldLocation")}</label>
-                <input id="location" name="location" placeholder={t("jobBoard.location")} required />
+                <input
+                  id="location"
+                  name="location"
+                  value={selectedLocation}
+                  readOnly
+                  onClick={() => setIsLocationPickerOpen(true)}
+                  placeholder="Select Location"
+                  required
+                />
               </div>
               <div className="form-group">
                 <label htmlFor="schedule">{t("jobBoard.fieldSchedule")}</label>
@@ -309,7 +324,7 @@ function JobBoard({ authUser, onRequireLogin }) {
                 <button className="btn btn-primary" type="submit">
                   {t("jobBoard.postJob")}
                 </button>
-                <button className="btn btn-ghost" type="button" onClick={() => { setIsPostOpen(false); setSelectedClass(""); setSelectedSubject(""); }}>
+                <button className="btn btn-ghost" type="button" onClick={() => { setIsPostOpen(false); setSelectedClass(""); setSelectedSubject(""); setSelectedLocation(""); }}>
                   Cancel
                 </button>
               </div>
@@ -375,6 +390,38 @@ function JobBoard({ authUser, onRequireLogin }) {
                   }}
                 >
                   {s}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isLocationPickerOpen && (
+        <div className="auth-overlay" style={{ zIndex: 1100 }}>
+          <div className="auth-backdrop" onClick={() => setIsLocationPickerOpen(false)} />
+          <div className="auth-modal" style={{ maxWidth: "600px" }}>
+            <div className="auth-modal-header">
+              <div>
+                <h3>Select Location</h3>
+                <p>Choose your area in Dhaka</p>
+              </div>
+              <button className="auth-close" type="button" onClick={() => setIsLocationPickerOpen(false)}>
+                ×
+              </button>
+            </div>
+            <div className="class-grid" style={{ maxHeight: "60vh", overflowY: "auto", paddingRight: "10px" }}>
+              {locationOptions.map((loc) => (
+                <button
+                  key={loc}
+                  type="button"
+                  className={`class-option-btn ${selectedLocation === loc ? "selected" : ""}`}
+                  onClick={() => {
+                    setSelectedLocation(loc);
+                    setIsLocationPickerOpen(false);
+                  }}
+                >
+                  {loc}
                 </button>
               ))}
             </div>
