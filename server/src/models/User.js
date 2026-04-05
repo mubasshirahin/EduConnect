@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema(
     blockedAt: { type: Date },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
+    savedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
   },
   { timestamps: true }
 );

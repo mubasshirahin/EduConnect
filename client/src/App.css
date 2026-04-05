@@ -1992,6 +1992,36 @@ html[data-theme="light"] .role-option {
   border: 1px solid rgba(63, 169, 113, 0.35);
 }
 
+.btn-bookmark {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-soft);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.btn-bookmark:hover {
+  background: rgba(63, 169, 113, 0.15);
+  transform: scale(1.1);
+  border-color: var(--accent);
+}
+
+.btn-bookmark.active {
+  background: rgba(231, 76, 60, 0.1);
+  border-color: rgba(231, 76, 60, 0.3);
+}
+
+html[data-theme="light"] .btn-bookmark {
+  background: #f0f4f8;
+}
+
 .job-body h2 {
   margin-bottom: 0.35rem;
   color: var(--text-main);

@@ -8,6 +8,7 @@ import messageRoutes from "./routes/messages.js";
 import adminRoutes from "./routes/admin.js";
 import reviewRoutes from "./routes/reviews.js";
 import blogRoutes from "./routes/blog.js";
+import bookmarkRoutes from "./routes/bookmarks.js";
 dotenv.config({ path: './.env' });
 
 const app = express();
