@@ -18,6 +18,8 @@ function JobBoard({ authUser, onRequireLogin }) {
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [savedJobIds, setSavedJobIds] = useState([]);
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [filters, setFilters] = useState({
     classLevel: "",
     subject: "",
@@ -100,6 +102,7 @@ function JobBoard({ authUser, onRequireLogin }) {
   const clearFilters = () => {
     setFilters({ classLevel: "", subject: "", location: "", minSalary: "", maxSalary: "" });
     setFilteredJobs(null);
+    setShowSavedOnly(false);
     setCurrentPage(1);
   };
 
@@ -182,6 +185,7 @@ function JobBoard({ authUser, onRequireLogin }) {
   const isTeacher = authUser?.role === "teacher";
   const isStudent = authUser?.role === "student";
   const displayedJobs = filteredJobs !== null ? filteredJobs : jobs;
+  const filteredBySaved = showSavedOnly ? displayedJobs.filter(job => savedJobIds.includes(job._id)) : displayedJobs;
 
   useEffect(() => {
     const loadJobs = async () => {
@@ -201,7 +205,41 @@ function JobBoard({ authUser, onRequireLogin }) {
       }
     };
     loadJobs();
-  }, []);
+
+    if (authUser) {
+      const token = localStorage.getItem("educonnect-auth-token");
+      fetch("/api/bookmarks", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setSavedJobIds(data.map(job => job._id));
+        }
+      })
+      .catch(() => {});
+    }
+  }, [authUser]);
+
+  const handleToggleBookmark = async (jobId) => {
+    if (!authUser) {
+      onRequireLogin?.();
+      return;
+    }
+    const token = localStorage.getItem("educonnect-auth-token");
+    try {
+      const res = await fetch(`/api/bookmarks/toggle/${jobId}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSavedJobIds(data.savedJobs);
+      }
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+    }
+  };
 
   const handlePostJob = async (event) => {
     event.preventDefault();
@@ -239,7 +277,7 @@ function JobBoard({ authUser, onRequireLogin }) {
     }
   };
 
-  const sortedJobs = [...displayedJobs].sort((a, b) => {
+  const sortedJobs = [...filteredBySaved].sort((a, b) => {
     const getTime = (job) => {
       const stamp = job?.createdAt || job?.updatedAt || 0;
       const time = new Date(stamp).getTime();
@@ -291,6 +329,15 @@ function JobBoard({ authUser, onRequireLogin }) {
               <button className="btn btn-primary" type="button" onClick={() => setIsFilterOpen(true)}>
                 Search
               </button>
+              {authUser?.role === "teacher" && (
+                <button 
+                  className={`btn ${showSavedOnly ? "btn-primary" : "btn-ghost"}`} 
+                  type="button" 
+                  onClick={() => setShowSavedOnly(!showSavedOnly)}
+                >
+                  {showSavedOnly ? "Showing Saved" : "Saved"}
+                </button>
+              )}
               <button className="btn btn-primary" type="button" onClick={clearFilters}>
                 Clear
               </button>
@@ -563,7 +610,7 @@ function JobBoard({ authUser, onRequireLogin }) {
                 <p>Are you sure to apply this job?</p>
               </div>
               <button className="auth-close" type="button" onClick={() => setPendingApplyJob(null)}>
-                Ã—
+                ×
               </button>
             </div>
             <div className="auth-form">
@@ -625,7 +672,18 @@ function JobBoard({ authUser, onRequireLogin }) {
               <article key={job._id || job.id} className="job-card">
                 <div className="job-index">{String(pageStart + index + 1).padStart(2, "0")}</div>
                 <div className="job-body">
-                <h2>{job.title}</h2>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <h2>{job.title}</h2>
+                  {authUser?.role === "teacher" && (
+                    <button 
+                      className={`btn-bookmark ${savedJobIds.includes(job._id) ? "active" : ""}`}
+                      onClick={() => handleToggleBookmark(job._id)}
+                      title={savedJobIds.includes(job._id) ? "Remove from saved" : "Save for later"}
+                    >
+                      {savedJobIds.includes(job._id) ? "❤️" : "🤍"}
+                    </button>
+                  )}
+                </div>
                 <p className="job-meta">{job.postedBy}</p>
                 <div className="job-details">
                   <span>
