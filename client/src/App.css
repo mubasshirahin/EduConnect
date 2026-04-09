@@ -862,6 +862,37 @@ html[data-theme="light"] .auth-modal {
   color: var(--text-soft);
 }
 
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 3rem !important;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0.8rem;
+  background: none;
+  border: none;
+  color: var(--text-soft);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+  color: var(--accent);
+  background: rgba(63, 169, 113, 0.1);
+}
+
 .auth-form input {
   border-radius: 12px;
   border: 1px solid var(--border-soft);
@@ -2977,14 +3008,55 @@ html[data-theme="light"] .messages-request-error {
   transition: opacity 0.2s ease;
 }
 
-.profile-avatar-editable:hover .avatar-overlay {
+.profile-avatar-clickable, .profile-avatar-editing {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-avatar-clickable:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.profile-avatar-editing .avatar-overlay {
   opacity: 1;
 }
 
-.avatar-overlay span {
-  color: #fff;
+.status-indicator {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-main);
+  z-index: 2;
+}
+
+.status-indicator.active {
+  background-color: #1fbf75;
+  box-shadow: 0 0 8px rgba(31, 191, 117, 0.6);
+}
+
+.btn-remove-photo {
+  background: none;
+  border: 1px solid #ff4d4f;
+  color: #ff4d4f;
+  padding: 4px 10px;
+  border-radius: 4px;
   font-size: 0.75rem;
-  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-remove-photo:hover {
+  background: #ff4d4f;
+  color: white;
+}
+
+.avatar-initials {
+  font-size: 1.5rem;
+  letter-spacing: 1px;
 }
 
 .profile-hero h2 {
