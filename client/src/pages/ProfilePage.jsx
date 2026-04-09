@@ -126,6 +126,7 @@ function ProfilePage({ authUser }) {
   const handleSave = (event) => {
     event.preventDefault();
     localStorage.setItem(profileStorageKey, JSON.stringify(profile));
+    window.dispatchEvent(new Event("storage"));
     setIsEditing(false);
   };
 
@@ -245,19 +246,25 @@ function ProfilePage({ authUser }) {
     <section className="profile-page">
       <div className="profile-hero">
         <div 
-          className={`profile-avatar ${isEditing ? "profile-avatar-editable" : ""}`}
-          onClick={() => isEditing && document.getElementById("avatar-upload").click()}
+          className={`profile-avatar ${!isEditing ? "profile-avatar-clickable" : "profile-avatar-editing"}`}
+          onClick={() => {
+            if (!isEditing) setIsEditing(true);
+            setTimeout(() => document.getElementById("avatar-upload").click(), 0);
+          }}
+          title="Click to change photo"
         >
           {profile.avatarUrl ? (
             <img src={profile.avatarUrl} alt={profile.name} className="avatar-img" />
           ) : (
-            profile.name?.charAt(0).toUpperCase() || "PI"
+            <span className="avatar-initials">{profile.name?.charAt(0).toUpperCase() || "PI"}</span>
           )}
-          {isEditing && (
-            <div className="avatar-overlay">
-              <span>Change</span>
-            </div>
-          )}
+          <div className="avatar-overlay">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+              <circle cx="12" cy="13" r="4" />
+            </svg>
+          </div>
+          <div className="status-indicator active" title="Active Now"></div>
         </div>
         <input
           id="avatar-upload"
@@ -267,7 +274,21 @@ function ProfilePage({ authUser }) {
           onChange={handleAvatarChange}
         />
         <div>
-          <h2>{profile.name}</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <h2>{profile.name}</h2>
+            {profile.avatarUrl && isEditing && (
+              <button 
+                type="button" 
+                className="btn-remove-photo"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setProfile(prev => ({ ...prev, avatarUrl: "" }));
+                }}
+              >
+                Remove Photo
+              </button>
+            )}
+          </div>
           <p>{profile.email}</p>
           <div className="profile-meta">
             <span>{authUser?.role === "teacher" ? "Teacher Profile" : "Student Profile"}</span>
