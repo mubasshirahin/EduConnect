@@ -178,6 +178,13 @@ export const translations = {
       teachersWillAppear: "Teachers who apply will appear here.",
       selectToView: "Select an applicant to view profile details.",
       appliedDate: "Applied: ",
+      applicationStatus: "Status",
+      statuses: {
+        pending: "Pending",
+        shortlisted: "Shortlisted",
+        hired: "Hired",
+        rejected: "Rejected",
+      },
     },
     settings: {
       title: "Settings",
@@ -741,6 +748,13 @@ export const translations = {
       teachersWillAppear: "শিক্ষকরা আবেদন করলে এখানে তাদের তালিকা আসবে।",
       selectToView: "বিস্তারিত প্রোফাইল দেখতে একজন আবেদনকারী নির্বাচন করুন।",
       appliedDate: "আবেদনকাল: ",
+      applicationStatus: "স্ট্যাটাস",
+      statuses: {
+        pending: "অপেক্ষমান",
+        shortlisted: "বাছাইকৃত",
+        hired: "নিযুক্ত",
+        rejected: "বাতিল",
+      },
     },
     settings: {
       title: "সেটিংস",

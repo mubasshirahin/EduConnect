@@ -3068,6 +3068,37 @@ html[data-theme="light"] .messages-request-error {
   color: var(--text-soft);
 }
 
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge-pending {
+  background: rgba(242, 176, 30, 0.15);
+  color: #f2b01e;
+}
+
+.status-badge-shortlisted {
+  background: rgba(52, 152, 219, 0.15);
+  color: #3498db;
+}
+
+.status-badge-hired {
+  background: rgba(31, 191, 117, 0.15);
+  color: #1fbf75;
+}
+
+.status-badge-rejected {
+  background: rgba(231, 76, 60, 0.15);
+  color: #e74c3c;
+}
+
 .profile-meta {
   display: flex;
   gap: 1.5rem;

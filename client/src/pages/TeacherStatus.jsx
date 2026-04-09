@@ -38,33 +38,40 @@ function TeacherStatus({ authUser }) {
         </div>
       ) : (
         <div className="status-list">
-          {appliedJobs.map((job) => (
-            <article key={job._id} className="status-card">
-              <h3>{job.title}</h3>
-              <div className="job-details">
-                <span>
-                  <strong>{t("jobBoard.location")}:</strong> {job.location}
-                </span>
-                <span>
-                  <strong>{t("jobBoard.schedule")}:</strong> {job.schedule}
-                </span>
-                <span>
-                  <strong>{t("jobBoard.salary")}:</strong> {job.rate}
-                </span>
-              </div>
-              <p className="job-meta">
-                {t("dashboard.appliedOn")}{" "}
-                {job.applicants
-                  ?.find((app) => app.email === authUser?.email?.toLowerCase())
-                  ?.appliedAt
-                  ? new Date(
-                      job.applicants.find((app) => app.email === authUser?.email?.toLowerCase())
-                        .appliedAt
-                    ).toLocaleDateString()
-                  : "N/A"}
-              </p>
-            </article>
-          ))}
+          {appliedJobs.map((job) => {
+            const applicantInfo = job.applicants?.find(
+              (app) => app.email === authUser?.email?.toLowerCase()
+            );
+            const status = applicantInfo?.status || "pending";
+            
+            return (
+              <article key={job._id} className="status-card">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem", marginBottom: "1rem" }}>
+                  <h3 style={{ margin: 0 }}>{job.title}</h3>
+                  <span className={`status-badge status-badge-${status}`}>
+                    {t(`dashboard.statuses.${status}`)}
+                  </span>
+                </div>
+                <div className="job-details">
+                  <span>
+                    <strong>{t("jobBoard.location")}:</strong> {job.location}
+                  </span>
+                  <span>
+                    <strong>{t("jobBoard.schedule")}:</strong> {job.schedule}
+                  </span>
+                  <span>
+                    <strong>{t("jobBoard.salary")}:</strong> {job.rate}
+                  </span>
+                </div>
+                <p className="job-meta">
+                  {t("dashboard.appliedOn")}{" "}
+                  {applicantInfo?.appliedAt
+                    ? new Date(applicantInfo.appliedAt).toLocaleDateString()
+                    : "N/A"}
+                </p>
+              </article>
+            );
+          })}
         </div>
       )}
     </section>
