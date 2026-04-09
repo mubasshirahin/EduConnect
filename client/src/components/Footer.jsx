@@ -11,6 +11,7 @@ function Footer() {
           <a href="#home">{t("navbar.home")}</a>
           <a href="#about">{t("navbar.about")}</a>
           <a href="#terms">{t("footer.terms")}</a>
+          <a href="#help">{t("navbar.help") || "Help"}</a>
         </div>
         <p>&copy; 2026 EduConnect. {t("footer.rights")}</p>
       </div>
