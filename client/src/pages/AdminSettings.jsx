@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 const NOTICE_KEY = "educonnect-notice";
 const NOTICE_HISTORY_KEY = "educonnect-notice-history";
 
 function AdminSettings({ authUser, onLogout }) {
+  const { t } = useLanguage();
   const settingsStorageKey = authUser?.email
     ? `educonnect-admin-settings:${authUser.email}`
     : "educonnect-admin-settings:guest";
@@ -32,14 +34,20 @@ function AdminSettings({ authUser, onLogout }) {
       localStorage.setItem(settingsStorageKey, JSON.stringify(next));
       return next;
     });
-    setStatusMessage("Admin settings saved.");
+    setStatusMessage(t("settings.status.adminSaved"));
   };
 
   const clearAllNotices = () => {
     localStorage.removeItem(NOTICE_KEY);
     localStorage.removeItem(NOTICE_HISTORY_KEY);
     window.dispatchEvent(new Event("notice-updated"));
-    setStatusMessage("All published notices were cleared.");
+    setStatusMessage(t("settings.status.noticesCleared"));
+  };
+
+  const handleLogoutClick = () => {
+    if (window.confirm(t("settings.logoutConfirm"))) {
+      onLogout();
+    }
   };
 
   return (
@@ -47,33 +55,33 @@ function AdminSettings({ authUser, onLogout }) {
       <div className="settings-hero">
         <div>
           <p className="tile-label">Admin Panel</p>
-          <h2>Settings</h2>
-          <p>Control platform behavior, notice visibility, and quick admin actions from one place.</p>
+          <h2>{t("settings.title")}</h2>
+          <p>{t("settings.subtitle")}</p>
         </div>
         <a className="btn btn-primary" href="#notices">
-          Manage Notices
+          {t("settings.buttons.manageNotices")}
         </a>
       </div>
 
       <div className="settings-grid">
         <section className="settings-card">
-          <h3>Account</h3>
+          <h3>{t("settings.sections.account")}</h3>
           <div className="settings-list">
             <div className="settings-row">
               <div>
-                <strong>Name</strong>
-                <p>{authUser?.name || "Admin"}</p>
+                <strong>{t("settings.labels.name")}</strong>
+                <p>{authUser?.name || t("common.userFallback")}</p>
               </div>
             </div>
             <div className="settings-row">
               <div>
-                <strong>Email</strong>
+                <strong>{t("settings.labels.email")}</strong>
                 <p>{authUser?.email || "-"}</p>
               </div>
             </div>
             <div className="settings-row">
               <div>
-                <strong>Role</strong>
+                <strong>{t("settings.labels.role")}</strong>
                 <p>{authUser?.role || "admin"}</p>
               </div>
             </div>
@@ -81,12 +89,12 @@ function AdminSettings({ authUser, onLogout }) {
         </section>
 
         <section className="settings-card">
-          <h3>Platform Controls</h3>
+          <h3>{t("settings.sections.preferences")}</h3>
           <div className="settings-list">
             <label className="settings-toggle">
               <div>
-                <strong>Maintenance mode</strong>
-                <p>Use this saved flag to mark when the admin team is doing platform updates.</p>
+                <strong>{t("settings.labels.maintenanceMode")}</strong>
+                <p>{t("settings.labels.maintenanceModeDesc")}</p>
               </div>
               <input
                 type="checkbox"
@@ -97,8 +105,8 @@ function AdminSettings({ authUser, onLogout }) {
 
             <label className="settings-toggle">
               <div>
-                <strong>Allow new registrations</strong>
-                <p>Keep signup availability tracked from the admin panel.</p>
+                <strong>{t("settings.labels.allowRegistrations")}</strong>
+                <p>{t("settings.labels.allowRegistrationsDesc")}</p>
               </div>
               <input
                 type="checkbox"
@@ -109,8 +117,8 @@ function AdminSettings({ authUser, onLogout }) {
 
             <label className="settings-toggle">
               <div>
-                <strong>Admin email alerts</strong>
-                <p>Save whether new platform activity should trigger admin follow-up alerts.</p>
+                <strong>{t("settings.labels.adminEmailAlerts")}</strong>
+                <p>{t("settings.labels.adminEmailAlertsDesc")}</p>
               </div>
               <input
                 type="checkbox"
@@ -121,36 +129,36 @@ function AdminSettings({ authUser, onLogout }) {
 
             <div className="settings-field">
               <label htmlFor="admin-dashboard-audience">
-                <strong>Notice audience</strong>
+                <strong>{t("settings.labels.noticeAudience")}</strong>
               </label>
-              <p>Track who your next dashboard notice is intended for.</p>
+              <p>{t("settings.labels.noticeAudienceDesc")}</p>
               <select
                 id="admin-dashboard-audience"
                 value={settings.dashboardAudience}
                 onChange={(event) => updateSetting("dashboardAudience", event.target.value)}
               >
-                <option value="all">Students and teachers</option>
-                <option value="teachers">Teachers only</option>
-                <option value="students">Students only</option>
+                <option value="all">{t("settings.options.all")}</option>
+                <option value="teachers">{t("settings.options.teachersOnly")}</option>
+                <option value="students">{t("settings.options.studentsOnly")}</option>
               </select>
             </div>
           </div>
         </section>
 
         <section className="settings-card">
-          <h3>Quick actions</h3>
+          <h3>{t("settings.sections.actions")}</h3>
           <div className="settings-actions">
             <a className="btn btn-ghost" href="#notices">
-              Open Notices
+              {t("settings.buttons.manageNotices")}
             </a>
             <a className="btn btn-ghost" href="#admin-users">
-              Manage Users
+              {t("settings.buttons.manageUsers")}
             </a>
             <button className="btn btn-ghost" type="button" onClick={clearAllNotices}>
-              Clear Notice Board
+              {t("settings.buttons.clearNoticeBoard")}
             </button>
-            <button className="btn btn-primary" type="button" onClick={onLogout}>
-              Logout
+            <button className="btn btn-primary" type="button" onClick={handleLogoutClick}>
+              {t("settings.logout")}
             </button>
           </div>
           {statusMessage ? <p className="settings-status">{statusMessage}</p> : null}
@@ -161,3 +169,4 @@ function AdminSettings({ authUser, onLogout }) {
 }
 
 export default AdminSettings;
+

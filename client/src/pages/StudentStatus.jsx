@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function StudentStatus({ authUser }) {
+  const { t } = useLanguage();
   const [jobs, setJobs] = useState([]);
   const [totalPosts, setTotalPosts] = useState(0);
   const [totalApplicants, setTotalApplicants] = useState(0);
@@ -43,29 +45,29 @@ function StudentStatus({ authUser }) {
   return (
     <section className="status-page">
       <div className="status-header">
-        <h2>Status</h2>
-        <p>Your posted jobs and how many teachers applied.</p>
+        <h2>{t("dashboard.status")}</h2>
+        <p>{t("dashboard.statusSubtitle")}</p>
       </div>
       <div className="status-stats">
         <div className="status-card">
           <h3>{loading ? "..." : totalPosts}</h3>
-          <p>Jobs Posted</p>
+          <p>{t("dashboard.jobsPosted")}</p>
         </div>
         <div className="status-card">
           <h3>{loading ? "..." : totalApplicants}</h3>
-          <p>Total Applicants</p>
+          <p>{t("dashboard.totalApplicants")}</p>
         </div>
       </div>
       <div className="status-list">
         {loading ? (
           <div className="job-empty">
-            <h3>Loading jobs...</h3>
-            <p>Please wait a moment.</p>
+            <h3>{t("dashboard.loadingJobs")}</h3>
+            <p>{t("jobBoard.loadingBody")}</p>
           </div>
         ) : totalPosts === 0 ? (
           <div className="job-empty">
-            <h3>No jobs posted yet</h3>
-            <p>Create a job post to see details here.</p>
+            <h3>{t("jobBoard.emptyTitle")}</h3>
+            <p>{t("jobBoard.emptyBody")}</p>
           </div>
         ) : (
           jobs.map((job, index) => (
@@ -73,16 +75,16 @@ function StudentStatus({ authUser }) {
               <div className="job-index">{String(index + 1).padStart(2, "0")}</div>
               <div className="job-body">
                 <h2>{job.title}</h2>
-                <p className="job-meta">Applicants: {job.applicants?.length || 0}</p>
+                <p className="job-meta">{t("dashboard.applicants")}: {job.applicants?.length || 0}</p>
                 <div className="job-details">
                   <span>
-                    <strong>Location:</strong> {job.location}
+                    <strong>{t("jobBoard.location")}:</strong> {job.location}
                   </span>
                   <span>
-                    <strong>Schedule:</strong> {job.schedule}
+                    <strong>{t("jobBoard.schedule")}:</strong> {job.schedule}
                   </span>
                   <span>
-                    <strong>Salary:</strong> {job.rate}
+                    <strong>{t("jobBoard.salary")}:</strong> {job.rate}
                   </span>
                 </div>
                 <div className="job-actions">
@@ -95,7 +97,7 @@ function StudentStatus({ authUser }) {
                       setIsApplicantsOpen(true);
                     }}
                   >
-                    Applicants
+                    {t("dashboard.applicants")}
                   </button>
                 </div>
               </div>
@@ -104,11 +106,11 @@ function StudentStatus({ authUser }) {
         )}
       </div>
       {isApplicantsOpen && (
-        <div className="auth-overlay" role="dialog" aria-modal="true" aria-label="Applicants">
+        <div className="auth-overlay" role="dialog" aria-modal="true" aria-label={t("dashboard.applicants")}>
           <div className="auth-modal applicant-modal">
             <div className="auth-modal-header">
               <div>
-                <h3>Applicants</h3>
+                <h3>{t("dashboard.applicants")}</h3>
                 <p>{selectedJob?.title}</p>
               </div>
               <button className="auth-close" type="button" onClick={() => setIsApplicantsOpen(false)}>
@@ -133,23 +135,23 @@ function StudentStatus({ authUser }) {
                   {selectedApplicant ? (
                     <>
                       <h4>{selectedApplicant.name}</h4>
-                      <p>Email: {selectedApplicant.email}</p>
+                      <p>{t("profile.labels.email")}: {selectedApplicant.email}</p>
                       <p>
-                        Applied:{" "}
+                        {t("dashboard.appliedDate")}
                         {selectedApplicant.appliedAt
                           ? new Date(selectedApplicant.appliedAt).toLocaleDateString()
                           : "N/A"}
                       </p>
                     </>
                   ) : (
-                    <p>Select an applicant to view profile details.</p>
+                    <p>{t("dashboard.selectToView")}</p>
                   )}
                 </div>
               </div>
             ) : (
               <div className="job-empty">
-                <h3>No applicants yet</h3>
-                <p>Teachers who apply will appear here.</p>
+                <h3>{t("dashboard.noApplicants")}</h3>
+                <p>{t("dashboard.teachersWillAppear")}</p>
               </div>
             )}
           </div>
@@ -161,3 +163,4 @@ function StudentStatus({ authUser }) {
 }
 
 export default StudentStatus;
+

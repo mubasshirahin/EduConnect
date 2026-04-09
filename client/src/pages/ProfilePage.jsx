@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function ProfilePage({ authUser }) {
+  const { t } = useLanguage();
   const requiredFields = new Set([
     "name",
     "email",
@@ -237,7 +239,7 @@ function ProfilePage({ authUser }) {
       ) : profile[name] ? (
         <img src={profile[name]} alt={label} className="profile-upload-preview" />
       ) : (
-        <p>No image uploaded</p>
+        <p>{t("profile.noImage")}</p>
       )}
     </div>
   );
@@ -251,7 +253,7 @@ function ProfilePage({ authUser }) {
             if (!isEditing) setIsEditing(true);
             setTimeout(() => document.getElementById("avatar-upload").click(), 0);
           }}
-          title="Click to change photo"
+          title={t("profile.clickToChange")}
         >
           {profile.avatarUrl ? (
             <img src={profile.avatarUrl} alt={profile.name} className="avatar-img" />
@@ -264,7 +266,7 @@ function ProfilePage({ authUser }) {
               <circle cx="12" cy="13" r="4" />
             </svg>
           </div>
-          <div className="status-indicator active" title="Active Now"></div>
+          <div className="status-indicator active" title={t("profile.activeNow")}></div>
         </div>
         <input
           id="avatar-upload"
@@ -285,17 +287,17 @@ function ProfilePage({ authUser }) {
                   setProfile(prev => ({ ...prev, avatarUrl: "" }));
                 }}
               >
-                Remove Photo
+                {t("profile.removePhoto")}
               </button>
             )}
           </div>
           <p>{profile.email}</p>
           <div className="profile-meta">
-            <span>{authUser?.role === "teacher" ? "Teacher Profile" : "Student Profile"}</span>
+            <span>{authUser?.role === "teacher" ? t("profile.teacherProfile") : t("profile.studentProfile")}</span>
           </div>
           <div className="profile-meta">
-            <span>Profile Completion: {completionPercent}%</span>
-            <span>{isComplete ? "Complete (80%+)" : ""}</span>
+            <span>{t("profile.completion")}: {completionPercent}%</span>
+            <span>{isComplete ? t("reviewsPage.submitSuccess") : ""}</span>
           </div>
           <div style={{ marginTop: "8px" }}>
             <div
@@ -320,43 +322,43 @@ function ProfilePage({ authUser }) {
           </div>
         </div>
         <button className="btn btn-primary" type="button" onClick={() => setIsEditing((prev) => !prev)}>
-          {isEditing ? "Cancel" : "Edit Information"}
+          {isEditing ? t("profile.cancel") : t("profile.editInfo")}
         </button>
       </div>
 
       <form className="profile-grid" onSubmit={handleSave}>
         <section className="profile-section">
-          <h3>Profile Information</h3>
+          <h3>{t("profile.personalInfo")}</h3>
           <div className="profile-fields">
-            {renderField("Full Name", "name")}
-            {renderField("Email", "email", "email")}
-            {renderField("Phone Number", "phone", "tel")}
-            {renderField("Date of Birth", "dob", "date")}
-            {renderField("Gender", "gender")}
-            {renderField("Religion", "religion")}
-            {renderField("Medium", "bscCurriculum")}
-            {renderField("Address", "address")}
-            {renderField("Class / Level", "preferredClasses")}
-            {renderField("School / College Name", "hscInstitute")}
-            {renderField("City", "city")}
-            {renderTextArea("Short Overview", "overview")}
-            {renderImageUpload("ID Card Photo", "idCardImage", handleIdCardChange)}
+            {renderField(t("profile.labels.name"), "name")}
+            {renderField(t("profile.labels.email"), "email", "email")}
+            {renderField(t("profile.labels.phone"), "phone", "tel")}
+            {renderField(t("profile.labels.dob"), "dob", "date")}
+            {renderField(t("profile.labels.gender"), "gender")}
+            {renderField(t("profile.labels.religion"), "religion")}
+            {renderField(t("profile.labels.medium"), "bscCurriculum")}
+            {renderField(t("profile.labels.address"), "address")}
+            {renderField(t("profile.labels.classLevel"), "preferredClasses")}
+            {renderField(t("profile.labels.institute"), "hscInstitute")}
+            {renderField(t("profile.labels.city"), "city")}
+            {renderTextArea(t("profile.labels.overview"), "overview")}
+            {renderImageUpload(t("profile.labels.idCard"), "idCardImage", handleIdCardChange)}
           </div>
         </section>
 
         <section className="profile-section">
-          <h3>Emergency Contact</h3>
+          <h3>{t("profile.emergencyInfo")}</h3>
           <div className="profile-fields">
-            {renderField("Contact Name", "emergencyName")}
-            {renderField("Relation With You", "emergencyRelation")}
-            {renderField("Phone Number", "emergencyNumber", "tel")}
+            {renderField(t("profile.labels.emergencyName"), "emergencyName")}
+            {renderField(t("profile.labels.emergencyRelation"), "emergencyRelation")}
+            {renderField(t("profile.labels.emergencyPhone"), "emergencyNumber", "tel")}
           </div>
         </section>
 
         {isEditing && (
           <div className="profile-actions">
             <button className="btn btn-primary" type="submit">
-              Save Changes
+              {t("profile.saveChanges")}
             </button>
           </div>
         )}
@@ -366,3 +368,4 @@ function ProfilePage({ authUser }) {
 }
 
 export default ProfilePage;
+

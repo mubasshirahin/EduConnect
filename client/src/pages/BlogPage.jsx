@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function BlogPage({ authUser, onRequireLogin }) {
+  const { t } = useLanguage();
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -69,7 +71,7 @@ function BlogPage({ authUser, onRequireLogin }) {
   const handlePostComment = async (blogId) => {
     const content = (commentInputs[blogId] || "").trim();
     if (!content) {
-      setMessage("Comment cannot be empty.");
+      setMessage(t("blog.messages.emptyComment"));
       return;
     }
 
@@ -92,7 +94,7 @@ function BlogPage({ authUser, onRequireLogin }) {
       }
 
       setCommentInputs((prev) => ({ ...prev, [blogId]: "" }));
-      setMessage("Comment posted.");
+      setMessage(t("blog.messages.commentPosted"));
       await fetchBlogs();
     } catch (error) {
       setMessage("Error posting comment.");
@@ -102,7 +104,7 @@ function BlogPage({ authUser, onRequireLogin }) {
   const handlePostReply = async (blogId, commentId) => {
     const content = (replyInputs[commentId] || "").trim();
     if (!content) {
-      setMessage("Reply cannot be empty.");
+      setMessage(t("blog.messages.emptyReply"));
       return;
     }
 
@@ -125,7 +127,7 @@ function BlogPage({ authUser, onRequireLogin }) {
       }
 
       setReplyInputs((prev) => ({ ...prev, [commentId]: "" }));
-      setMessage("Reply posted.");
+      setMessage(t("blog.messages.replyPosted"));
       await fetchBlogs();
     } catch (error) {
       setMessage("Error posting reply.");
@@ -140,7 +142,7 @@ function BlogPage({ authUser, onRequireLogin }) {
 
     const token = localStorage.getItem("educonnect-auth-token");
     if (!token) {
-      setMessage("Invalid session. Please log in again.");
+      setMessage(t("blog.messages.invalidSession"));
       return;
     }
 
@@ -161,7 +163,7 @@ function BlogPage({ authUser, onRequireLogin }) {
       }
 
       await fetchBlogs();
-      setMessage("Rating saved.");
+      setMessage(t("blog.messages.ratingSaved"));
     } catch (error) {
       setMessage("Error submitting rating.");
     }
@@ -172,18 +174,17 @@ function BlogPage({ authUser, onRequireLogin }) {
     setMessage("");
 
     if (!authUser) {
-      setMessage("You must log in to submit a blog post.");
+      setMessage(t("blog.loginRequired"));
       return;
     }
 
     if (!title.trim() || !content.trim()) {
-      setMessage("Title and content are required.");
       return;
     }
 
     const token = localStorage.getItem("educonnect-auth-token");
     if (!token) {
-      setMessage("Invalid session. Please log in again.");
+      setMessage(t("blog.messages.invalidSession"));
       return;
     }
 
@@ -202,7 +203,7 @@ function BlogPage({ authUser, onRequireLogin }) {
       });
 
       if (response.ok) {
-        setMessage("Blog submitted successfully!");
+        setMessage(t("blog.messages.submitSuccess"));
         setTitle("");
         setContent("");
         setTags("");
@@ -210,7 +211,7 @@ function BlogPage({ authUser, onRequireLogin }) {
         fetchBlogs();
       } else {
         const data = await response.json().catch(() => null);
-        setMessage(data?.message || "Failed to submit. Please try again.");
+        setMessage(data?.message || t("blog.messages.submitError"));
       }
     } catch (error) {
       setMessage("Error submitting blog.");
@@ -218,7 +219,7 @@ function BlogPage({ authUser, onRequireLogin }) {
   };
 
   if (loading) {
-    return <div className="container" style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>;
+    return <div className="container" style={{ padding: "2rem", textAlign: "center" }}>{t("common.pleaseWait") || "Loading..."}</div>;
   }
 
   return (
@@ -231,9 +232,9 @@ function BlogPage({ authUser, onRequireLogin }) {
             window.location.hash = "#home";
           }}
         >
-          ← Back to Dashboard
+          ← {t("blog.backDashboard")}
         </button>
-        <h1 style={{ margin: "0 auto" }}>Study Tips & Blog</h1>
+        <h1 style={{ margin: "0 auto" }}>{t("blog.title")}</h1>
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "2rem" }}>
         <button
@@ -246,21 +247,21 @@ function BlogPage({ authUser, onRequireLogin }) {
             setShowForm((prev) => !prev);
           }}
         >
-          {showForm ? "Cancel" : authUser ? "Write a Post" : "Login to Write"}
+          {showForm ? t("blog.cancel") : authUser ? t("blog.writePost") : t("blog.loginToWrite")}
         </button>
       </div>
       {!authUser && (
         <p style={{ color: "var(--text-soft)", marginBottom: "1rem" }}>
-          You must be logged in to write a blog post. Click the button to login/register.
+          {t("blog.loginRequired")}
         </p>
       )}
 
       {showForm && authUser && (
         <div className="dashboard-card blog-form-card" style={{ marginBottom: "2rem" }}>
-          <h3>Share Your Study Tips</h3>
+          <h3>{t("blog.shareTips")}</h3>
           <form onSubmit={handleSubmit} className="blog-form">
             <div className="form-group">
-              <label>Your Name</label>
+              <label>{t("blog.labels.name")}</label>
               <input
                 type="text"
                 value={authorName}
@@ -269,11 +270,11 @@ function BlogPage({ authUser, onRequireLogin }) {
               />
             </div>
             <div className="form-group">
-              <label>I am a</label>
+              <label>{t("blog.labels.role")}</label>
               <input type="text" value={role || "student"} readOnly />
             </div>
             <div className="form-group">
-              <label>Title</label>
+              <label>{t("blog.labels.title")}</label>
               <input
                 type="text"
                 value={title}
@@ -282,7 +283,7 @@ function BlogPage({ authUser, onRequireLogin }) {
               />
             </div>
             <div className="form-group">
-              <label>Content</label>
+              <label>{t("blog.labels.content")}</label>
               <textarea
                 rows="6"
                 value={content}
@@ -291,17 +292,17 @@ function BlogPage({ authUser, onRequireLogin }) {
               />
             </div>
             <div className="form-group">
-              <label>Tags (comma separated)</label>
+              <label>{t("blog.labels.tags")}</label>
               <input
                 type="text"
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
-                placeholder="exam tips, study hacks, math"
+                placeholder={t("blog.placeholders.tags")}
               />
             </div>
             {message && <p style={{ color: "var(--accent)" }}>{message}</p>}
             <button type="submit" className="btn btn-primary">
-              Submit
+              {t("reviewsPage.submit")}
             </button>
           </form>
         </div>
@@ -309,7 +310,7 @@ function BlogPage({ authUser, onRequireLogin }) {
 
       {blogs.length === 0 ? (
         <div className="dashboard-card" style={{ textAlign: "center" }}>
-          <p>No blog posts yet. Be the first to share study tips!</p>
+          <p>{t("blog.empty")}</p>
         </div>
       ) : (
         <div style={{ display: "grid", gap: "1.5rem" }}>
@@ -325,7 +326,7 @@ function BlogPage({ authUser, onRequireLogin }) {
                   fontSize: "0.7rem",
                   fontWeight: "bold"
                 }}>
-                  {blog.authorRole === "teacher" ? "Teacher" : "Student"}
+                  {blog.authorRole === "teacher" ? t("auth.teacher") : t("auth.student")}
                 </span>
               </div>
               <p style={{ color: "var(--text-soft)", fontSize: "0.85rem", marginBottom: "1rem" }}>
@@ -336,10 +337,10 @@ function BlogPage({ authUser, onRequireLogin }) {
 
               <div style={{ marginTop: "1rem" }}>
                 <p style={{ margin: "0 0 .4rem 0", fontSize: "0.88rem", color: "var(--text-soft)" }}>
-                  Average rating: {getAverageRating(blog.ratings).toFixed(1)} / 5 ({blog.ratings?.length || 0} votes)
+                  {t("blog.averageRating")}: {getAverageRating(blog.ratings).toFixed(1)} / 5 ({blog.ratings?.length || 0} {t("blog.votes")})
                 </p>
                 <p style={{ margin: "0 0 .8rem 0", fontSize: "0.88rem", color: "var(--text-soft)" }}>
-                  Your rating: {getUserRating(blog.ratings) || "Not rated"}
+                  {t("blog.yourRating")}: {getUserRating(blog.ratings) || t("blog.notRated")}
                 </p>
                 <div style={{ display: "flex", gap: "0.25rem" }}>
                   {Array.from({ length: 5 }, (_, i) => i + 1).map((star) => {
@@ -370,7 +371,7 @@ function BlogPage({ authUser, onRequireLogin }) {
                 </div>
                 {authUser?.email?.toLowerCase() === blog.authorEmail?.toLowerCase() && (
                   <p style={{ fontSize: "0.8rem", color: "#ff6347", marginTop: "0.5rem" }}>
-                    You cannot rate your own post.
+                    {t("blog.messages.ownPostRating")}
                   </p>
                 )}
               </div>
@@ -381,13 +382,13 @@ function BlogPage({ authUser, onRequireLogin }) {
                   style={{ marginBottom: "0.75rem", backgroundColor: "var(--primary)", color: "#fff", borderColor: "var(--primary)" }}
                   onClick={() => toggleComments(blog._id)}
                 >
-                  {openComments[blog._id] ? "Hide Comments" : `Show Comments (${blog.comments?.length || 0})`}
+                  {openComments[blog._id] ? t("blog.comments.hide") : `${t("blog.comments.show")} (${blog.comments?.length || 0})`}
                 </button>
 
                 {openComments[blog._id] && (
                   <div style={{ marginTop: "0.5rem", backgroundColor: "#f0faf2", borderRadius: "10px", padding: "0.8rem" }}>
                     {blog.comments?.length === 0 ? (
-                      <p style={{ color: "var(--text-soft)" }}>No comments yet. Be first to comment!</p>
+                      <p style={{ color: "var(--text-soft)" }}>{t("blog.comments.none")}</p>
                     ) : (
                       <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                         {blog.comments.map((comment) => (
@@ -412,11 +413,11 @@ function BlogPage({ authUser, onRequireLogin }) {
                                   rows="2"
                                   value={replyInputs[comment._id] || ""}
                                   onChange={(e) => handleReplyInputChange(comment._id, e.target.value)}
-                                  placeholder="Write a reply..."
+                                  placeholder={t("blog.placeholders.reply")}
                                   style={{ flex: 1, resize: "vertical", backgroundColor: "#dff6dc", border: "1px solid #8fd089", borderRadius: "6px", padding: "0.4rem" }}
                                 />
                                 <button className="btn" style={{ backgroundColor: "var(--primary)", color: "#fff", borderColor: "var(--primary)" }} onClick={() => handlePostReply(blog._id, comment._id)}>
-                                  Reply
+                                  {t("blog.comments.reply")}
                                 </button>
                               </div>
                             </div>
@@ -430,7 +431,7 @@ function BlogPage({ authUser, onRequireLogin }) {
                         rows="3"
                         value={commentInputs[blog._id] || ""}
                         onChange={(e) => handleCommentInputChange(blog._id, e.target.value)}
-                        placeholder="Write a comment..."
+                        placeholder={t("blog.placeholders.comment")}
                         style={{ width: "100%", resize: "vertical", backgroundColor: "#dff6dc", border: "1px solid #8fd089", borderRadius: "6px", padding: "0.4rem" }}
                       />
                       <button
@@ -438,7 +439,7 @@ function BlogPage({ authUser, onRequireLogin }) {
                         style={{ marginTop: "0.4rem", backgroundColor: "var(--primary)", color: "#fff", borderColor: "var(--primary)" }}
                         onClick={() => handlePostComment(blog._id)}
                       >
-                        Post Comment
+                        {t("blog.comments.post")}
                       </button>
                     </div>
                   </div>
