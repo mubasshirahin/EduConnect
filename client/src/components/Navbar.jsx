@@ -20,7 +20,9 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
           ? "#reviews"
           : currentRoute?.startsWith("#blog")
             ? "#blog"
-            : null;
+            : currentRoute?.startsWith("#help")
+              ? "#help"
+              : null;
 
   return (
     <nav className="navbar">
@@ -47,6 +49,9 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
             </a>
             <a className={`nav-link ${activeSection === "#blog" ? "nav-link-active" : ""}`} href="#blog">
               {t("navbar.blog")}
+            </a>
+            <a className={`nav-link ${activeSection === "#help" ? "nav-link-active" : ""}`} href="#help">
+              {t("navbar.help") || "Help"}
             </a>
           </div>
         )}
@@ -102,6 +107,13 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
             </>
           ) : (
             <>
+              <a 
+                className={`nav-link ${activeSection === "#help" ? "nav-link-active" : ""}`} 
+                href="#help" 
+                style={{ marginRight: "1rem" }}
+              >
+                {t("navbar.help") || "Help"}
+              </a>
               <MessageNotifications authUser={authUser} />
               <button
                 className="language-icon-button"

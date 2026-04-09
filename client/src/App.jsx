@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import JobBoard from "./pages/JobBoard";
+import HelpCenter from "./pages/HelpCenter";
 import Reviews from "./pages/Reviews";
 import ProfilePage from "./pages/ProfilePage";
 import UpdateSoon from "./pages/UpdateSoon";
@@ -109,6 +110,8 @@ function App() {
     content = <TermsOfService />;
   } else if (route === "#about") {
     content = <AboutUs />;
+  } else if (route === "#help") {
+    content = <HelpCenter />;
   } else if (route === "#blog") {
     content = <BlogPage authUser={authUser} onRequireLogin={openLogin} />;
   } else if (route.startsWith("#jobs")) {
@@ -352,6 +355,30 @@ function App() {
       <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <ApplicantProfile email={email} authUser={authUser} />
       </StudentShell>
+    );
+  }
+
+  if (authUser?.role === "teacher" && route === "#help") {
+    content = (
+      <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <HelpCenter />
+      </TeacherShell>
+    );
+  }
+
+  if (authUser?.role === "student" && route === "#help") {
+    content = (
+      <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <HelpCenter />
+      </StudentShell>
+    );
+  }
+
+  if (authUser?.role === "admin" && route === "#help") {
+    content = (
+      <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <HelpCenter />
+      </AdminShell>
     );
   }
 
