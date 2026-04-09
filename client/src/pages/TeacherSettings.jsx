@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function TeacherSettings({ authUser, onLogout }) {
+  const { t } = useLanguage();
   const settingsStorageKey = authUser?.email
     ? `educonnect-teacher-settings:${authUser.email}`
     : "educonnect-teacher-settings:guest";
@@ -35,41 +37,47 @@ function TeacherSettings({ authUser, onLogout }) {
       localStorage.setItem(settingsStorageKey, JSON.stringify(next));
       return next;
     });
-    setStatusMessage("Settings saved.");
+    setStatusMessage(t("settings.status.saved"));
   };
 
   const handleResetProfile = () => {
     localStorage.removeItem(profileStorageKey);
     localStorage.removeItem(completionStorageKey);
-    setStatusMessage("Saved profile data cleared. Reload the profile page to start fresh.");
+    setStatusMessage(t("settings.status.resetSuccess"));
+  };
+
+  const handleLogoutClick = () => {
+    if (window.confirm(t("settings.logoutConfirm"))) {
+      onLogout();
+    }
   };
 
   return (
     <section className="settings-page">
       <div className="settings-hero">
         <div>
-          <p className="tile-label">Teacher Dashboard</p>
-          <h2>Settings</h2>
-          <p>Keep your account settings simple and focused on the essentials.</p>
+          <p className="tile-label">{t("dashboard.teacherDashboard")}</p>
+          <h2>{t("settings.title")}</h2>
+          <p>{t("settings.subtitle")}</p>
         </div>
         <a className="btn btn-primary" href="#profile">
-          Edit Profile
+          {t("settings.buttons.editProfile")}
         </a>
       </div>
 
       <div className="settings-grid">
         <section className="settings-card">
-          <h3>Profile</h3>
+          <h3>{t("settings.sections.profile")}</h3>
           <div className="settings-list">
             <div className="settings-row">
               <div>
-                <strong>Name</strong>
-                <p>{authUser?.name || "Teacher"}</p>
+                <strong>{t("settings.labels.name")}</strong>
+                <p>{authUser?.name || t("common.userFallback")}</p>
               </div>
             </div>
             <div className="settings-row">
               <div>
-                <strong>Email</strong>
+                <strong>{t("settings.labels.email")}</strong>
                 <p>{authUser?.email || "-"}</p>
               </div>
             </div>
@@ -77,12 +85,12 @@ function TeacherSettings({ authUser, onLogout }) {
         </section>
 
         <section className="settings-card">
-          <h3>Preferences</h3>
+          <h3>{t("settings.sections.preferences")}</h3>
           <div className="settings-list">
             <label className="settings-toggle">
               <div>
-                <strong>Public profile</strong>
-                <p>Allow students to discover your tutoring profile more easily.</p>
+                <strong>{t("settings.labels.publicProfile")}</strong>
+                <p>{t("settings.labels.publicProfileDesc")}</p>
               </div>
               <input
                 type="checkbox"
@@ -93,8 +101,8 @@ function TeacherSettings({ authUser, onLogout }) {
 
             <label className="settings-toggle">
               <div>
-                <strong>Message notifications</strong>
-                <p>Keep alerts on when students or admins send new messages.</p>
+                <strong>{t("settings.labels.messageNotifications")}</strong>
+                <p>{t("settings.labels.messageNotificationsDesc")}</p>
               </div>
               <input
                 type="checkbox"
@@ -105,33 +113,33 @@ function TeacherSettings({ authUser, onLogout }) {
 
             <div className="settings-field">
               <label htmlFor="teacher-availability">
-                <strong>Availability</strong>
+                <strong>{t("settings.labels.availability")}</strong>
               </label>
-              <p>Let the dashboard reflect whether you are ready to take new students.</p>
+              <p>{t("settings.labels.availabilityDesc")}</p>
               <select
                 id="teacher-availability"
                 value={settings.availability}
                 onChange={(event) => updateSetting("availability", event.target.value)}
               >
-                <option value="available">Available</option>
-                <option value="busy">Busy</option>
-                <option value="offline">Offline</option>
+                <option value="available">{t("settings.options.available")}</option>
+                <option value="busy">{t("settings.options.busy")}</option>
+                <option value="offline">{t("settings.options.offline")}</option>
               </select>
             </div>
           </div>
         </section>
 
         <section className="settings-card">
-          <h3>Quick actions</h3>
+          <h3>{t("settings.sections.actions")}</h3>
           <div className="settings-actions">
             <a className="btn btn-ghost" href="#messages">
-              Open Messages
+              {t("settings.buttons.openMessages")}
             </a>
             <button className="btn btn-ghost" type="button" onClick={handleResetProfile}>
-              Reset Saved Profile
+              {t("settings.buttons.resetProfile")}
             </button>
-            <button className="btn btn-primary" type="button" onClick={onLogout}>
-              Logout
+            <button className="btn btn-primary" type="button" onClick={handleLogoutClick}>
+              {t("settings.logout")}
             </button>
           </div>
           {statusMessage ? <p className="settings-status">{statusMessage}</p> : null}
@@ -142,3 +150,4 @@ function TeacherSettings({ authUser, onLogout }) {
 }
 
 export default TeacherSettings;
+

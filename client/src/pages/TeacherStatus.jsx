@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function TeacherStatus({ authUser }) {
+  const { t } = useLanguage();
   const [appliedJobs, setAppliedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,18 +23,18 @@ function TeacherStatus({ authUser }) {
   return (
     <section className="status-page">
       <div className="status-header">
-        <h2>Applied Jobs</h2>
-        <p>All the posts you have applied to.</p>
+        <h2>{t("dashboard.appliedJobs")}</h2>
+        <p>{t("dashboard.appliedJobsDesc")}</p>
       </div>
       {loading ? (
         <div className="job-empty">
-          <h3>Loading applied jobs...</h3>
-          <p>Please wait a moment.</p>
+          <h3>{t("dashboard.loadingJobs")}</h3>
+          <p>{t("jobBoard.loadingBody")}</p>
         </div>
       ) : appliedJobs.length === 0 ? (
         <div className="job-empty">
-          <h3>No applied jobs yet</h3>
-          <p>Apply to a job from the Job Board to see it here.</p>
+          <h3>{t("dashboard.noAppliedJobs")}</h3>
+          <p>{t("dashboard.applyToSee")}</p>
         </div>
       ) : (
         <div className="status-list">
@@ -41,17 +43,17 @@ function TeacherStatus({ authUser }) {
               <h3>{job.title}</h3>
               <div className="job-details">
                 <span>
-                  <strong>Location:</strong> {job.location}
+                  <strong>{t("jobBoard.location")}:</strong> {job.location}
                 </span>
                 <span>
-                  <strong>Schedule:</strong> {job.schedule}
+                  <strong>{t("jobBoard.schedule")}:</strong> {job.schedule}
                 </span>
                 <span>
-                  <strong>Salary:</strong> {job.rate}
+                  <strong>{t("jobBoard.salary")}:</strong> {job.rate}
                 </span>
               </div>
               <p className="job-meta">
-                Applied on{" "}
+                {t("dashboard.appliedOn")}{" "}
                 {job.applicants
                   ?.find((app) => app.email === authUser?.email?.toLowerCase())
                   ?.appliedAt
@@ -70,3 +72,4 @@ function TeacherStatus({ authUser }) {
 }
 
 export default TeacherStatus;
+

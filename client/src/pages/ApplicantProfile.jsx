@@ -1,25 +1,27 @@
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function ApplicantProfile({ email, authUser }) {
+  const { t } = useLanguage();
   const [profile, setProfile] = useState({
     name: "Applicant Name",
     email,
-    phone: "Not provided",
-    address: "Not provided",
-    city: "Not provided",
-    location: "Not provided",
-    expectedSalary: "Not provided",
-    preferredClasses: "Not provided",
-    preferredSubjects: "Not provided",
-    gender: "Not provided",
-    dob: "Not provided",
-    nationality: "Not provided",
-    facebook: "Not provided",
-    linkedin: "Not provided",
-    emergencyName: "Not provided",
-    emergencyRelation: "Not provided",
-    emergencyNumber: "Not provided",
-    emergencyAddress: "Not provided",
+    phone: t("profile.notProvided"),
+    address: t("profile.notProvided"),
+    city: t("profile.notProvided"),
+    location: t("profile.notProvided"),
+    expectedSalary: t("profile.notProvided"),
+    preferredClasses: t("profile.notProvided"),
+    preferredSubjects: t("profile.notProvided"),
+    gender: t("profile.notProvided"),
+    dob: t("profile.notProvided"),
+    nationality: t("profile.notProvided"),
+    facebook: t("profile.notProvided"),
+    linkedin: t("profile.notProvided"),
+    emergencyName: t("profile.notProvided"),
+    emergencyRelation: t("profile.notProvided"),
+    emergencyNumber: t("profile.notProvided"),
+    emergencyAddress: t("profile.notProvided"),
     avatarUrl: "",
   });
 
@@ -38,7 +40,7 @@ function ApplicantProfile({ email, authUser }) {
   const renderField = (label, value) => (
     <div className="profile-field">
       <span>{label}</span>
-      <p>{value || "Not provided"}</p>
+      <p>{value || t("profile.notProvided")}</p>
     </div>
   );
 
@@ -49,14 +51,14 @@ function ApplicantProfile({ email, authUser }) {
           {profile.avatarUrl ? (
             <img src={profile.avatarUrl} alt={profile.name} className="avatar-img" />
           ) : (
-            profile.name?.charAt(0).toUpperCase() || "AP"
+            <span className="avatar-initials">{profile.name?.charAt(0).toUpperCase() || "AP"}</span>
           )}
         </div>
         <div>
           <h2>{profile.name}</h2>
           <p>{profile.email}</p>
           <div className="profile-meta">
-            <span>Applicant Profile</span>
+            <span>{t("profile.applicantProfile")}</span>
           </div>
         </div>
         <div className="profile-actions">
@@ -71,50 +73,50 @@ function ApplicantProfile({ email, authUser }) {
               window.location.hash = `#messages?${params.toString()}`;
             }}
           >
-            Message
+            {t("profile.message")}
           </button>
           <a className="btn btn-ghost" href="#status">
-            Back to Status
+            {t("profile.backToStatus")}
           </a>
         </div>
       </div>
       <div className="profile-grid">
         <section className="profile-section">
-          <h3>Basic Information</h3>
+          <h3>{t("profile.sections.basic")}</h3>
           <div className="profile-fields">
-            {renderField("Full Name", profile.name)}
-            {renderField("Email", profile.email)}
-            {renderField("Phone Number", profile.phone)}
-            {renderField("Address", profile.address)}
+            {renderField(t("profile.labels.name"), profile.name)}
+            {renderField(t("profile.labels.email"), profile.email)}
+            {renderField(t("profile.labels.phone"), profile.phone)}
+            {renderField(t("profile.labels.address"), profile.address)}
           </div>
         </section>
         <section className="profile-section">
-          <h3>Tuition Information</h3>
+          <h3>{t("profile.sections.tuition")}</h3>
           <div className="profile-fields">
-            {renderField("City", profile.city)}
-            {renderField("Location", profile.location)}
-            {renderField("Expected Salary", profile.expectedSalary)}
-            {renderField("Preferred Classes", profile.preferredClasses)}
-            {renderField("Preferred Subjects", profile.preferredSubjects)}
+            {renderField(t("profile.labels.city"), profile.city)}
+            {renderField(t("profile.labels.location"), profile.location)}
+            {renderField(t("profile.labels.salary"), profile.expectedSalary)}
+            {renderField(t("profile.labels.classes"), profile.preferredClasses)}
+            {renderField(t("profile.labels.subjects"), profile.preferredSubjects)}
           </div>
         </section>
         <section className="profile-section">
-          <h3>Personal Information</h3>
+          <h3>{t("profile.sections.personal")}</h3>
           <div className="profile-fields">
-            {renderField("Gender", profile.gender)}
-            {renderField("Date of Birth", profile.dob)}
-            {renderField("Nationality", profile.nationality)}
-            {renderField("Facebook Profile", profile.facebook)}
-            {renderField("LinkedIn Profile", profile.linkedin)}
+            {renderField(t("profile.labels.gender"), profile.gender)}
+            {renderField(t("profile.labels.dob"), profile.dob)}
+            {renderField(t("profile.labels.nationality"), profile.nationality)}
+            {renderField(t("profile.labels.facebook"), profile.facebook)}
+            {renderField(t("profile.labels.linkedin"), profile.linkedin)}
           </div>
         </section>
         <section className="profile-section">
-          <h3>Emergency Information</h3>
+          <h3>{t("profile.sections.emergency")}</h3>
           <div className="profile-fields">
-            {renderField("Name", profile.emergencyName)}
-            {renderField("Relation", profile.emergencyRelation)}
-            {renderField("Number", profile.emergencyNumber)}
-            {renderField("Address", profile.emergencyAddress)}
+            {renderField(t("profile.labels.name"), profile.emergencyName)}
+            {renderField(t("profile.labels.relation"), profile.emergencyRelation)}
+            {renderField(t("profile.labels.phone"), profile.emergencyNumber)}
+            {renderField(t("profile.labels.address"), profile.emergencyAddress)}
           </div>
         </section>
       </div>
@@ -123,3 +125,4 @@ function ApplicantProfile({ email, authUser }) {
 }
 
 export default ApplicantProfile;
+

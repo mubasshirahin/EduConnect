@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "../i18n/LanguageContext.jsx";
 import { markThreadSeen } from "../utils/messageNotifications.js";
 
 const EMPTY_REQUEST = {
@@ -26,96 +27,8 @@ const REQUIRED_PROFILE_FIELDS = [
   "idCardImage",
 ];
 
-const CLASS_OPTIONS = [
-  "Play",
-  "Nursery",
-  "KG",
-  "Class 1",
-  "Class 2",
-  "Class 3",
-  "Class 4",
-  "Class 5",
-  "Class 6",
-  "Class 7",
-  "Class 8",
-  "Class 9",
-  "Class 10",
-  "Class 11",
-  "Class 12",
-  "Admission Test",
-];
-
-const SUBJECT_OPTIONS = [
-  "Bangla",
-  "English",
-  "Mathematics",
-  "General Science",
-  "Physics",
-  "Chemistry",
-  "Biology",
-  "Higher Math",
-  "ICT",
-  "Accounting",
-  "Finance",
-  "Economics",
-  "BGS",
-  "Religion",
-];
-
-const MEDIUM_OPTIONS = [
-  "Bangla Medium",
-  "English Medium",
-  "English Version",
-  "Madrasa",
-];
-
-const REQUEST_FIELD_LABELS = {
-  subject: "Subject",
-  classLevel: "Class level",
-  medium: "Medium",
-  location: "Location",
-  landmark: "Landmark",
-  schedule: "Preferred schedule",
-  budget: "Budget",
-  details: "Details",
-};
-
-const REQUEST_FIELD_PREFIXES = {
-  "Subject:": "subject",
-  "Class level:": "classLevel",
-  "Medium:": "medium",
-  "Location:": "location",
-  "Landmark:": "landmark",
-  "Preferred schedule:": "schedule",
-  "Budget:": "budget",
-  "Details:": "details",
-};
-
-function parseTutorRequest(text) {
-  const trimmed = text?.trim();
-  if (!trimmed || !trimmed.toLowerCase().startsWith("tutor request")) {
-    return null;
-  }
-
-  const lines = trimmed.split("\n").map((line) => line.trim()).filter(Boolean);
-  const fields = {};
-
-  lines.slice(1).forEach((line) => {
-    const entry = Object.entries(REQUEST_FIELD_PREFIXES).find(([prefix]) => line.startsWith(prefix));
-    if (!entry) {
-      return;
-    }
-    const [prefix, key] = entry;
-    fields[key] = line.slice(prefix.length).trim();
-  });
-
-  return {
-    title: lines[0],
-    fields,
-  };
-}
-
 function MessagesPage({ authUser, route }) {
+  const { t } = useLanguage();
   const [threads, setThreads] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [draft, setDraft] = useState("");
@@ -126,6 +39,64 @@ function MessagesPage({ authUser, route }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isProfileReady, setIsProfileReady] = useState(false);
+
+  const CLASS_OPTIONS = [
+    "Play", "Nursery", "KG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
+    "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "Admission Test",
+  ];
+
+  const SUBJECT_OPTIONS = [
+    "Bangla", "English", "Mathematics", "General Science", "Physics", "Chemistry",
+    "Biology", "Higher Math", "ICT", "Accounting", "Finance", "Economics", "BGS", "Religion",
+  ];
+
+  const MEDIUM_OPTIONS = [
+    "Bangla Medium", "English Medium", "English Version", "Madrasa",
+  ];
+
+  const REQUEST_FIELD_LABELS = {
+    subject: t("messages.labels.subject"),
+    classLevel: t("messages.labels.class"),
+    medium: t("messages.labels.medium"),
+    location: t("messages.labels.location"),
+    landmark: t("messages.labels.landmark"),
+    schedule: t("messages.labels.schedule"),
+    budget: t("messages.labels.budget"),
+    details: t("messages.labels.details"),
+  };
+
+  const REQUEST_FIELD_PREFIXES = {
+    [t("messages.prefixes.subject")]: "subject",
+    [t("messages.prefixes.class")]: "classLevel",
+    [t("messages.prefixes.medium")]: "medium",
+    [t("messages.prefixes.location")]: "location",
+    [t("messages.prefixes.landmark")]: "landmark",
+    [t("messages.prefixes.schedule")]: "schedule",
+    [t("messages.prefixes.budget")]: "budget",
+    [t("messages.prefixes.details")]: "details",
+  };
+
+  function parseTutorRequest(text) {
+    const trimmed = text?.trim();
+    if (!trimmed || !trimmed.toLowerCase().includes("tutor request")) {
+      return null;
+    }
+
+    const lines = trimmed.split("\n").map((line) => line.trim()).filter(Boolean);
+    const fields = {};
+
+    lines.slice(1).forEach((line) => {
+      const entry = Object.entries(REQUEST_FIELD_PREFIXES).find(([prefix]) => line.startsWith(prefix));
+      if (!entry) return;
+      const [prefix, key] = entry;
+      fields[key] = line.slice(prefix.length).trim();
+    });
+
+    return {
+      title: lines[0],
+      fields,
+    };
+  }
 
   const isStudent = authUser?.role === "student";
 
@@ -185,7 +156,7 @@ function MessagesPage({ authUser, route }) {
         ]);
 
         if (!threadsResponse.ok) {
-          throw new Error("Unable to load messages.");
+          throw new Error(t("messages.errorLoading") || "Unable to load messages.");
         }
 
         const nextThreads = await threadsResponse.json();
@@ -255,7 +226,7 @@ function MessagesPage({ authUser, route }) {
     };
 
     loadThreads();
-  }, [authUser, isStudent, route]);
+  }, [authUser, isStudent, route, t]);
 
   const activeThread = threads.find((thread) => thread._id === activeId) || null;
   const latestTutorRequest = activeThread
@@ -285,13 +256,13 @@ function MessagesPage({ authUser, route }) {
 
   const getRecipientName = () => {
     if (isStudent) {
-      return "Admin Support";
+      return t("messages.adminSupport");
     }
     if (activeThread) {
       return getDisplayName(activeThread);
     }
     if (pendingRecipient && supportContact?.email?.toLowerCase() === pendingRecipient) {
-      return supportContact.name || "Admin Support";
+      return supportContact.name || t("messages.adminSupport");
     }
     return pendingRecipient;
   };
@@ -325,9 +296,7 @@ function MessagesPage({ authUser, route }) {
       activeThread?.participants?.find((email) => email !== authUser.email) ||
       "";
 
-    if (!toEmail) {
-      return;
-    }
+    if (!toEmail) return;
 
     const toName =
       activeThread?.participantNames?.[toEmail] ||
@@ -357,7 +326,7 @@ function MessagesPage({ authUser, route }) {
           });
 
           if (!response.ok) {
-            throw new Error("Unable to send message.");
+            throw new Error(t("messages.errorSend") || "Unable to send message.");
           }
 
           return response.json();
@@ -399,19 +368,19 @@ function MessagesPage({ authUser, route }) {
   const handleSubmitTutorRequest = async (event) => {
     event.preventDefault();
     if (!isProfileReady) {
-      setError("Please complete all starred profile fields before sending a tutor request.");
+      setError(t("messages.requestForm.error"));
       return;
     }
     const message = [
-      "Tutor request",
-      `Subject: ${requestForm.subject.trim()}`,
-      `Class level: ${requestForm.classLevel.trim()}`,
-      `Medium: ${requestForm.medium.trim()}`,
-      `Location: ${requestForm.location.trim()}`,
-      `Landmark: ${requestForm.landmark.trim() || "Not provided"}`,
-      `Preferred schedule: ${requestForm.schedule.trim()}`,
-      `Budget: ${requestForm.budget.trim()}`,
-      `Details: ${requestForm.details.trim()}`,
+      t("messages.tuitionRequest"),
+      `${t("messages.prefixes.subject")} ${requestForm.subject.trim()}`,
+      `${t("messages.prefixes.class")} ${requestForm.classLevel.trim()}`,
+      `${t("messages.prefixes.medium")} ${requestForm.medium.trim()}`,
+      `${t("messages.prefixes.location")} ${requestForm.location.trim()}`,
+      `${t("messages.prefixes.landmark")} ${requestForm.landmark.trim() || t("profile.notProvided")}`,
+      `${t("messages.prefixes.schedule")} ${requestForm.schedule.trim()}`,
+      `${t("messages.prefixes.budget")} ${requestForm.budget.trim()}`,
+      `${t("messages.prefixes.details")} ${requestForm.details.trim()}`,
     ].join("\n");
 
     await sendMessage(message);
@@ -419,10 +388,10 @@ function MessagesPage({ authUser, route }) {
   };
 
   const renderStudentRequestPanel = isStudent && supportContact;
-  const emptyTitle = isStudent ? "Start your tutor request" : "Select a conversation";
+  const emptyTitle = isStudent ? t("messages.startRequest") : t("messages.selectConversation");
   const emptyBody = isStudent
-    ? "Send your subject, class, area, schedule, and budget to the admin team."
-    : "Open a student conversation to review and reply.";
+    ? t("messages.studentRequestIntro")
+    : t("messages.teacherRequestIntro");
   const requestBlocked = isStudent && !isProfileReady;
 
   return (
@@ -430,11 +399,10 @@ function MessagesPage({ authUser, route }) {
       {renderStudentRequestPanel ? (
         <div className="messages-request-card">
           <div className="messages-request-copy">
-            <p className="eyebrow">Admin Support</p>
-            <h3>Send tutor requirement details</h3>
+            <p className="eyebrow">{t("messages.requestForm.eyebrow")}</p>
+            <h3>{t("messages.requestForm.title")}</h3>
             <p>
-              Chat directly with {supportContact.name || "the admin team"} and share what kind of
-              tutor you need. Admin can review this request before posting it publicly.
+              {t("messages.requestForm.subtitle").replace("{name}", supportContact.name || t("messages.adminSupport"))}
             </p>
           </div>
           <form className="messages-request-form" onSubmit={handleSubmitTutorRequest}>
@@ -444,7 +412,7 @@ function MessagesPage({ authUser, route }) {
               onChange={handleRequestChange}
               required
             >
-              <option value="">Select Subject</option>
+              <option value="">{t("messages.requestForm.subject")}</option>
               {SUBJECT_OPTIONS.map((option) => (
                 <option key={option} value={option}>
                   {option}
@@ -457,7 +425,7 @@ function MessagesPage({ authUser, route }) {
               onChange={handleRequestChange}
               required
             >
-              <option value="">Select Class</option>
+              <option value="">{t("messages.requestForm.class")}</option>
               {CLASS_OPTIONS.map((option) => (
                 <option key={option} value={option}>
                   {option}
@@ -470,7 +438,7 @@ function MessagesPage({ authUser, route }) {
               onChange={handleRequestChange}
               required
             >
-              <option value="">Select Medium</option>
+              <option value="">{t("messages.requestForm.medium")}</option>
               {MEDIUM_OPTIONS.map((option) => (
                 <option key={option} value={option}>
                   {option}
@@ -479,34 +447,34 @@ function MessagesPage({ authUser, route }) {
             </select>
             <input
               name="location"
-              placeholder="Area or location"
+              placeholder={t("messages.requestForm.location")}
               value={requestForm.location}
               onChange={handleRequestChange}
               required
             />
             <input
               name="landmark"
-              placeholder="Landmark or full address"
+              placeholder={t("messages.requestForm.landmark")}
               value={requestForm.landmark}
               onChange={handleRequestChange}
             />
             <input
               name="schedule"
-              placeholder="Preferred schedule"
+              placeholder={t("messages.requestForm.schedule")}
               value={requestForm.schedule}
               onChange={handleRequestChange}
               required
             />
             <input
               name="budget"
-              placeholder="Budget"
+              placeholder={t("messages.requestForm.budget")}
               value={requestForm.budget}
               onChange={handleRequestChange}
               required
             />
             <textarea
               name="details"
-              placeholder="Extra details about tutor preference, student needs, syllabus, or timeline"
+              placeholder={t("messages.requestForm.details")}
               value={requestForm.details}
               onChange={handleRequestChange}
               rows="3"
@@ -514,17 +482,17 @@ function MessagesPage({ authUser, route }) {
             />
             {requestBlocked ? (
               <p className="messages-request-warning">
-                Complete all starred fields in your profile before sending this request.
-                <a href="#profile"> Open Profile</a>
+                {t("messages.requestForm.warning")}
+                <a href="#profile"> {t("messages.requestForm.openProfile")}</a>
               </p>
             ) : null}
             {requestBlocked ? (
               <p className="messages-request-error">
-                You cannot send this request until all starred profile fields are completed.
+                {t("messages.requestForm.error")}
               </p>
             ) : null}
             <button className="btn btn-primary" type="submit" disabled={requestBlocked}>
-              Send Request to Admin
+              {t("messages.requestForm.sendToAdmin")}
             </button>
           </form>
         </div>
@@ -533,11 +501,11 @@ function MessagesPage({ authUser, route }) {
       <div className={`messages-shell ${isStudent ? "messages-shell-student" : ""}`}>
         {!isStudent ? (
           <aside className="messages-list">
-            <h3>Messages</h3>
+            <h3>{t("messages.title")}</h3>
             {loading ? (
-              <p className="messages-empty">Loading conversations...</p>
+              <p className="messages-empty">{t("messages.loadingConversations")}</p>
             ) : threads.length === 0 ? (
-              <p className="messages-empty">No conversations yet.</p>
+              <p className="messages-empty">{t("messages.noConversations")}</p>
             ) : (
               threads.map((thread) => {
                 const latestMessage = thread.messages?.[thread.messages.length - 1];
@@ -551,7 +519,7 @@ function MessagesPage({ authUser, route }) {
                     type="button"
                     onClick={() => setActiveId(thread._id)}
                   >
-                    {requestEntry ? <span className="thread-badge">Tuition Request</span> : null}
+                    {requestEntry ? <span className="thread-badge">{t("messages.tuitionRequest")}</span> : null}
                     <span className="thread-name">{displayName}</span>
                     {displayName.toLowerCase() !== otherEmail.toLowerCase() ? (
                       <span className="thread-email">{otherEmail}</span>
@@ -584,12 +552,12 @@ function MessagesPage({ authUser, route }) {
                 <h4>{getRecipientName()}</h4>
                 <p>
                   {isStudent
-                    ? "Share your tutor requirements here and admin will review them."
+                    ? t("messages.studentChatIntro")
                     : activeThread
                       ? getDisplayName(activeThread).toLowerCase() !==
                         getOtherParticipantEmail(activeThread).toLowerCase()
                         ? getOtherParticipantEmail(activeThread)
-                        : "Open the conversation to review and reply."
+                        : t("messages.teacherChatIntro")
                       : pendingRecipient}
                 </p>
               </div>
@@ -603,7 +571,7 @@ function MessagesPage({ authUser, route }) {
 
           <div className="messages-body">
             {loading ? (
-              <p className="messages-empty-state">Loading chat...</p>
+              <p className="messages-empty-state">{t("messages.loadingChat")}</p>
             ) : error ? (
               <p className="messages-empty-state">{error}</p>
             ) : activeThread ? (
@@ -612,7 +580,7 @@ function MessagesPage({ authUser, route }) {
                   <section className="messages-request-summary-card">
                     <div className="messages-request-summary-head">
                       <div>
-                        <p className="eyebrow">Latest Tuition Request</p>
+                        <p className="eyebrow">{t("messages.latestTuitionRequest")}</p>
                         <h4>{getDisplayName(activeThread)}</h4>
                       </div>
                       <span className="messages-request-summary-time">
@@ -686,8 +654,8 @@ function MessagesPage({ authUser, route }) {
               type="text"
               placeholder={
                 isStudent
-                  ? "Write a follow-up message for admin..."
-                  : "Reply to the student..."
+                  ? t("messages.studentFollowUp") || "Write a follow-up message..."
+                  : t("messages.teacherReply") || "Reply to the student..."
               }
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
@@ -698,7 +666,7 @@ function MessagesPage({ authUser, route }) {
               type="submit"
               disabled={loading || !draft.trim() || (!activeThread && !pendingRecipient)}
             >
-              Send
+              {t("messages.send")}
             </button>
           </form>
         </div>
@@ -708,3 +676,4 @@ function MessagesPage({ authUser, route }) {
 }
 
 export default MessagesPage;
+

@@ -51,7 +51,7 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
               {t("navbar.blog")}
             </a>
             <a className={`nav-link ${activeSection === "#help" ? "nav-link-active" : ""}`} href="#help">
-              {t("navbar.help") || "Help"}
+              {t("navbar.help")}
             </a>
           </div>
         )}
@@ -112,7 +112,7 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
                 href="#help" 
                 style={{ marginRight: "1rem" }}
               >
-                {t("navbar.help") || "Help"}
+                {t("navbar.help")}
               </a>
               <MessageNotifications authUser={authUser} />
               <button
