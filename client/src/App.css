@@ -811,6 +811,8 @@ html[data-theme="light"] .btn-primary {
   display: grid;
   place-items: center;
   z-index: 50;
+  padding: 1rem;
+  overflow-y: auto;
 }
 
 .auth-backdrop {
@@ -822,8 +824,8 @@ html[data-theme="light"] .btn-primary {
 
 .auth-modal {
   position: relative;
-  width: min(520px, calc(100% - 2rem));
-  max-height: 90vh;
+  width: min(520px, 100%);
+  max-height: min(90vh, calc(100dvh - 2rem));
   overflow: hidden;
   background:
     linear-gradient(180deg, rgba(25, 36, 30, 0.98), rgba(18, 27, 22, 0.98)),
@@ -877,6 +879,7 @@ html[data-theme="light"] .auth-modal {
   overflow-y: auto;
   max-height: calc(90vh - 165px);
   padding-right: 0.25rem;
+  overscroll-behavior: contain;
 }
 
 .form-group {
@@ -988,6 +991,58 @@ html[data-theme="light"] .role-option {
   color: #7b1f1f;
   background: rgba(231, 76, 60, 0.12);
   border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+@media (max-width: 640px) {
+  .auth-overlay {
+    padding: 0.75rem;
+    place-items: center;
+  }
+
+  .auth-modal {
+    width: 100%;
+    max-height: calc(100dvh - 1.5rem);
+    padding: 1.25rem 1rem;
+    border-radius: 24px;
+  }
+
+  .auth-modal-header {
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .auth-modal-header h3 {
+    font-size: 1.3rem;
+  }
+
+  .auth-form {
+    gap: 0.9rem;
+    max-height: calc(100dvh - 9.5rem);
+    padding-right: 0;
+  }
+
+  .auth-form input {
+    font-size: 16px;
+  }
+
+  .role-group {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+
+  .role-option {
+    gap: 0.35rem;
+    padding: 0.72rem 0.45rem;
+    justify-content: center;
+    font-size: 0.9rem;
+  }
+
+  .auth-close {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+  }
 }
 
 .footer {
@@ -1678,6 +1733,30 @@ html[data-theme="light"] .blog-compose-button {
 
 .blog-star-button {
   flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.28);
+  font-size: 1.55rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.blog-star-button:hover {
+  transform: translateY(-1px);
+}
+
+.blog-star-button-filled {
+  color: #ffd54a;
+}
+
+.blog-star-button:disabled {
+  cursor: not-allowed;
+}
+
+html[data-theme="light"] .blog-star-button {
+  color: rgba(27, 43, 35, 0.24);
 }
 
 .blog-rating-warning {
