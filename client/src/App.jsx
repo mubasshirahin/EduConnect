@@ -115,7 +115,27 @@ function App() {
   } else if (route === "#help") {
     content = <HelpCenter />;
   } else if (route === "#blog") {
-    content = <BlogPage authUser={authUser} onRequireLogin={openLogin} onLogout={handleLogout} />;
+    if (authUser?.role === "teacher") {
+      content = (
+        <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+          <BlogPage authUser={authUser} onRequireLogin={openLogin} onLogout={handleLogout} />
+        </TeacherShell>
+      );
+    } else if (authUser?.role === "student") {
+      content = (
+        <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+          <BlogPage authUser={authUser} onRequireLogin={openLogin} onLogout={handleLogout} />
+        </StudentShell>
+      );
+    } else if (authUser?.role === "admin") {
+      content = (
+        <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+          <BlogPage authUser={authUser} onRequireLogin={openLogin} onLogout={handleLogout} />
+        </AdminShell>
+      );
+    } else {
+      content = <BlogPage authUser={authUser} onRequireLogin={openLogin} onLogout={handleLogout} />;
+    }
   } else if (route.startsWith("#jobs")) {
     content = <JobBoard authUser={authUser} onRequireLogin={openLogin} />;
   } else if (route.startsWith("#reviews") && !authUser) {

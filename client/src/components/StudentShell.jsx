@@ -243,9 +243,7 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
             <span />
             <span />
           </button>
-          <div className="teacher-topbar-title">
-            <h1>{t("dashboard.studentDashboard")}</h1>
-          </div>
+          <div className="teacher-topbar-title" />
         </header>
         {children}
       </main>

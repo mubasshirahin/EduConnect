@@ -239,9 +239,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
             <span />
             <span />
           </button>
-          <div className="teacher-topbar-title">
-            <h1>{t("dashboard.teacherDashboard")}</h1>
-          </div>
+          <div className="teacher-topbar-title" />
         </header>
         {children}
       </main>

@@ -20,11 +20,24 @@ const jobSchema = new mongoose.Schema(
         email: { type: String, required: true, trim: true, lowercase: true },
         name: { type: String, required: true, trim: true },
         appliedAt: { type: Date, default: Date.now },
-        status: { 
-          type: String, 
-          enum: ["pending", "shortlisted", "rejected", "hired"],
+        status: {
+          type: String,
+          enum: [
+            "pending",
+            "shortlisted",
+            "profile_shared",
+            "appointed",
+            "confirmed",
+            "rejected",
+            "hired",
+          ],
           default: "pending"
-        }
+        },
+        shortlistedAt: { type: Date },
+        sharedWithGuardianAt: { type: Date },
+        appointedAt: { type: Date },
+        confirmedAt: { type: Date },
+        demoClassCount: { type: Number, min: 0, max: 3, default: 0 },
       },
     ],
   },

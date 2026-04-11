@@ -40,6 +40,7 @@ function MessagesPage({ authUser, route }) {
   const [error, setError] = useState("");
   const [isProfileReady, setIsProfileReady] = useState(false);
   const [requestAction, setRequestAction] = useState({ type: "", message: "" });
+  const [studentChatMode, setStudentChatMode] = useState("admin");
 
   const CLASS_OPTIONS = [
     "Play", "Nursery", "KG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
@@ -126,6 +127,34 @@ function MessagesPage({ authUser, route }) {
     };
   }
 
+  const getJobUpdateMeta = (update) => {
+    switch (update?.type) {
+      case "teacher_profile_shared":
+        return {
+          label: "Teacher Profile Shared",
+          className: "messages-request-status-appointed",
+          actionLabel: "Open Teacher Profile",
+          actionHref: update.teacherEmail ? `#applicant/${encodeURIComponent(update.teacherEmail)}` : "",
+        };
+      case "teacher_appointed":
+        return {
+          label: "Teacher Appointed",
+          className: "messages-request-status-appointed",
+          actionLabel: "",
+          actionHref: "",
+        };
+      case "job_confirmed":
+        return {
+          label: "Job Confirmed",
+          className: "messages-request-status-confirmed",
+          actionLabel: "",
+          actionHref: "",
+        };
+      default:
+        return null;
+    }
+  };
+
   const isStudent = authUser?.role === "student";
   const isAdmin = authUser?.role === "admin";
 
@@ -203,24 +232,60 @@ function MessagesPage({ authUser, route }) {
         setAdminContacts(Array.isArray(nextAdmins) ? nextAdmins : []);
 
         const supportEmail = nextSupport?.email?.toLowerCase() || null;
-        const supportThread = supportEmail
-          ? nextThreads.find((thread) => thread.participants?.includes(supportEmail))
-          : null;
+        const adminEmails = Array.isArray(nextAdmins)
+          ? nextAdmins.map((admin) => admin?.email?.toLowerCase()).filter(Boolean)
+          : [];
+        const isAdminThread = (thread) => {
+          const otherParticipant =
+            thread?.participants?.find((participant) => participant !== authUser?.email?.toLowerCase()) || "";
+          return adminEmails.includes(otherParticipant);
+        };
+        const supportThread = nextThreads.find((thread) => isAdminThread(thread)) || null;
+        const teacherThread = nextThreads.find((thread) => !isAdminThread(thread)) || null;
 
-        if (route?.includes("?to=")) {
+        if (route?.includes("?")) {
           const params = new URLSearchParams(route.split("?")[1]);
+          const threadId = params.get("thread");
           const toEmail = params.get("to")?.toLowerCase();
-          const matchedThread = nextThreads.find((thread) => thread.participants?.includes(toEmail));
-          if (matchedThread) {
+          const teacherView = params.get("view") === "teacher";
+          const matchedThreadById = threadId
+            ? nextThreads.find((thread) => thread._id === threadId)
+            : null;
+          const matchedThreadByEmail = toEmail
+            ? nextThreads.find((thread) => thread.participants?.includes(toEmail))
+            : null;
+          const matchedThread = matchedThreadById || matchedThreadByEmail;
+
+          if (isStudent && teacherView) {
+            setStudentChatMode("teacher");
+
+            if (matchedThread && !isAdminThread(matchedThread)) {
+              setActiveId(matchedThread._id);
+              setPendingRecipient(null);
+            } else if (toEmail && toEmail !== supportEmail) {
+              setPendingRecipient(toEmail);
+              setActiveId(`new:${toEmail}`);
+            } else if (teacherThread) {
+              setActiveId(teacherThread._id);
+              setPendingRecipient(null);
+            } else {
+              setActiveId(null);
+              setPendingRecipient(null);
+            }
+          } else if (matchedThread) {
+            setStudentChatMode("admin");
             setActiveId(matchedThread._id);
             setPendingRecipient(null);
           } else if (toEmail) {
+            setStudentChatMode(toEmail === supportEmail ? "admin" : "teacher");
             setPendingRecipient(toEmail);
             setActiveId(`new:${toEmail}`);
           } else if (supportThread) {
+            setStudentChatMode("admin");
             setActiveId(supportThread._id);
             setPendingRecipient(null);
           } else if (supportEmail) {
+            setStudentChatMode("admin");
             setPendingRecipient(supportEmail);
             setActiveId(`new:${supportEmail}`);
           } else {
@@ -228,6 +293,7 @@ function MessagesPage({ authUser, route }) {
             setPendingRecipient(null);
           }
         } else if (isStudent) {
+          setStudentChatMode("admin");
           if (supportThread) {
             setActiveId(supportThread._id);
             setPendingRecipient(null);
@@ -258,6 +324,7 @@ function MessagesPage({ authUser, route }) {
   }, [authUser, isStudent, route, t]);
 
   const activeThread = threads.find((thread) => thread._id === activeId) || null;
+  const supportEmail = supportContact?.email?.toLowerCase() || null;
   const latestTutorRequest = activeThread
     ? [...(activeThread.messages || [])]
         .reverse()
@@ -284,7 +351,7 @@ function MessagesPage({ authUser, route }) {
   };
 
   const getRecipientName = () => {
-    if (isStudent) {
+    if (isStudent && studentChatMode === "admin") {
       return t("messages.adminSupport");
     }
     if (activeThread) {
@@ -305,6 +372,26 @@ function MessagesPage({ authUser, route }) {
       }))
       .find((entry) => entry.request) || null;
 
+  const getAdminEmails = () =>
+    adminContacts.map((admin) => admin?.email?.toLowerCase()).filter(Boolean);
+
+  const getFirstTeacherThread = () => {
+    const adminEmails = getAdminEmails();
+    return (
+      threads.find((thread) => {
+        const otherParticipant = getOtherParticipantEmail(thread).toLowerCase();
+        return !adminEmails.includes(otherParticipant);
+      }) || null
+    );
+  };
+
+  const teacherThreads = isStudent
+    ? threads.filter((thread) => {
+        const otherParticipant = getOtherParticipantEmail(thread).toLowerCase();
+        return !getAdminEmails().includes(otherParticipant);
+      })
+    : [];
+
   useEffect(() => {
     const latestMessage = activeThread?.messages?.[activeThread.messages.length - 1];
     if (!authUser?.email || !activeThread?._id || !latestMessage?.createdAt) {
@@ -317,6 +404,56 @@ function MessagesPage({ authUser, route }) {
   useEffect(() => {
     setRequestAction({ type: "", message: "" });
   }, [activeId]);
+
+  const openStudentAdminChat = () => {
+    setStudentChatMode("admin");
+
+    const adminEmails = getAdminEmails();
+    const adminThread =
+      threads.find((thread) => {
+        const otherParticipant = getOtherParticipantEmail(thread).toLowerCase();
+        return adminEmails.includes(otherParticipant);
+      }) || null;
+
+    if (adminThread) {
+      setActiveId(adminThread._id);
+      setPendingRecipient(null);
+    } else if (supportEmail) {
+      setPendingRecipient(supportEmail);
+      setActiveId(`new:${supportEmail}`);
+    }
+
+    if (window.location.hash !== "#messages?view=admin") {
+      window.location.hash = "#messages?view=admin";
+    }
+  };
+
+  const openStudentTeacherChat = () => {
+    const teacherThread = getFirstTeacherThread();
+    const teacherEmail = teacherThread ? getOtherParticipantEmail(teacherThread) : "";
+    setStudentChatMode("teacher");
+
+    if (teacherThread) {
+      setActiveId(teacherThread._id);
+      setPendingRecipient(null);
+    } else if (teacherEmail) {
+      setPendingRecipient(teacherEmail);
+      setActiveId(`new:${teacherEmail}`);
+    } else {
+      setActiveId(null);
+      setPendingRecipient(null);
+    }
+
+    const params = new URLSearchParams({ view: "teacher" });
+    if (teacherEmail) {
+      params.set("to", teacherEmail);
+    }
+
+    const nextHash = `#messages?${params.toString()}`;
+    if (window.location.hash !== nextHash) {
+      window.location.hash = nextHash;
+    }
+  };
 
   const sendMessage = async (text, extra = {}) => {
     const bodyText = text.trim();
@@ -385,6 +522,7 @@ function MessagesPage({ authUser, route }) {
       setDraft("");
       setError("");
       setRequestAction({ type: "", message: "" });
+      window.dispatchEvent(new CustomEvent("educonnect-messages-updated"));
     } catch (sendError) {
       setError(sendError.message || "Unable to send message.");
     }
@@ -481,16 +619,41 @@ function MessagesPage({ authUser, route }) {
     }
   };
 
-  const renderStudentRequestPanel = isStudent && supportContact;
-  const emptyTitle = isStudent ? t("messages.startRequest") : t("messages.selectConversation");
+  const renderStudentRequestPanel = isStudent && supportContact && studentChatMode === "admin";
+  const emptyTitle = isStudent
+    ? studentChatMode === "teacher"
+      ? "Chat with Teacher"
+      : t("messages.startRequest")
+    : t("messages.selectConversation");
   const emptyBody = isStudent
-    ? t("messages.studentRequestIntro")
+    ? studentChatMode === "teacher"
+      ? "Open a shared teacher profile and tap message to start chatting."
+      : t("messages.studentRequestIntro")
     : t("messages.teacherRequestIntro");
   const requestBlocked = isStudent && !isProfileReady;
   const adminLabel = language === "bn" ? "অ্যাডমিন" : "admin";
 
   return (
     <section className="messages-page">
+      {isStudent ? (
+        <div className="messages-mode-switch">
+          <button
+            className={`btn ${studentChatMode === "admin" ? "btn-primary" : "btn-ghost"}`}
+            type="button"
+            onClick={openStudentAdminChat}
+          >
+            Chat with Admin
+          </button>
+          <button
+            className={`btn ${studentChatMode === "teacher" ? "btn-primary" : "btn-ghost"}`}
+            type="button"
+            onClick={openStudentTeacherChat}
+          >
+            Chat with Teacher
+          </button>
+        </div>
+      ) : null}
+
       {renderStudentRequestPanel ? (
         <div className="messages-request-card">
           <div className="messages-request-copy">
@@ -592,16 +755,18 @@ function MessagesPage({ authUser, route }) {
         </div>
       ) : null}
 
-      <div className={`messages-shell ${isStudent ? "messages-shell-student" : ""}`}>
-        {!isStudent ? (
+      <div className={`messages-shell ${isStudent ? "messages-shell-student" : ""} ${isStudent && studentChatMode === "teacher" ? "messages-shell-student-teacher" : ""}`}>
+        {!isStudent || (isStudent && studentChatMode === "teacher") ? (
           <aside className="messages-list">
-            <h3>{t("messages.title")}</h3>
+            <h3>{isStudent ? "Teachers" : t("messages.title")}</h3>
             {loading ? (
               <p className="messages-empty">{t("messages.loadingConversations")}</p>
-            ) : threads.length === 0 ? (
-              <p className="messages-empty">{t("messages.noConversations")}</p>
+            ) : (isStudent ? teacherThreads : threads).length === 0 ? (
+              <p className="messages-empty">
+                {isStudent ? "No teacher conversations yet." : t("messages.noConversations")}
+              </p>
             ) : (
-              threads.map((thread) => {
+              (isStudent ? teacherThreads : threads).map((thread) => {
                 const latestMessage = thread.messages?.[thread.messages.length - 1];
                 const requestEntry = getLatestTutorRequest(thread);
                 const otherEmail = getOtherParticipantEmail(thread);
@@ -646,7 +811,9 @@ function MessagesPage({ authUser, route }) {
                 <h4>{getRecipientName()}</h4>
                 <p>
                   {isStudent
-                    ? t("messages.studentChatIntro")
+                    ? studentChatMode === "teacher"
+                      ? "Continue your conversation with the teacher here."
+                      : t("messages.studentChatIntro")
                     : activeThread
                       ? getDisplayName(activeThread).toLowerCase() !==
                         getOtherParticipantEmail(activeThread).toLowerCase()
@@ -737,6 +904,7 @@ function MessagesPage({ authUser, route }) {
 
                 {activeThread.messages.map((msg) => {
                   const parsedRequest = parseTutorRequest(msg.text, msg.tuitionRequest);
+                  const jobUpdateMeta = getJobUpdateMeta(msg.jobApplicationUpdate);
 
                   return (
                     <div
@@ -770,6 +938,30 @@ function MessagesPage({ authUser, route }) {
                           {parsedRequest.status === "accepted" && parsedRequest.jobId ? (
                             <a className="message-request-link" href="#jobs">
                               Open Job Board
+                            </a>
+                          ) : null}
+                        </div>
+                      ) : jobUpdateMeta ? (
+                        <div className="message-request-content">
+                          <div className="message-request-topline">
+                            <span className="message-request-title">
+                              {msg.jobApplicationUpdate?.teacherName || "Teacher"} - {msg.jobApplicationUpdate?.jobTitle || "Tuition Update"}
+                            </span>
+                            <span className={`messages-request-status ${jobUpdateMeta.className}`}>
+                              {jobUpdateMeta.label}
+                            </span>
+                          </div>
+                          {msg.jobApplicationUpdate?.summary ? (
+                            <p>{msg.jobApplicationUpdate.summary}</p>
+                          ) : (
+                            <p>{msg.text}</p>
+                          )}
+                          {typeof msg.jobApplicationUpdate?.demoClassCount === "number" ? (
+                            <p>Demo Classes: {msg.jobApplicationUpdate.demoClassCount}/3</p>
+                          ) : null}
+                          {jobUpdateMeta.actionHref ? (
+                            <a className="message-request-link" href={jobUpdateMeta.actionHref}>
+                              {jobUpdateMeta.actionLabel}
                             </a>
                           ) : null}
                         </div>

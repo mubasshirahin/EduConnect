@@ -69,7 +69,7 @@ function ApplicantProfile({ email, authUser }) {
               if (!authUser?.email) {
                 return;
               }
-              const params = new URLSearchParams({ to: email, name: profile.name });
+              const params = new URLSearchParams({ to: email, name: profile.name, view: "teacher" });
               window.location.hash = `#messages?${params.toString()}`;
             }}
           >
