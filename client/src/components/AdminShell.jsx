@@ -248,9 +248,7 @@ function AdminShell({ user, onLogout, children, currentRoute }) {
             <span />
             <span />
           </button>
-          <div className="teacher-topbar-title">
-            <h1>{copy.dashboardTitle}</h1>
-          </div>
+          <div className="teacher-topbar-title" />
         </header>
         {children}
       </main>

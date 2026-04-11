@@ -44,14 +44,54 @@ function MessageNotifications({ authUser }) {
     loadNotifications();
     const intervalId = window.setInterval(loadNotifications, 15000);
     const refreshOnSeen = () => loadNotifications();
+    const refreshOnMessages = () => loadNotifications();
+    const refreshOnFocus = () => loadNotifications();
+    const refreshOnVisibility = () => {
+      if (document.visibilityState === "visible") {
+        loadNotifications();
+      }
+    };
+
     window.addEventListener("educonnect-message-seen-updated", refreshOnSeen);
+    window.addEventListener("educonnect-messages-updated", refreshOnMessages);
+    window.addEventListener("focus", refreshOnFocus);
+    document.addEventListener("visibilitychange", refreshOnVisibility);
 
     return () => {
       isMounted = false;
       window.clearInterval(intervalId);
       window.removeEventListener("educonnect-message-seen-updated", refreshOnSeen);
+      window.removeEventListener("educonnect-messages-updated", refreshOnMessages);
+      window.removeEventListener("focus", refreshOnFocus);
+      document.removeEventListener("visibilitychange", refreshOnVisibility);
     };
   }, [authUser?.email]);
+
+  useEffect(() => {
+    if (!isOpen || !authUser?.email) {
+      return;
+    }
+
+    const refresh = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/messages?user=${encodeURIComponent(authUser.email)}`);
+        if (!response.ok) {
+          setThreads([]);
+          return;
+        }
+
+        const data = await response.json();
+        setThreads(Array.isArray(data) ? data : []);
+      } catch {
+        setThreads([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    refresh();
+  }, [authUser?.email, isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -70,7 +110,14 @@ function MessageNotifications({ authUser }) {
   const handleOpenThread = (notification) => {
     markThreadSeen(authUser?.email, notification.threadId, notification.createdAt);
     setIsOpen(false);
-    window.location.hash = `#messages?to=${encodeURIComponent(notification.senderEmail)}`;
+    const targetHash = `#messages?thread=${encodeURIComponent(notification.threadId)}&to=${encodeURIComponent(notification.senderEmail)}`;
+
+    if (window.location.hash === targetHash) {
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+      return;
+    }
+
+    window.location.hash = targetHash;
   };
 
   return (

@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 
+const SHORTLISTED_STATUSES = ["shortlisted", "profile_shared"];
+const APPOINTED_STATUSES = ["appointed"];
+const CONFIRMED_STATUSES = ["confirmed", "hired"];
+
 function TeacherDashboard({ authUser }) {
   const { language, t } = useLanguage();
-  const [appliedCount, setAppliedCount] = useState(0);
+  const [stats, setStats] = useState({
+    appliedCount: 0,
+    shortlistedCount: 0,
+    appointedCount: 0,
+    confirmedCount: 0,
+  });
   const [profileCompletion, setProfileCompletion] = useState(0);
   const [notice, setNotice] = useState(null);
   const isBangla = language === "bn";
@@ -24,6 +33,7 @@ function TeacherDashboard({ authUser }) {
     profileCompleted: isBangla ? "প্রোফাইল সম্পন্ন" : "Profile Completed",
     profileCompletedDesc: isBangla ? "দ্রুত ম্যাচিংয়ের জন্য প্রোফাইল আপডেট রাখুন।" : "Keep your profile updated for faster matching.",
   };
+
   const renderStatIcon = (type) => {
     switch (type) {
       case "applied":
@@ -64,6 +74,7 @@ function TeacherDashboard({ authUser }) {
         );
     }
   };
+
   const renderNoticeIcon = () => (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M5 6.5A2.5 2.5 0 0 1 7.5 4H18v13H7.5A2.5 2.5 0 0 0 5 19.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -74,14 +85,59 @@ function TeacherDashboard({ authUser }) {
 
   useEffect(() => {
     if (!authUser?.email) {
-      setAppliedCount(0);
+      setStats({
+        appliedCount: 0,
+        shortlistedCount: 0,
+        appointedCount: 0,
+        confirmedCount: 0,
+      });
       return;
     }
+
     fetch(`/api/jobs?applicantEmail=${encodeURIComponent(authUser.email)}`)
       .then((res) => res.json())
-      .then((jobs) => setAppliedCount(jobs.length))
-      .catch(() => setAppliedCount(0));
-  }, [authUser]);
+      .then((jobs) => {
+        const normalizedJobs = Array.isArray(jobs) ? jobs : [];
+        const nextStats = normalizedJobs.reduce(
+          (accumulator, job) => {
+            const applicant = job.applicants?.find(
+              (entry) => entry.email === authUser.email.toLowerCase()
+            );
+
+            if (!applicant) {
+              return accumulator;
+            }
+
+            accumulator.appliedCount += 1;
+            if (SHORTLISTED_STATUSES.includes(applicant.status)) {
+              accumulator.shortlistedCount += 1;
+            }
+            if (APPOINTED_STATUSES.includes(applicant.status)) {
+              accumulator.appointedCount += 1;
+            }
+            if (CONFIRMED_STATUSES.includes(applicant.status)) {
+              accumulator.confirmedCount += 1;
+            }
+            return accumulator;
+          },
+          {
+            appliedCount: 0,
+            shortlistedCount: 0,
+            appointedCount: 0,
+            confirmedCount: 0,
+          }
+        );
+        setStats(nextStats);
+      })
+      .catch(() =>
+        setStats({
+          appliedCount: 0,
+          shortlistedCount: 0,
+          appointedCount: 0,
+          confirmedCount: 0,
+        })
+      );
+  }, [authUser?.email]);
 
   useEffect(() => {
     const completionKey = authUser?.email
@@ -142,28 +198,28 @@ function TeacherDashboard({ authUser }) {
         <div className="stat-card">
           <span className="stat-icon">{renderStatIcon("applied")}</span>
           <div>
-            <h3>{appliedCount}</h3>
+            <h3>{stats.appliedCount}</h3>
             <p>{t("dashboard.appliedJobs")}</p>
           </div>
         </div>
         <div className="stat-card">
           <span className="stat-icon">{renderStatIcon("shortlisted")}</span>
           <div>
-            <h3>0</h3>
+            <h3>{stats.shortlistedCount}</h3>
             <p>{copy.shortlistedJobs}</p>
           </div>
         </div>
         <div className="stat-card">
           <span className="stat-icon">{renderStatIcon("appointed")}</span>
           <div>
-            <h3>0</h3>
+            <h3>{stats.appointedCount}</h3>
             <p>{copy.appointedJobs}</p>
           </div>
         </div>
         <div className="stat-card">
           <span className="stat-icon">{renderStatIcon("confirmed")}</span>
           <div>
-            <h3>0</h3>
+            <h3>{stats.confirmedCount}</h3>
             <p>{copy.confirmedJobs}</p>
           </div>
         </div>

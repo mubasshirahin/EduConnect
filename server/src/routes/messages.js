@@ -41,6 +41,62 @@ const buildJobTitle = (request) => {
   return "Tuition Request";
 };
 
+const LEGACY_REQUEST_LABEL_MAP = new Map([
+  ["subject", "subject"],
+  ["class level", "classLevel"],
+  ["class", "classLevel"],
+  ["medium", "medium"],
+  ["location", "location"],
+  ["landmark", "landmark"],
+  ["preferred schedule", "schedule"],
+  ["schedule", "schedule"],
+  ["budget", "budget"],
+  ["details", "details"],
+  ["বিষয়", "subject"],
+  ["শ্রেণী", "classLevel"],
+  ["মাধ্যম", "medium"],
+  ["লোকেশন", "location"],
+  ["ল্যান্ডমার্ক", "landmark"],
+  ["সময়সূচি", "schedule"],
+  ["বাজেট", "budget"],
+  ["বিস্তারিত", "details"],
+]);
+
+const parseLegacyTuitionRequest = (text = "") => {
+  const trimmed = String(text || "").trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const lines = trimmed
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (lines.length < 2) {
+    return null;
+  }
+
+  const fields = {};
+
+  lines.slice(1).forEach((line) => {
+    const separatorIndex = line.indexOf(":");
+    if (separatorIndex === -1) {
+      return;
+    }
+
+    const rawLabel = line.slice(0, separatorIndex).trim().toLowerCase();
+    const value = line.slice(separatorIndex + 1).trim();
+    const key = LEGACY_REQUEST_LABEL_MAP.get(rawLabel);
+
+    if (key && value) {
+      fields[key] = value;
+    }
+  });
+
+  return Object.keys(fields).length > 0 ? fields : null;
+};
+
 const toPlainThread = (thread) =>
   typeof thread?.toObject === "function" ? thread.toObject() : { ...thread };
 
@@ -246,20 +302,32 @@ router.patch("/threads/:threadId/requests/:messageId/accept", authenticate, asyn
     }
 
     const message = thread.messages.id(messageId);
-    if (!message?.tuitionRequest?.requestId && !message?.tuitionRequest?.studentEmail) {
+    if (!message) {
       return res.status(404).json({ message: "Tuition request not found." });
     }
 
-    const requestData = message.tuitionRequest || {};
-    if (!requestData.requestId) {
-      return res.status(400).json({ message: "This tuition request cannot be accepted yet." });
+    const parsedLegacyRequest = parseLegacyTuitionRequest(message.text);
+    const existingRequest = message.tuitionRequest?.toObject
+      ? message.tuitionRequest.toObject()
+      : message.tuitionRequest || {};
+    const requestId = existingRequest.requestId || `legacy:${threadId}:${String(message._id)}`;
+    const requestData = {
+      ...parsedLegacyRequest,
+      ...existingRequest,
+      requestId,
+      studentEmail: (existingRequest.studentEmail || message.from || "").toLowerCase(),
+      studentName: existingRequest.studentName || "",
+      status: existingRequest.status || "pending",
+    };
+
+    if (!requestData.studentEmail || !parsedLegacyRequest && Object.keys(existingRequest).length === 0) {
+      return res.status(404).json({ message: "Tuition request not found." });
     }
+
     let job = null;
     const acceptedAt = new Date();
 
-    if (requestData.requestId) {
-      job = await Job.findOne({ tuitionRequestId: requestData.requestId });
-    }
+    job = await Job.findOne({ tuitionRequestId: requestData.requestId });
 
     if (!job) {
       job = await Job.create({
@@ -280,9 +348,25 @@ router.patch("/threads/:threadId/requests/:messageId/accept", authenticate, asyn
     }
 
     await MessageThread.updateMany(
-      { "messages.tuitionRequest.requestId": requestData.requestId },
+      {
+        $or: [
+          { "messages.tuitionRequest.requestId": requestData.requestId },
+          { _id: threadId, "messages._id": message._id },
+        ],
+      },
       {
         $set: {
+          "messages.$[message].tuitionRequest.requestId": requestData.requestId,
+          "messages.$[message].tuitionRequest.subject": requestData.subject || "",
+          "messages.$[message].tuitionRequest.classLevel": requestData.classLevel || "",
+          "messages.$[message].tuitionRequest.medium": requestData.medium || "",
+          "messages.$[message].tuitionRequest.location": requestData.location || "",
+          "messages.$[message].tuitionRequest.landmark": requestData.landmark || "",
+          "messages.$[message].tuitionRequest.schedule": requestData.schedule || "",
+          "messages.$[message].tuitionRequest.budget": requestData.budget || "",
+          "messages.$[message].tuitionRequest.details": requestData.details || "",
+          "messages.$[message].tuitionRequest.studentEmail": requestData.studentEmail,
+          "messages.$[message].tuitionRequest.studentName": requestData.studentName || "",
           "messages.$[message].tuitionRequest.status": "accepted",
           "messages.$[message].tuitionRequest.acceptedAt": acceptedAt,
           "messages.$[message].tuitionRequest.acceptedBy": req.user.email,
@@ -291,7 +375,14 @@ router.patch("/threads/:threadId/requests/:messageId/accept", authenticate, asyn
         },
       },
       {
-        arrayFilters: [{ "message.tuitionRequest.requestId": requestData.requestId }],
+        arrayFilters: [
+          {
+            $or: [
+              { "message.tuitionRequest.requestId": requestData.requestId },
+              { "message._id": message._id },
+            ],
+          },
+        ],
       }
     );
 

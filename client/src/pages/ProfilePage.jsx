@@ -3,6 +3,7 @@ import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function ProfilePage({ authUser }) {
   const { t } = useLanguage();
+  const isTeacher = authUser?.role === "teacher";
   const requiredFields = new Set([
     "name",
     "email",
@@ -244,6 +245,10 @@ function ProfilePage({ authUser }) {
     </div>
   );
 
+  const classOrYearLabel = isTeacher ? "Current Year" : t("profile.labels.classLevel");
+  const instituteLabel = isTeacher ? "University" : t("profile.labels.institute");
+  const showStudentMessageActions = authUser?.role === "student";
+
   return (
     <section className="profile-page">
       <div className="profile-hero">
@@ -321,9 +326,21 @@ function ProfilePage({ authUser }) {
             </div>
           </div>
         </div>
-        <button className="btn btn-primary" type="button" onClick={() => setIsEditing((prev) => !prev)}>
-          {isEditing ? t("profile.cancel") : t("profile.editInfo")}
-        </button>
+        <div className="profile-actions">
+          {showStudentMessageActions ? (
+            <>
+              <a className="btn btn-ghost" href="#messages">
+                Message Admin
+              </a>
+              <a className="btn btn-ghost" href="#messages?view=teacher">
+                Message Teacher
+              </a>
+            </>
+          ) : null}
+          <button className="btn btn-primary" type="button" onClick={() => setIsEditing((prev) => !prev)}>
+            {isEditing ? t("profile.cancel") : t("profile.editInfo")}
+          </button>
+        </div>
       </div>
 
       <form className="profile-grid" onSubmit={handleSave}>
@@ -338,8 +355,8 @@ function ProfilePage({ authUser }) {
             {renderField(t("profile.labels.religion"), "religion")}
             {renderField(t("profile.labels.medium"), "bscCurriculum")}
             {renderField(t("profile.labels.address"), "address")}
-            {renderField(t("profile.labels.classLevel"), "preferredClasses")}
-            {renderField(t("profile.labels.institute"), "hscInstitute")}
+            {renderField(classOrYearLabel, "preferredClasses")}
+            {renderField(instituteLabel, "hscInstitute")}
             {renderField(t("profile.labels.city"), "city")}
             {renderTextArea(t("profile.labels.overview"), "overview")}
             {renderImageUpload(t("profile.labels.idCard"), "idCardImage", handleIdCardChange)}

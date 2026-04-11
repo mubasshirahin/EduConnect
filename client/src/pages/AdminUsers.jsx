@@ -27,21 +27,42 @@ function AdminUsers({ roleFilter }) {
                   )
                 : [];
               const appliedCount = teacherJobs.length;
+              const shortlistedCount = teacherJobs.filter((job) =>
+                job.applicants?.some(
+                  (applicant) =>
+                    applicant.email === lowerEmail &&
+                    ["shortlisted", "profile_shared"].includes(applicant.status)
+                )
+              ).length;
+              const appointedCount = teacherJobs.filter((job) =>
+                job.applicants?.some(
+                  (applicant) => applicant.email === lowerEmail && applicant.status === "appointed"
+                )
+              ).length;
               const confirmedCount = teacherJobs.filter((job) =>
                 job.applicants?.some(
-                  (applicant) => applicant.email === lowerEmail && applicant.status === "hired"
+                  (applicant) =>
+                    applicant.email === lowerEmail &&
+                    ["confirmed", "hired"].includes(applicant.status)
                 )
               ).length;
 
               if (!storageKey) return user;
               const storedProfile = localStorage.getItem(storageKey);
               if (!storedProfile) {
-                return { ...user, appliedCount, confirmedCount };
+                return { ...user, appliedCount, shortlistedCount, appointedCount, confirmedCount };
               }
               try {
-                return { ...user, ...JSON.parse(storedProfile), appliedCount, confirmedCount };
+                return {
+                  ...user,
+                  ...JSON.parse(storedProfile),
+                  appliedCount,
+                  shortlistedCount,
+                  appointedCount,
+                  confirmedCount,
+                };
               } catch {
-                return { ...user, appliedCount, confirmedCount };
+                return { ...user, appliedCount, shortlistedCount, appointedCount, confirmedCount };
               }
             })
           : [];
@@ -107,6 +128,8 @@ function AdminUsers({ roleFilter }) {
               {isTeacherView ? (
                 <div className="admin-user-details-grid">
                   {renderTeacherField("Applied Tuitions", user.appliedCount ?? 0)}
+                  {renderTeacherField("Shortlisted", user.shortlistedCount ?? 0)}
+                  {renderTeacherField("Appointed", user.appointedCount ?? 0)}
                   {renderTeacherField("Confirmed Tuitions", user.confirmedCount ?? 0)}
                   {renderTeacherField("Tutor ID", user.tutorId)}
                   {renderTeacherField("Phone", user.phone)}

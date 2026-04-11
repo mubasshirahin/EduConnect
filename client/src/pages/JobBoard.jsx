@@ -43,6 +43,8 @@ function JobBoard({ authUser, onRequireLogin }) {
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [isTeacherProfileReady, setIsTeacherProfileReady] = useState(false);
   const [blockedApplyJobId, setBlockedApplyJobId] = useState("");
+  const [expandedJobId, setExpandedJobId] = useState("");
+  const [adminActionState, setAdminActionState] = useState({});
   const [filters, setFilters] = useState({
     classLevel: "",
     subject: "",
@@ -92,6 +94,31 @@ function JobBoard({ authUser, onRequireLogin }) {
     const parsed = Number(String(rate).replace(/[^0-9.]/g, ""));
     return Number.isFinite(parsed) ? parsed : NaN;
   };
+
+  const getApplicantStatusMeta = (status) => {
+    switch (status) {
+      case "shortlisted":
+        return { label: "Shortlisted", className: "messages-request-status-accepted" };
+      case "profile_shared":
+        return { label: "Shared to Guardian", className: "messages-request-status-accepted" };
+      case "appointed":
+        return { label: "Appointed", className: "messages-request-status-accepted" };
+      case "confirmed":
+      case "hired":
+        return { label: "Confirmed", className: "messages-request-status-confirmed" };
+      case "rejected":
+        return { label: "Rejected", className: "messages-request-status-rejected" };
+      default:
+        return { label: "Pending", className: "messages-request-status-pending" };
+    }
+  };
+
+  const getConfirmedApplicant = (job) =>
+    Array.isArray(job?.applicants)
+      ? job.applicants.find((applicant) => ["confirmed", "hired"].includes(applicant.status))
+      : null;
+
+  const getApplicantActionKey = (jobId, applicantEmail) => `${jobId}:${String(applicantEmail || "").toLowerCase()}`;
 
   const applyFilters = (event) => {
     if (event) event.preventDefault();
@@ -164,6 +191,11 @@ function JobBoard({ authUser, onRequireLogin }) {
         })
         .then((updatedJob) => {
           setJobs((prev) => prev.map((item) => (item._id === updatedJob._id ? updatedJob : item)));
+          setFilteredJobs((prev) =>
+            Array.isArray(prev)
+              ? prev.map((item) => (item._id === updatedJob._id ? updatedJob : item))
+              : prev
+          );
           setApplyStatus({ type: "success", message: "Application submitted successfully." });
           setBlockedApplyJobId("");
         })
@@ -186,6 +218,11 @@ function JobBoard({ authUser, onRequireLogin }) {
         .then((res) => res.json())
         .then((updatedJob) => {
           setJobs((prev) => prev.map((item) => (item._id === updatedJob._id ? updatedJob : item)));
+          setFilteredJobs((prev) =>
+            Array.isArray(prev)
+              ? prev.map((item) => (item._id === updatedJob._id ? updatedJob : item))
+              : prev
+          );
       })
         .catch(() => {});
     }
@@ -363,6 +400,182 @@ function JobBoard({ authUser, onRequireLogin }) {
     } catch (error) {
       setLoadError(error.message || "Failed to post job.");
     }
+  };
+
+  const updateApplicantInJobs = (jobId, updatedApplicant, updatedJob = null) => {
+    const syncCollection = (collection) =>
+      collection.map((item) => {
+        if (item._id !== jobId) {
+          return item;
+        }
+        if (updatedJob) {
+          return updatedJob;
+        }
+        return {
+          ...item,
+          applicants: (item.applicants || []).map((entry) =>
+            entry.email === updatedApplicant.email ? updatedApplicant : entry
+          ),
+        };
+      });
+
+    setJobs((prev) => syncCollection(prev));
+    setFilteredJobs((prev) => (Array.isArray(prev) ? syncCollection(prev) : prev));
+  };
+
+  const handleApplicantStatusUpdate = async (jobId, applicantEmail, payload, successMessage) => {
+    const token = localStorage.getItem("educonnect-auth-token");
+    const actionKey = getApplicantActionKey(jobId, applicantEmail);
+
+    if (!token) {
+      setAdminActionState((prev) => ({
+        ...prev,
+        [actionKey]: { type: "error", message: "Admin session not found. Please sign in again." },
+      }));
+      return;
+    }
+
+    setAdminActionState((prev) => ({
+      ...prev,
+      [actionKey]: { type: "loading", message: "Updating..." },
+    }));
+
+    try {
+      const response = await fetch(
+        `/api/jobs/${encodeURIComponent(jobId)}/applicants/${encodeURIComponent(applicantEmail)}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.message || "Unable to update applicant status.");
+      }
+
+      updateApplicantInJobs(jobId, data.applicant, data.job);
+      setAdminActionState((prev) => ({
+        ...prev,
+        [actionKey]: { type: "success", message: successMessage || data?.message || "Updated." },
+      }));
+    } catch (error) {
+      setAdminActionState((prev) => ({
+        ...prev,
+        [actionKey]: { type: "error", message: error.message || "Unable to update applicant status." },
+      }));
+    }
+  };
+
+  const handleShareTeacherProfile = async (jobId, applicantEmail) => {
+    const token = localStorage.getItem("educonnect-auth-token");
+    const actionKey = getApplicantActionKey(jobId, applicantEmail);
+    let summary = "";
+    const targetJob = jobs.find((item) => item._id === jobId);
+    const targetApplicant = targetJob?.applicants?.find(
+      (entry) => entry.email === String(applicantEmail || "").toLowerCase()
+    );
+
+    try {
+      const rawProfile = localStorage.getItem(`educonnect-profile:${applicantEmail}`);
+      if (rawProfile) {
+        const profile = JSON.parse(rawProfile);
+        summary = [
+          profile?.phone ? `Phone: ${profile.phone}` : "",
+          profile?.city ? `City: ${profile.city}` : "",
+          profile?.location ? `Area: ${profile.location}` : "",
+          profile?.preferredSubjects ? `Subjects: ${profile.preferredSubjects}` : "",
+          profile?.preferredClasses ? `Classes: ${profile.preferredClasses}` : "",
+          profile?.expectedSalary ? `Expected Salary: ${profile.expectedSalary}` : "",
+        ]
+          .filter(Boolean)
+          .join(" | ");
+      }
+    } catch {
+      summary = "";
+    }
+
+    if (!token) {
+      setAdminActionState((prev) => ({
+        ...prev,
+        [actionKey]: { type: "error", message: "Admin session not found. Please sign in again." },
+      }));
+      return;
+    }
+
+    if (targetApplicant?.sharedWithGuardianAt) {
+      setAdminActionState((prev) => ({
+        ...prev,
+        [actionKey]: { type: "success", message: "Teacher profile already shared with the guardian." },
+      }));
+      return;
+    }
+
+    setAdminActionState((prev) => ({
+      ...prev,
+      [actionKey]: { type: "loading", message: "Sharing profile..." },
+    }));
+
+    try {
+      const response = await fetch(
+        `/api/jobs/${encodeURIComponent(jobId)}/applicants/${encodeURIComponent(applicantEmail)}/share-profile`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ summary }),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.message || "Unable to share the teacher profile.");
+      }
+
+      updateApplicantInJobs(jobId, data.applicant, data.job);
+      setAdminActionState((prev) => ({
+        ...prev,
+        [actionKey]: { type: "success", message: data?.message || "Teacher profile shared." },
+      }));
+    } catch (error) {
+      setAdminActionState((prev) => ({
+        ...prev,
+        [actionKey]: { type: "error", message: error.message || "Unable to share the teacher profile." },
+      }));
+    }
+  };
+
+  const handleIncrementDemoClass = (jobId, applicant) => {
+    const actionKey = getApplicantActionKey(jobId, applicant.email);
+    const demoCount = applicant.demoClassCount || 0;
+    const allowedStatuses = ["appointed", "confirmed", "hired"];
+
+    if (!allowedStatuses.includes(applicant.status)) {
+      setAdminActionState((prev) => ({
+        ...prev,
+        [actionKey]: { type: "error", message: "Mark this teacher appointed before adding demo classes." },
+      }));
+      return;
+    }
+
+    if (demoCount >= 3) {
+      setAdminActionState((prev) => ({
+        ...prev,
+        [actionKey]: { type: "success", message: "All 3 demo classes are already recorded." },
+      }));
+      return;
+    }
+
+    handleApplicantStatusUpdate(
+      jobId,
+      applicant.email,
+      { action: "increment_demo" },
+      "Demo class count updated."
+    );
   };
 
   const sortedJobs = [...displayedJobs].sort((a, b) => {
@@ -746,7 +959,10 @@ function JobBoard({ authUser, onRequireLogin }) {
           </div>
         ) : (
           <>
-            {pageJobs.map((job, index) => (
+            {pageJobs.map((job, index) => {
+              const confirmedApplicant = getConfirmedApplicant(job);
+
+              return (
               <article key={job._id || job.id} className="job-card">
                 <div className="job-index">{String(pageStart + index + 1).padStart(2, "0")}</div>
                 <div className="job-body">
@@ -781,6 +997,11 @@ function JobBoard({ authUser, onRequireLogin }) {
                     <strong>{t("jobBoard.salary")}:</strong> {job.rate}
                   </span>
                 </div>
+                  {confirmedApplicant ? (
+                    <p className="job-confirmed-note">
+                      Teacher confirmed for this job: <strong>{confirmedApplicant.name || confirmedApplicant.email}</strong>
+                    </p>
+                  ) : null}
                   {isTeacher || !authUser ? (
                     <div className="job-actions">
                       {job.applicants?.some((app) => app.email === authUser?.email?.toLowerCase()) ? (
@@ -810,9 +1031,141 @@ function JobBoard({ authUser, onRequireLogin }) {
                       <a href="#profile">Open Profile</a>
                     </p>
                   ) : null}
+                  {isAdmin ? (
+                    <section className="job-admin-panel">
+                      <div className="job-admin-panel-head">
+                        <div>
+                          <h3>Applicants</h3>
+                          <p>{job.applicants?.length || 0} teacher{job.applicants?.length === 1 ? "" : "s"} applied for this post.</p>
+                        </div>
+                        <button
+                          className="btn btn-ghost"
+                          type="button"
+                          onClick={() => setExpandedJobId((prev) => (prev === job._id ? "" : job._id))}
+                        >
+                          {expandedJobId === job._id ? "Hide" : "Manage Applicants"}
+                        </button>
+                      </div>
+
+                      {expandedJobId === job._id ? (
+                        Array.isArray(job.applicants) && job.applicants.length > 0 ? (
+                          <div className="job-admin-applicants">
+                            {job.applicants.map((applicant) => {
+                              const statusMeta = getApplicantStatusMeta(applicant.status);
+                              const actionKey = getApplicantActionKey(job._id, applicant.email);
+                              const actionState = adminActionState[actionKey];
+                              const demoCount = applicant.demoClassCount || 0;
+                              const isShortlisted = applicant.status === "shortlisted";
+                              const isShared = applicant.status === "profile_shared";
+                              const isAppointed = applicant.status === "appointed";
+                              const isConfirmed = ["confirmed", "hired"].includes(applicant.status);
+
+                              return (
+                                <article key={applicant.email} className="job-applicant-card">
+                                  <div className="job-applicant-head">
+                                    <div>
+                                      <h4>{applicant.name}</h4>
+                                      <p>{applicant.email}</p>
+                                    </div>
+                                    <span className={`messages-request-status ${statusMeta.className}`}>
+                                      {statusMeta.label}
+                                    </span>
+                                  </div>
+
+                                  <div className="job-applicant-meta">
+                                    <span>Applied: {applicant.appliedAt ? new Date(applicant.appliedAt).toLocaleDateString() : "N/A"}</span>
+                                    <span>Demo Classes: {demoCount}/3</span>
+                                  </div>
+
+                                  <div className="job-actions">
+                                    <a className="btn btn-ghost" href={`#applicant/${encodeURIComponent(applicant.email)}`}>
+                                      View Profile
+                                    </a>
+                                    <button
+                                      className={`btn ${isShortlisted ? "btn-primary" : "btn-ghost"}`}
+                                      type="button"
+                                      onClick={() =>
+                                        handleApplicantStatusUpdate(
+                                          job._id,
+                                          applicant.email,
+                                          { status: "shortlisted" },
+                                          "Applicant shortlisted."
+                                        )
+                                      }
+                                      disabled={actionState?.type === "loading"}
+                                    >
+                                      Shortlist
+                                    </button>
+                                    <button
+                                      className={`btn ${isShared ? "btn-primary" : "btn-ghost"}`}
+                                      type="button"
+                                      onClick={() => handleShareTeacherProfile(job._id, applicant.email)}
+                                      disabled={actionState?.type === "loading"}
+                                    >
+                                      Send to Guardian
+                                    </button>
+                                    <button
+                                      className={`btn ${isAppointed ? "btn-primary" : "btn-ghost"}`}
+                                      type="button"
+                                      onClick={() =>
+                                        handleApplicantStatusUpdate(
+                                          job._id,
+                                          applicant.email,
+                                          { status: "appointed" },
+                                          "Applicant marked as appointed."
+                                        )
+                                      }
+                                      disabled={actionState?.type === "loading"}
+                                    >
+                                      Mark Appointed
+                                    </button>
+                                    <button
+                                      className="btn btn-ghost"
+                                      type="button"
+                                      onClick={() => handleIncrementDemoClass(job._id, applicant)}
+                                      disabled={actionState?.type === "loading"}
+                                    >
+                                      Add Demo Class
+                                    </button>
+                                    <button
+                                      className={`btn ${isConfirmed ? "btn-primary" : "btn-ghost"}`}
+                                      type="button"
+                                      onClick={() =>
+                                        handleApplicantStatusUpdate(
+                                          job._id,
+                                          applicant.email,
+                                          { status: "confirmed" },
+                                          "Job confirmed for this teacher."
+                                        )
+                                      }
+                                      disabled={actionState?.type === "loading" || demoCount < 3}
+                                    >
+                                      Confirm Job
+                                    </button>
+                                  </div>
+
+                                  {actionState?.message ? (
+                                    <p className={`form-message ${actionState.type === "error" ? "form-error" : "form-success"}`}>
+                                      {actionState.message}
+                                    </p>
+                                  ) : null}
+                                </article>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div className="job-empty">
+                            <h3>No applicants yet</h3>
+                            <p>Teachers who apply to this post will appear here.</p>
+                          </div>
+                        )
+                      ) : null}
+                    </section>
+                  ) : null}
               </div>
             </article>
-            ))}
+              );
+            })}
           </>
         )}
       </div>
