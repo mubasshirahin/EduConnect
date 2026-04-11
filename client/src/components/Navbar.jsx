@@ -10,7 +10,6 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
   const themeButtonLabel = isDark ? t("common.lightModeShort") : t("common.nightModeShort");
   const mobileThemeButtonLabel = isDark ? "Light" : "Dark";
   const nextLanguage = language === "en" ? "bn" : "en";
-  const languageCode = language === "en" ? "EN" : "BN";
   const activeSection = currentRoute === "#home" || !currentRoute
     ? "#home"
     : currentRoute?.startsWith("#about")
@@ -57,8 +56,8 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
       className={`language-icon-button ${className}`.trim()}
       type="button"
       onClick={() => setLanguage(nextLanguage)}
-      aria-label={`${t("navbar.languageLabel")}: ${languageCode}`}
-      title={`${t("navbar.languageLabel")}: ${languageCode}`}
+      aria-label={t("navbar.languageLabel")}
+      title={t("navbar.languageLabel")}
     >
       <span className="language-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
@@ -68,7 +67,6 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
           <path d="M12 3a14.5 14.5 0 0 0 0 18" />
         </svg>
       </span>
-      <span className="language-icon-code">{languageCode}</span>
     </button>
   );
 
