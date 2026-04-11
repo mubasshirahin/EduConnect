@@ -183,7 +183,7 @@ function JobBoard({ authUser, onRequireLogin }) {
   };
 
   const isTeacher = authUser?.role === "teacher";
-  const isStudent = authUser?.role === "student";
+  const isAdmin = authUser?.role === "admin";
   const displayedJobs = filteredJobs !== null ? filteredJobs : jobs;
   const filteredBySaved = showSavedOnly ? displayedJobs.filter(job => savedJobIds.includes(job._id)) : displayedJobs;
 
@@ -243,8 +243,14 @@ function JobBoard({ authUser, onRequireLogin }) {
 
   const handlePostJob = async (event) => {
     event.preventDefault();
+    if (!isAdmin) {
+      setLoadError("Only admins can post jobs.");
+      setIsPostOpen(false);
+      return;
+    }
     const form = event.currentTarget;
     const formData = new FormData(form);
+    const token = localStorage.getItem("educonnect-auth-token");
     const payload = {
       title: formData.get("title"),
       classLevel: formData.get("classLevel"),
@@ -252,19 +258,22 @@ function JobBoard({ authUser, onRequireLogin }) {
       location: formData.get("location"),
       schedule: formData.get("schedule"),
       rate: formData.get("rate"),
-      postedBy: authUser?.name ? `Guardian: ${authUser.name}` : "Guardian",
+      postedBy: authUser?.name ? `Admin: ${authUser.name}` : "Admin",
       postedByEmail: authUser?.email || "",
     };
     try {
       const response = await fetch("/api/jobs", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
         body: JSON.stringify(payload),
       });
-      if (!response.ok) {
-        throw new Error("Failed to post job.");
-      }
       const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.message || "Failed to post job.");
+      }
       setJobs((prev) => [data, ...prev]);
       setCurrentPage(1);
       form.reset();
@@ -320,7 +329,7 @@ function JobBoard({ authUser, onRequireLogin }) {
           </p>
         </div>
         <div className="job-board-actions">
-          {isStudent ? (
+          {isAdmin ? (
             <button className="btn btn-primary" type="button" onClick={() => setIsPostOpen(true)}>
               Create
             </button>

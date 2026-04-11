@@ -1,7 +1,29 @@
 import express from "express";
+import jwt from "jsonwebtoken";
 import Job from "../models/Job.js";
+import User from "../models/User.js";
 
 const router = express.Router();
+
+const authenticate = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.sub);
+    if (!user) {
+      return res.status(401).json({ message: "User not found." });
+    }
+    req.user = user;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid token." });
+  }
+};
 
 router.get("/", async (req, res, next) => {
   try {
@@ -18,8 +40,12 @@ router.get("/", async (req, res, next) => {
     next(error);
   }
 });
-router.post("/", async (req, res, next) => {
+router.post("/", authenticate, async (req, res, next) => {
   try {
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({ message: "Only admins can post jobs." });
+    }
+
     const { title, subject, classLevel, location, schedule, rate, postedBy, postedByEmail } = req.body;
     if (!title || !location || !schedule || !rate || !postedBy || !postedByEmail) {
       return res.status(400).json({ message: "All fields are required." });
