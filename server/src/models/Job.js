@@ -10,6 +10,11 @@ const jobSchema = new mongoose.Schema(
     rate: { type: String, required: true, trim: true },
     postedBy: { type: String, required: true, trim: true },
     postedByEmail: { type: String, required: true, trim: true, lowercase: true },
+    studentEmail: { type: String, trim: true, lowercase: true, default: "" },
+    studentName: { type: String, trim: true, default: "" },
+    tuitionRequestId: { type: String, trim: true, index: true, default: "" },
+    sourceThreadId: { type: String, trim: true, default: "" },
+    sourceMessageId: { type: String, trim: true, default: "" },
     applicants: [
       {
         email: { type: String, required: true, trim: true, lowercase: true },
