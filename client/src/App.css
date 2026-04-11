@@ -240,7 +240,10 @@ html[data-theme="light"] .message-notifications-item {
 }
 
 .nav-top-shortcuts {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  justify-self: end;
+  gap: 0.55rem;
 }
 
 .nav-mobile-panel {

@@ -78,14 +78,7 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
           <span className="brand-logo" aria-hidden="true">
             <img className="brand-logo-image" src={eduConnectLogo} alt="" />
           </span>
-          {authUser ? (
-            <div className="brand-user-block">
-              <span className="brand-user-name">{authUser.name || t("common.userFallback")}</span>
-              <span className="brand-user-role">{authUser.role}</span>
-            </div>
-          ) : (
-            <span className="brand-text">EduConnect</span>
-          )}
+          <span className="brand-text">EduConnect</span>
         </div>
 
         {!authUser && (

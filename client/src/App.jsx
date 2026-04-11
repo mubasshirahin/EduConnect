@@ -240,7 +240,7 @@ function App() {
 
   if (authUser?.role === "teacher" && (route.startsWith("#messages") || route.startsWith("#settings"))) {
     content = (
-      <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         {route.startsWith("#messages") ? (
           <MessagesPage authUser={authUser} route={route} />
         ) : (
@@ -254,7 +254,9 @@ function App() {
     content = (
       <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         {route.startsWith("#status") ? <StudentStatus authUser={authUser} /> : null}
-        {route.startsWith("#messages") ? <MessagesPage authUser={authUser} route={route} /> : null}
+        {route.startsWith("#messages") ? (
+          <MessagesPage authUser={authUser} route={route} />
+        ) : null}
         {route.startsWith("#settings") ? <StudentSettings authUser={authUser} onLogout={handleLogout} /> : null}
       </StudentShell>
     );
