@@ -257,7 +257,6 @@ function AdminUserProfile({ email }) {
             <div className="messages-request-summary-card profile-request-card">
               <div className="messages-request-summary-head">
                 <div>
-                  <p className="eyebrow">Tutor Request</p>
                   <h4>{user.name || user.email}</h4>
                 </div>
                 <span className="messages-request-summary-time">

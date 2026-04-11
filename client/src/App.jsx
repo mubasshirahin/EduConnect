@@ -115,7 +115,7 @@ function App() {
   } else if (route === "#help") {
     content = <HelpCenter />;
   } else if (route === "#blog") {
-    content = <BlogPage authUser={authUser} onRequireLogin={openLogin} />;
+    content = <BlogPage authUser={authUser} onRequireLogin={openLogin} onLogout={handleLogout} />;
   } else if (route.startsWith("#jobs")) {
     content = <JobBoard authUser={authUser} onRequireLogin={openLogin} />;
   } else if (route.startsWith("#reviews") && !authUser) {

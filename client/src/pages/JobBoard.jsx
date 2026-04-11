@@ -17,6 +17,12 @@ const REQUIRED_TEACHER_PROFILE_FIELDS = [
 
 function JobBoard({ authUser, onRequireLogin }) {
   const { t } = useLanguage();
+  const getIsMobileView = () => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    return window.innerWidth <= 768;
+  };
   const [jobs, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,11 +37,15 @@ function JobBoard({ authUser, onRequireLogin }) {
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
+  const [isMobileView, setIsMobileView] = useState(getIsMobileView);
   const [currentPage, setCurrentPage] = useState(1);
+<<<<<<< HEAD
   const [savedJobIds, setSavedJobIds] = useState([]);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [isTeacherProfileReady, setIsTeacherProfileReady] = useState(false);
   const [blockedApplyJobId, setBlockedApplyJobId] = useState("");
+=======
+>>>>>>> origin/main
   const [filters, setFilters] = useState({
     classLevel: "",
     subject: "",
@@ -43,7 +53,7 @@ function JobBoard({ authUser, onRequireLogin }) {
     minSalary: "",
     maxSalary: "",
   });
-  const PAGE_SIZE = 30;
+  const PAGE_SIZE = isMobileView ? 10 : 30;
 
   const classOptions = [
     "Play",
@@ -118,7 +128,6 @@ function JobBoard({ authUser, onRequireLogin }) {
   const clearFilters = () => {
     setFilters({ classLevel: "", subject: "", location: "", minSalary: "", maxSalary: "" });
     setFilteredJobs(null);
-    setShowSavedOnly(false);
     setCurrentPage(1);
   };
 
@@ -211,7 +220,17 @@ function JobBoard({ authUser, onRequireLogin }) {
   const isTeacher = authUser?.role === "teacher";
   const isAdmin = authUser?.role === "admin";
   const displayedJobs = filteredJobs !== null ? filteredJobs : jobs;
-  const filteredBySaved = showSavedOnly ? displayedJobs.filter(job => savedJobIds.includes(job._id)) : displayedJobs;
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(getIsMobileView());
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (authUser?.role !== "teacher" || !authUser?.email) {
@@ -262,6 +281,7 @@ function JobBoard({ authUser, onRequireLogin }) {
       }
     };
     loadJobs();
+<<<<<<< HEAD
 
     if (authUser) {
       const token = localStorage.getItem("educonnect-auth-token");
@@ -305,6 +325,10 @@ function JobBoard({ authUser, onRequireLogin }) {
     }
   };
 
+=======
+  }, [authUser]);
+
+>>>>>>> origin/main
   const handlePostJob = async (event) => {
     event.preventDefault();
     if (!isAdmin) {
@@ -350,7 +374,7 @@ function JobBoard({ authUser, onRequireLogin }) {
     }
   };
 
-  const sortedJobs = [...filteredBySaved].sort((a, b) => {
+  const sortedJobs = [...displayedJobs].sort((a, b) => {
     const getTime = (job) => {
       const stamp = job?.createdAt || job?.updatedAt || 0;
       const time = new Date(stamp).getTime();
@@ -386,7 +410,6 @@ function JobBoard({ authUser, onRequireLogin }) {
     <div className="job-board">
       <header className="job-board-header">
         <div>
-          <p className="eyebrow">{t("jobBoard.eyebrow")}</p>
           <h1>{t("jobBoard.title")}</h1>
           <p className="job-board-subtitle">
             {t("jobBoard.subtitle")}
@@ -402,15 +425,6 @@ function JobBoard({ authUser, onRequireLogin }) {
               <button className="btn btn-primary" type="button" onClick={() => setIsFilterOpen(true)}>
                 Search
               </button>
-              {authUser?.role === "teacher" && (
-                <button 
-                  className={`btn ${showSavedOnly ? "btn-primary" : "btn-ghost"}`} 
-                  type="button" 
-                  onClick={() => setShowSavedOnly(!showSavedOnly)}
-                >
-                  {showSavedOnly ? "Showing Saved" : "Saved"}
-                </button>
-              )}
               <button className="btn btn-primary" type="button" onClick={clearFilters}>
                 Clear
               </button>
@@ -747,15 +761,6 @@ function JobBoard({ authUser, onRequireLogin }) {
                 <div className="job-body">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <h2>{job.title}</h2>
-                  {authUser?.role === "teacher" && (
-                    <button 
-                      className={`btn-bookmark ${savedJobIds.includes(job._id) ? "active" : ""}`}
-                      onClick={() => handleToggleBookmark(job._id)}
-                      title={savedJobIds.includes(job._id) ? "Remove from saved" : "Save for later"}
-                    >
-                      {savedJobIds.includes(job._id) ? "❤️" : "🤍"}
-                    </button>
-                  )}
                 </div>
                 <p className="job-meta">{job.postedBy}</p>
                 <div className="job-details">
@@ -857,3 +862,4 @@ function JobBoard({ authUser, onRequireLogin }) {
 }
 
 export default JobBoard;
+

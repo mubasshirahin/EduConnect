@@ -13,9 +13,6 @@ function TermsOfService() {
       <section className="terms-hero section">
         <div className="container terms-hero-grid">
           <div className="terms-hero-copy">
-            <div className="terms-hero-topline">
-              <span className="eyebrow">{t("terms.eyebrow")}</span>
-            </div>
             <h1>
               {t("terms.title")}
               <span className="terms-heading-accent" aria-hidden="true" />

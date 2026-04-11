@@ -31,7 +31,6 @@ function AboutUs() {
       <section className="about-hero section">
         <div className="container about-hero-grid">
           <div className="about-hero-copy">
-            <span className="eyebrow">{t("about.eyebrow")}</span>
             <h1>{t("about.title")}</h1>
             <p className="about-intro">{t("about.intro")}</p>
             <div className="about-cta-row">
