@@ -39,13 +39,10 @@ function JobBoard({ authUser, onRequireLogin }) {
   const [selectedLocation, setSelectedLocation] = useState("");
   const [isMobileView, setIsMobileView] = useState(getIsMobileView);
   const [currentPage, setCurrentPage] = useState(1);
-<<<<<<< HEAD
   const [savedJobIds, setSavedJobIds] = useState([]);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [isTeacherProfileReady, setIsTeacherProfileReady] = useState(false);
   const [blockedApplyJobId, setBlockedApplyJobId] = useState("");
-=======
->>>>>>> origin/main
   const [filters, setFilters] = useState({
     classLevel: "",
     subject: "",
@@ -281,7 +278,6 @@ function JobBoard({ authUser, onRequireLogin }) {
       }
     };
     loadJobs();
-<<<<<<< HEAD
 
     if (authUser) {
       const token = localStorage.getItem("educonnect-auth-token");
@@ -324,11 +320,6 @@ function JobBoard({ authUser, onRequireLogin }) {
       setApplyStatus({ type: "error", message: error.message || "Unable to save this job." });
     }
   };
-
-=======
-  }, [authUser]);
-
->>>>>>> origin/main
   const handlePostJob = async (event) => {
     event.preventDefault();
     if (!isAdmin) {
@@ -761,6 +752,16 @@ function JobBoard({ authUser, onRequireLogin }) {
                 <div className="job-body">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <h2>{job.title}</h2>
+                  {authUser?.role === "teacher" ? (
+                    <button
+                      className={`btn-bookmark ${savedJobIds.includes(job._id) ? "active" : ""}`}
+                      type="button"
+                      onClick={() => handleToggleBookmark(job._id)}
+                      title={savedJobIds.includes(job._id) ? "Remove from saved" : "Save for later"}
+                    >
+                      {savedJobIds.includes(job._id) ? "❤" : "♡"}
+                    </button>
+                  ) : null}
                 </div>
                 <p className="job-meta">{job.postedBy}</p>
                 <div className="job-details">
