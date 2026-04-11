@@ -517,6 +517,85 @@ export const translations = {
         },
       ],
     },
+    about: {
+      eyebrow: "About EduConnect",
+      title: "Building a better way for students and tutors to find each other.",
+      intro:
+        "EduConnect is designed to make tuition hiring more transparent, more reliable, and much easier to navigate for everyone involved.",
+      exploreJobs: "Explore Job Board",
+      backHome: "Back to Home",
+      missionLabel: "Our Mission",
+      missionTitle: "Connect the right students and tutors faster, with more confidence.",
+      missionBody:
+        "We want families to make informed decisions, and tutors to present themselves clearly. Every part of the platform is shaped around clarity, trust, and momentum.",
+      focusTitle: "What We Focus On",
+      focusSubtitle:
+        "EduConnect is built around a few practical needs that make everyday tuition workflows simpler.",
+      values: [
+        {
+          title: "Trusted connections",
+          description:
+            "We help students and guardians compare clear profiles, honest reviews, and a smoother hiring experience.",
+        },
+        {
+          title: "Simpler hiring flow",
+          description:
+            "From posting a tuition need to shortlisting applicants, EduConnect keeps the process more organized and less stressful.",
+        },
+        {
+          title: "Tutor growth",
+          description:
+            "Tutors can present their experience, manage opportunities, and build long-term trust with families.",
+        },
+      ],
+      storyCards: [
+        {
+          label: "Why it matters",
+          title: "A lot of time gets lost between searching, verifying, and communicating.",
+          body:
+            "EduConnect brings those steps into one place so users can compare opportunities, review profiles, and move forward faster without scattered conversations.",
+        },
+        {
+          label: "Where we are going",
+          title: "We are shaping the platform into a dependable hub for modern tuition matching.",
+          body:
+            "Even as the product grows, our direction stays the same: reduce friction, build trust, and support better learning outcomes.",
+        },
+      ],
+      teamTitle: "Meet Our Team",
+      teamSubtitle:
+        "EduConnect is currently run by a student team, with each member focusing on a specific part of the platform.",
+      team: [
+        {
+          name: "Mubasshir Mehedi",
+          role: "Platform Oversight",
+          university: "Ahsanullah University of Science and Technology",
+          intro: "Supports the overall flow and daily direction of the platform.",
+          social: {
+            label: "GitHub: @mubasshirahin",
+            href: "https://github.com/mubasshirahin",
+          },
+        },
+        {
+          name: "Afra Anan",
+          role: "Student Support",
+          university: "Ahsanullah University of Science and Technology",
+          intro: "Helps students with guidance, questions, and platform use.",
+        },
+        {
+          name: "Irin Rahman Ratri",
+          role: "Tutor Coordination",
+          university: "Ahsanullah University of Science and Technology",
+          intro: "Works with tutors to keep communication and activity organized.",
+        },
+        {
+          name: "Md Al Amin",
+          role: "Content & Communication",
+          university: "Ahsanullah University of Science and Technology",
+          intro: "Manages updates, messaging, and public-facing communication.",
+        },
+      ],
+    },
     blog: {
       title: "Study Tips & Blog",
       backDashboard: "Back to Dashboard",
