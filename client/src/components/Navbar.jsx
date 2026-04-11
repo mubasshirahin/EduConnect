@@ -68,7 +68,6 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
           <path d="M12 3a14.5 14.5 0 0 0 0 18" />
         </svg>
       </span>
-      <span className="language-icon-code">{languageCode}</span>
     </button>
   );
 
@@ -84,19 +83,33 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
               <span className="brand-user-name">{authUser.name || t("common.userFallback")}</span>
               <span className="brand-user-role">{authUser.role}</span>
             </div>
-          ) : null}
+          ) : (
+            <span className="brand-text">EduConnect</span>
+          )}
         </div>
 
-        {!authUser ? (
-          <div className="nav-auth-shortcuts">
-            <button className="btn btn-ghost" type="button" onClick={onLoginClick}>
-              {t("navbar.login")}
-            </button>
-            <button className="btn btn-primary" type="button" onClick={onRegisterClick}>
-              {t("navbar.register")}
-            </button>
+        {!authUser && (
+          <div className="nav-links">
+            <a className={`nav-link ${activeSection === "#home" ? "nav-link-active" : ""}`} href="#home">
+              {t("navbar.home")}
+            </a>
+            <a className={`nav-link ${activeSection === "#about" ? "nav-link-active" : ""}`} href="#about">
+              {t("navbar.about")}
+            </a>
+            <a className={`nav-link ${activeSection === "#jobs" ? "nav-link-active" : ""}`} href="#jobs">
+              {t("navbar.jobs")}
+            </a>
+            <a className={`nav-link ${activeSection === "#reviews" ? "nav-link-active" : ""}`} href="#reviews">
+              {t("navbar.reviews")}
+            </a>
+            <a className={`nav-link ${activeSection === "#blog" ? "nav-link-active" : ""}`} href="#blog">
+              {t("navbar.blog")}
+            </a>
+            <a className={`nav-link ${activeSection === "#help" ? "nav-link-active" : ""}`} href="#help">
+              {t("navbar.help")}
+            </a>
           </div>
-        ) : null}
+        )}
 
         {authUser ? (
           <div className="nav-top-shortcuts">
@@ -107,34 +120,15 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
         ) : null}
 
         {!authUser ? (
-          <div id="primary-navigation" className="nav-mobile-panel nav-mobile-panel-open">
-            <div className="nav-links">
-              <a className={`nav-link ${activeSection === "#home" ? "nav-link-active" : ""}`} href="#home">
-                {t("navbar.home")}
-              </a>
-              <a className={`nav-link ${activeSection === "#about" ? "nav-link-active" : ""}`} href="#about">
-                {t("navbar.about")}
-              </a>
-              <a className={`nav-link ${activeSection === "#jobs" ? "nav-link-active" : ""}`} href="#jobs">
-                {t("navbar.jobs")}
-              </a>
-              <a className={`nav-link ${activeSection === "#reviews" ? "nav-link-active" : ""}`} href="#reviews">
-                {t("navbar.reviews")}
-              </a>
-              <a className={`nav-link ${activeSection === "#blog" ? "nav-link-active" : ""}`} href="#blog">
-                {t("navbar.blog")}
-              </a>
-              <a className={`nav-link ${activeSection === "#help" ? "nav-link-active" : ""}`} href="#help">
-                {t("navbar.help")}
-              </a>
-            </div>
-
-            <div className="nav-actions">
-              <div className="nav-utility-row">
-                {renderThemeButton("nav-theme-inline")}
-                {renderLanguageButton()}
-              </div>
-            </div>
+          <div className="nav-actions">
+            {renderThemeButton()}
+            <button className="btn btn-ghost" type="button" onClick={onLoginClick}>
+              {t("navbar.login")}
+            </button>
+            <button className="btn btn-primary" type="button" onClick={onRegisterClick}>
+              {t("navbar.register")}
+            </button>
+            {renderLanguageButton()}
           </div>
         ) : null}
       </div>
