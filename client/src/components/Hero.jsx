@@ -7,7 +7,6 @@ function Hero({ onRequestTutor }) {
   return (
     <section className="hero section">
       <div className="container hero-content">
-        <p className="eyebrow">{t("home.eyebrow")}</p>
         <h1>{t("home.title")}</h1>
         <p className="hero-subtitle">{t("home.subtitle")}</p>
         <button type="button" className="btn btn-primary btn-large" onClick={onRequestTutor}>

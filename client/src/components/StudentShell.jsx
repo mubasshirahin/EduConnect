@@ -2,9 +2,22 @@ import React, { useEffect, useState } from "react";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function StudentShell({ user, onLogout, children, currentRoute }) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("");
+  const isBangla = language === "bn";
+  const copy = {
+    closeNavigationMenu: isBangla ? "নেভিগেশন মেনু বন্ধ করুন" : "Close navigation menu",
+    openNavigationMenu: isBangla ? "নেভিগেশন মেনু খুলুন" : "Open navigation menu",
+    expandSidebar: isBangla ? "সাইডবার বড় করুন" : "Expand sidebar",
+    collapseSidebar: isBangla ? "সাইডবার ছোট করুন" : "Collapse sidebar",
+    studentNameFallback: isBangla ? "স্টুডেন্টের নাম" : "Student Name",
+  };
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [currentRoute]);
 
   useEffect(() => {
     if (!user?.email) return;
@@ -28,7 +41,15 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
   }, [user?.email]);
 
   return (
-    <div className={`teacher-dashboard ${isCollapsed ? "teacher-dashboard-collapsed" : ""}`}>
+    <div
+      className={`teacher-dashboard ${isCollapsed ? "teacher-dashboard-collapsed" : ""} ${isMobileMenuOpen ? "teacher-dashboard-mobile-menu-open" : ""}`}
+    >
+      <button
+        className={`teacher-mobile-backdrop ${isMobileMenuOpen ? "teacher-mobile-backdrop-visible" : ""}`}
+        type="button"
+        aria-label={copy.closeNavigationMenu}
+        onClick={() => setIsMobileMenuOpen(false)}
+      />
       <aside className="teacher-sidebar">
         <div className="sidebar-profile">
           <div className="sidebar-avatar">
@@ -39,11 +60,11 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
             )}
           </div>
           <div>
-            <p className="sidebar-name">{user?.name || "Student Name"}</p>
+            <p className="sidebar-name">{user?.name || copy.studentNameFallback}</p>
             <p className="sidebar-meta">ID: 429325</p>
           </div>
         </div>
-        <a className="sidebar-edit" href="#profile">
+        <a className="sidebar-edit" href="#profile" onClick={() => setIsMobileMenuOpen(false)}>
           {t("dashboard.editProfile")}
         </a>
         <div className="sidebar-toggle-row">
@@ -51,7 +72,7 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
             className="sidebar-toggle"
             type="button"
             onClick={() => setIsCollapsed((prev) => !prev)}
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={isCollapsed ? copy.expandSidebar : copy.collapseSidebar}
           >
             {isCollapsed ? ">>" : "<<"}
           </button>
@@ -61,6 +82,7 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
             className={`sidebar-link ${currentRoute?.startsWith("#home") ? "sidebar-link-active" : ""}`}
             href="#home"
             aria-label={t("dashboard.home")}
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -74,6 +96,7 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
             className={`sidebar-link ${currentRoute?.startsWith("#jobs") ? "sidebar-link-active" : ""}`}
             href="#jobs"
             aria-label={t("dashboard.jobs")}
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -88,6 +111,7 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
             className={`sidebar-link ${currentRoute?.startsWith("#status") ? "sidebar-link-active" : ""}`}
             href="#status"
             aria-label={t("dashboard.status")}
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -101,6 +125,7 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
             className={`sidebar-link ${currentRoute?.startsWith("#messages") ? "sidebar-link-active" : ""}`}
             href="#messages"
             aria-label={t("dashboard.messages")}
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -113,6 +138,7 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
             className={`sidebar-link ${currentRoute?.startsWith("#blog") ? "sidebar-link-active" : ""}`}
             href="#blog"
             aria-label="Blog"
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -128,6 +154,7 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
             className={`sidebar-link ${currentRoute?.startsWith("#reviews") ? "sidebar-link-active" : ""}`}
             href="#reviews"
             aria-label={t("dashboard.reviews")}
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -140,6 +167,7 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
             className={`sidebar-link ${currentRoute?.startsWith("#help") ? "sidebar-link-active" : ""}`}
             href="#help"
             aria-label={t("navbar.help")}
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -154,6 +182,7 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
             className={`sidebar-link ${currentRoute?.startsWith("#settings") ? "sidebar-link-active" : ""}`}
             href="#settings"
             aria-label={t("dashboard.settings")}
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -167,7 +196,15 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
             </span>
             <span className="sidebar-text">{t("dashboard.settings")}</span>
           </a>
-          <button className="sidebar-link sidebar-link-logout" type="button" onClick={onLogout} aria-label={t("dashboard.logout")}>
+          <button
+            className="sidebar-link sidebar-link-logout"
+            type="button"
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              onLogout();
+            }}
+            aria-label={t("dashboard.logout")}
+          >
             <span className="sidebar-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -179,7 +216,25 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
           </button>
         </nav>
       </aside>
-      <main className="teacher-main">{children}</main>
+      <main className="teacher-main">
+        <header className="teacher-topbar">
+          <button
+            className="teacher-mobile-menu-button"
+            type="button"
+            aria-label={isMobileMenuOpen ? copy.closeNavigationMenu : copy.openNavigationMenu}
+            aria-expanded={isMobileMenuOpen}
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+          <div className="teacher-topbar-title">
+            <h1>{t("dashboard.studentDashboard")}</h1>
+          </div>
+        </header>
+        {children}
+      </main>
     </div>
   );
 }
