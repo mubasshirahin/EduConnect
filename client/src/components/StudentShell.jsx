@@ -137,6 +137,20 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
             <span className="sidebar-text">{t("dashboard.reviews")}</span>
           </a>
           <a
+            className={`sidebar-link ${currentRoute?.startsWith("#help") ? "sidebar-link-active" : ""}`}
+            href="#help"
+            aria-label={t("navbar.help")}
+          >
+            <span className="sidebar-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2" />
+                <path d="M9.1 9a3 3 0 1 1 5.2 2c-.7.8-1.6 1.3-2.1 2.1-.3.4-.4.8-.4 1.4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 17h.01" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            <span className="sidebar-text">{t("navbar.help")}</span>
+          </a>
+          <a
             className={`sidebar-link ${currentRoute?.startsWith("#settings") ? "sidebar-link-active" : ""}`}
             href="#settings"
             aria-label={t("dashboard.settings")}
