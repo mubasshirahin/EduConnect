@@ -128,7 +128,6 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
                 {t("navbar.help")}
               </a>
             </div>
-          )}
 
             <div className="nav-actions">
               <div className="nav-utility-row">
