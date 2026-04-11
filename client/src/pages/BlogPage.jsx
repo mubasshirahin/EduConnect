@@ -301,9 +301,10 @@ function BlogPage({ authUser, onRequireLogin, onLogout }) {
               aria-label={showForm ? t("blog.cancel") : t("blog.writePost")}
               title={showForm ? t("blog.cancel") : t("blog.writePost")}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M12 20h9" />
-                <path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.15" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M6.5 6.5h7A4.5 4.5 0 0 1 18 11v1.5A4.5 4.5 0 0 1 13.5 17H10l-3.5 2v-2.4A4.48 4.48 0 0 1 4 12.5V11a4.5 4.5 0 0 1 2.5-4.03Z" />
+                <path d="m13.25 8.75 2 2" />
+                <path d="m11 15 .35-1.85a1.8 1.8 0 0 1 .49-.92l3.39-3.39a1.41 1.41 0 1 1 2 2l-3.39 3.39c-.26.26-.58.43-.93.49L11 15Z" />
               </svg>
             </button>
           ) : null}
