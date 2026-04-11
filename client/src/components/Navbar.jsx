@@ -68,6 +68,7 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
           <path d="M12 3a14.5 14.5 0 0 0 0 18" />
         </svg>
       </span>
+      <span className="language-icon-code">{languageCode}</span>
     </button>
   );
 
