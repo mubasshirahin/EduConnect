@@ -31,6 +31,9 @@ router.get("/", async (req, res, next) => {
     if (req.query.postedByEmail) {
       query.postedByEmail = req.query.postedByEmail.toLowerCase();
     }
+    if (req.query.studentEmail) {
+      query.studentEmail = req.query.studentEmail.toLowerCase();
+    }
     if (req.query.applicantEmail) {
       query["applicants.email"] = req.query.applicantEmail.toLowerCase();
     }

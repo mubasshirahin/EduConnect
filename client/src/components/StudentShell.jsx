@@ -110,6 +110,20 @@ function StudentShell({ user, onLogout, children, currentRoute }) {
             <span className="sidebar-text">{t("dashboard.messages")}</span>
           </a>
           <a
+            className={`sidebar-link ${currentRoute?.startsWith("#complains") ? "sidebar-link-active" : ""}`}
+            href="#complains"
+            aria-label="Complaints"
+          >
+            <span className="sidebar-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M10.29 3.86l-8 14A2 2 0 0 0 4 20h16a2 2 0 0 0 1.71-3.14l-8-14a2 2 0 0 0-3.42 0z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 9v4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 17h.01" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            <span className="sidebar-text">Complaints</span>
+          </a>
+          <a
             className={`sidebar-link ${currentRoute?.startsWith("#blog") ? "sidebar-link-active" : ""}`}
             href="#blog"
             aria-label="Blog"

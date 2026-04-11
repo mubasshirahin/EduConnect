@@ -16,6 +16,8 @@ import MessagesPage from "./pages/MessagesPage";
 import AdminUsers from "./pages/AdminUsers";
 import AdminUserProfile from "./pages/AdminUserProfile";
 import AdminBlockedUsers from "./pages/AdminBlockedUsers";
+import ComplaintsPage from "./pages/ComplaintsPage";
+import AdminComplaints from "./pages/AdminComplaints";
 import AuthModal from "./components/AuthModal";
 import Navbar from "./components/Navbar";
 import TeacherShell from "./components/TeacherShell";
@@ -250,6 +252,14 @@ function App() {
     );
   }
 
+  if (authUser?.role === "teacher" && route.startsWith("#complains")) {
+    content = (
+      <TeacherShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <ComplaintsPage authUser={authUser} />
+      </TeacherShell>
+    );
+  }
+
   if (authUser?.role === "student" && (route.startsWith("#status") || route.startsWith("#messages") || route.startsWith("#settings"))) {
     content = (
       <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
@@ -275,6 +285,14 @@ function App() {
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
         <MessagesPage authUser={authUser} route={route} />
       </AdminShell>
+    );
+  }
+
+  if (authUser?.role === "student" && route.startsWith("#complains")) {
+    content = (
+      <StudentShell user={authUser} onLogout={handleLogout} currentRoute={route}>
+        <ComplaintsPage authUser={authUser} />
+      </StudentShell>
     );
   }
 
@@ -305,7 +323,7 @@ function App() {
   if (authUser?.role === "admin" && route.startsWith("#complains")) {
     content = (
       <AdminShell user={authUser} onLogout={handleLogout} currentRoute={route}>
-        <UpdateSoon title="Complains" />
+        <AdminComplaints />
       </AdminShell>
     );
   }
