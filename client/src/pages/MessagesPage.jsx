@@ -28,7 +28,7 @@ const REQUIRED_PROFILE_FIELDS = [
 ];
 
 function MessagesPage({ authUser, route }) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [threads, setThreads] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [draft, setDraft] = useState("");
@@ -393,6 +393,7 @@ function MessagesPage({ authUser, route }) {
     ? t("messages.studentRequestIntro")
     : t("messages.teacherRequestIntro");
   const requestBlocked = isStudent && !isProfileReady;
+  const adminLabel = language === "bn" ? "অ্যাডমিন" : "admin";
 
   return (
     <section className="messages-page">
@@ -402,7 +403,7 @@ function MessagesPage({ authUser, route }) {
             <p className="eyebrow">{t("messages.requestForm.eyebrow")}</p>
             <h3>{t("messages.requestForm.title")}</h3>
             <p>
-              {t("messages.requestForm.subtitle").replace("{name}", supportContact.name || t("messages.adminSupport"))}
+              {t("messages.requestForm.subtitle").replace("{name}", adminLabel)}
             </p>
           </div>
           <form className="messages-request-form" onSubmit={handleSubmitTutorRequest}>
