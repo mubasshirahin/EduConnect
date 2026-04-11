@@ -4,9 +4,9 @@ import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function AboutUs() {
   const { t } = useLanguage();
-  const values = t("about.values");
-  const team = t("about.team");
-  const storyCards = t("about.storyCards");
+  const values = Array.isArray(t("about.values")) ? t("about.values") : [];
+  const team = Array.isArray(t("about.team")) ? t("about.team") : [];
+  const storyCards = Array.isArray(t("about.storyCards")) ? t("about.storyCards") : [];
   const socialAccounts = {
     "Mubasshir Mehedi": {
       label: "GitHub: @mubasshirahin",
