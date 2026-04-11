@@ -599,11 +599,11 @@ export const translations = {
     blog: {
       title: "Study Tips & Blog",
       backDashboard: "Back to Dashboard",
-      writePost: "Write a Post",
+      writePost: "Create a Post",
       cancel: "Cancel",
       loginToWrite: "Login to Write",
       loginRequired: "You must be logged in to write a blog post. Click the button to login/register.",
-      shareTips: "Share Your Study Tips",
+      shareTips: "Share a Study Tip",
       labels: {
         name: "Your Name",
         role: "I am a",
