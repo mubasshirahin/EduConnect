@@ -1517,6 +1517,351 @@ html[data-theme="light"] .role-option {
   opacity: 0.95;
 }
 
+.blog-page-shell {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.blog-page-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.blog-title-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.blog-page-title {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.blog-compose-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(63, 169, 113, 0.26);
+  background: linear-gradient(180deg, rgba(63, 169, 113, 0.2), rgba(25, 56, 38, 0.92));
+  color: #f5fff8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(8, 24, 15, 0.18);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.blog-compose-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(99, 205, 142, 0.42);
+  box-shadow: 0 14px 24px rgba(8, 24, 15, 0.24);
+}
+
+.blog-compose-button svg {
+  width: 17px;
+  height: 17px;
+}
+
+.blog-compose-button:focus-visible {
+  outline: 2px solid rgba(99, 205, 142, 0.4);
+  outline-offset: 3px;
+}
+
+html[data-theme="light"] .blog-compose-button {
+  background: linear-gradient(180deg, rgba(42, 168, 107, 0.14), rgba(232, 245, 237, 0.96));
+  color: #1b4f33;
+  border-color: rgba(31, 122, 79, 0.18);
+  box-shadow: 0 10px 22px rgba(44, 65, 53, 0.1);
+}
+
+.blog-back-button {
+  background-color: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  padding: 0.7rem 1rem;
+  flex-shrink: 0;
+}
+
+.blog-page-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 2rem;
+}
+
+.blog-login-note {
+  color: var(--text-soft);
+  margin-bottom: 1rem;
+}
+
+.blog-form-shell {
+  margin-bottom: 2rem;
+}
+
+.blog-form-message {
+  color: var(--accent);
+}
+
+.blog-empty-state {
+  text-align: center;
+}
+
+.blog-post-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.blog-post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.blog-post-title {
+  margin: 0;
+}
+
+.blog-role-badge {
+  color: #fff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.blog-role-badge-teacher {
+  background: #3fa971;
+}
+
+.blog-role-badge-student {
+  background: #5bcf90;
+}
+
+.blog-meta {
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  word-break: break-word;
+}
+
+.blog-content {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.blog-rating-section {
+  margin-top: 1rem;
+}
+
+.blog-rating-text {
+  margin: 0 0 0.4rem 0;
+  font-size: 0.88rem;
+  color: var(--text-soft);
+}
+
+.blog-rating-user {
+  margin-bottom: 0.8rem;
+}
+
+.blog-stars-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.blog-star-button {
+  flex: 0 0 auto;
+}
+
+.blog-rating-warning {
+  font-size: 0.8rem;
+  color: #ff6347;
+  margin-top: 0.5rem;
+}
+
+.blog-comments-section {
+  margin-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 1rem;
+}
+
+.blog-comment-toggle,
+.blog-comment-submit {
+  background-color: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.blog-comment-toggle {
+  margin-bottom: 0.75rem;
+}
+
+.blog-comments-panel {
+  margin-top: 0.5rem;
+  background: linear-gradient(180deg, rgba(20, 45, 31, 0.96), rgba(12, 28, 20, 0.98));
+  border: 1px solid rgba(91, 207, 144, 0.16);
+  border-radius: 14px;
+  padding: 0.8rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.blog-empty-comments {
+  color: var(--text-soft);
+}
+
+.blog-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.blog-comment-card {
+  background: linear-gradient(180deg, rgba(27, 60, 40, 0.94), rgba(18, 42, 29, 0.96));
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(91, 207, 144, 0.14);
+}
+
+.blog-comment-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.blog-comment-meta {
+  margin: 0 0 0.25rem 0;
+  font-weight: 700;
+  color: #f3fff7;
+}
+
+.blog-comment-meta span {
+  color: var(--text-soft);
+  font-weight: 400;
+}
+
+.blog-comment-body {
+  margin: 0 0 0.5rem 0;
+  color: rgba(238, 249, 242, 0.9);
+}
+
+.blog-love-button {
+  border: 1px solid rgba(91, 207, 144, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d7efe0;
+  min-width: 56px;
+  height: 34px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.blog-love-button:hover {
+  transform: translateY(-1px);
+  background: rgba(91, 207, 144, 0.12);
+  border-color: rgba(91, 207, 144, 0.28);
+}
+
+.blog-love-button-active {
+  background: rgba(91, 207, 144, 0.18);
+  border-color: rgba(91, 207, 144, 0.34);
+  color: #f5fff8;
+}
+
+.blog-comment-form {
+  background: linear-gradient(180deg, rgba(31, 70, 46, 0.9), rgba(21, 49, 33, 0.92));
+  border: 1px solid rgba(91, 207, 144, 0.18);
+  border-radius: 12px;
+}
+
+.blog-comment-form {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+}
+
+.blog-comment-textarea {
+  width: 100%;
+  resize: vertical;
+  background: rgba(10, 24, 17, 0.48);
+  border: 1px solid rgba(91, 207, 144, 0.24);
+  color: #f3fff7;
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+}
+.blog-comment-textarea::placeholder {
+  color: rgba(222, 240, 228, 0.68);
+}
+
+html[data-theme="light"] .blog-comments-section {
+  border-top-color: rgba(31, 122, 79, 0.14);
+}
+
+html[data-theme="light"] .blog-comments-panel {
+  background: linear-gradient(180deg, rgba(244, 251, 246, 0.98), rgba(232, 245, 236, 0.96));
+  border-color: rgba(31, 122, 79, 0.12);
+  box-shadow: 0 12px 24px rgba(44, 65, 53, 0.08);
+}
+
+html[data-theme="light"] .blog-comment-card {
+  background: linear-gradient(180deg, #ffffff, #eef8f1);
+  border-color: rgba(31, 122, 79, 0.1);
+}
+
+html[data-theme="light"] .blog-comment-meta,
+html[data-theme="light"] .blog-comment-body {
+  color: var(--text-main);
+}
+
+html[data-theme="light"] .blog-love-button {
+  background: rgba(31, 122, 79, 0.04);
+  border-color: rgba(31, 122, 79, 0.12);
+  color: #1b4f33;
+}
+
+html[data-theme="light"] .blog-love-button-active {
+  background: rgba(42, 168, 107, 0.14);
+  border-color: rgba(31, 122, 79, 0.2);
+}
+
+html[data-theme="light"] .blog-love-button:hover {
+  background: rgba(42, 168, 107, 0.1);
+}
+
+html[data-theme="light"] .blog-comment-form {
+  background: linear-gradient(180deg, rgba(236, 248, 240, 0.98), rgba(226, 243, 232, 0.95));
+  border-color: rgba(31, 122, 79, 0.12);
+}
+
+html[data-theme="light"] .blog-comment-textarea {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(31, 122, 79, 0.18);
+  color: var(--text-main);
+}
+
+html[data-theme="light"] .blog-comment-textarea::placeholder {
+  color: rgba(27, 43, 35, 0.45);
+}
+
+.blog-comment-submit {
+  margin-top: 0.4rem;
+}
+
 .teacher-dashboard {
   display: grid;
   grid-template-columns: 240px 1fr;
@@ -3524,6 +3869,76 @@ html[data-theme="light"] .messages-request-error {
 }
 
 @media (max-width: 640px) {
+  .blog-page-shell {
+    gap: 0.8rem;
+  }
+
+  .blog-page-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .blog-title-row {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .blog-page-title {
+    margin: 0;
+    text-align: left;
+    font-size: clamp(1.7rem, 6vw, 2.1rem);
+  }
+
+  .blog-back-button,
+  .blog-page-actions .btn {
+    width: 100%;
+  }
+
+  .blog-page-actions {
+    margin-bottom: 1.4rem;
+  }
+
+  .blog-form-card,
+  .blog-post-card {
+    padding: 1.15rem;
+  }
+
+  .blog-post-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .blog-role-badge {
+    align-self: flex-start;
+  }
+
+  .blog-meta,
+  .blog-content,
+  .blog-rating-text,
+  .blog-comment-body {
+    word-break: break-word;
+  }
+
+  .blog-stars-row {
+    gap: 0.35rem;
+  }
+
+  .blog-comment-toggle,
+  .blog-comment-submit {
+    width: 100%;
+  }
+
+  .blog-comments-panel,
+  .blog-comment-card,
+  .blog-comment-form {
+    padding: 0.75rem;
+  }
+
+  .blog-comment-top {
+    align-items: center;
+  }
+
   .job-board {
     padding: 1.8rem 0 2.6rem;
   }
