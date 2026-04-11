@@ -3176,6 +3176,25 @@ html[data-theme="light"] .reviews-form textarea {
   color: var(--text-main);
 }
 
+.status-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.75rem;
+}
+
+.status-inline-note {
+  color: var(--text-soft);
+  margin-top: 0.85rem;
+}
+
+.status-card-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
 .admin-users {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3520,6 +3539,12 @@ html[data-theme="light"] .messages-request-error {
   align-items: start;
 }
 
+.messages-request-summary-meta {
+  display: grid;
+  justify-items: end;
+  gap: 0.45rem;
+}
+
 .messages-request-summary-head h4 {
   margin: 0.2rem 0 0;
   color: var(--text-main);
@@ -3528,6 +3553,36 @@ html[data-theme="light"] .messages-request-error {
 .messages-request-summary-time {
   color: var(--text-soft);
   font-size: 0.8rem;
+}
+
+.messages-request-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.messages-request-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.messages-request-status-pending {
+  background: rgba(255, 184, 107, 0.16);
+  color: #ffcd86;
+  border: 1px solid rgba(255, 184, 107, 0.28);
+}
+
+.messages-request-status-accepted {
+  background: rgba(63, 169, 113, 0.18);
+  color: var(--accent);
+  border: 1px solid rgba(63, 169, 113, 0.28);
 }
 
 .messages-request-summary-grid,
@@ -3581,9 +3636,22 @@ html[data-theme="light"] .messages-request-error {
   gap: 0.75rem;
 }
 
+.message-request-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .message-request-title {
   font-weight: 800;
   color: var(--text-main);
+}
+
+.message-request-link {
+  color: var(--accent);
+  font-weight: 700;
 }
 
 .message-out {
@@ -3636,6 +3704,10 @@ html[data-theme="light"] .messages-request-error {
 
   .messages-request-summary-head {
     flex-direction: column;
+  }
+
+  .messages-request-summary-meta {
+    justify-items: start;
   }
 
   .messages-request-summary-grid,

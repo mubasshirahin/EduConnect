@@ -39,6 +39,7 @@ function MessagesPage({ authUser, route }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isProfileReady, setIsProfileReady] = useState(false);
+  const [requestAction, setRequestAction] = useState({ type: "", message: "" });
 
   const CLASS_OPTIONS = [
     "Play", "Nursery", "KG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
@@ -76,13 +77,37 @@ function MessagesPage({ authUser, route }) {
     [t("messages.prefixes.details")]: "details",
   };
 
-  function parseTutorRequest(text) {
+  function parseTutorRequest(text, metadata = null) {
+    if (metadata?.requestId || metadata?.studentEmail) {
+      return {
+        title: metadata.title || t("messages.tuitionRequest"),
+        fields: {
+          subject: metadata.subject || "",
+          classLevel: metadata.classLevel || "",
+          medium: metadata.medium || "",
+          location: metadata.location || "",
+          landmark: metadata.landmark || "",
+          schedule: metadata.schedule || "",
+          budget: metadata.budget || "",
+          details: metadata.details || "",
+        },
+        status: metadata.status || "pending",
+        jobId: metadata.jobId || "",
+        requestId: metadata.requestId || "",
+        acceptedAt: metadata.acceptedAt || "",
+      };
+    }
+
     const trimmed = text?.trim();
-    if (!trimmed || !trimmed.toLowerCase().includes("tutor request")) {
+    if (!trimmed) {
       return null;
     }
 
     const lines = trimmed.split("\n").map((line) => line.trim()).filter(Boolean);
+    const firstLine = lines[0]?.toLowerCase() || "";
+    if (!firstLine.includes("request") && !firstLine.includes("রিকোয়েস্ট") && !firstLine.includes("রিকোয়েস্ট")) {
+      return null;
+    }
     const fields = {};
 
     lines.slice(1).forEach((line) => {
@@ -95,10 +120,14 @@ function MessagesPage({ authUser, route }) {
     return {
       title: lines[0],
       fields,
+      status: "pending",
+      jobId: "",
+      requestId: "",
     };
   }
 
   const isStudent = authUser?.role === "student";
+  const isAdmin = authUser?.role === "admin";
 
   useEffect(() => {
     if (!authUser?.email) {
@@ -234,7 +263,7 @@ function MessagesPage({ authUser, route }) {
         .reverse()
         .map((message) => ({
           message,
-          request: parseTutorRequest(message.text),
+          request: parseTutorRequest(message.text, message.tuitionRequest),
         }))
         .find((entry) => entry.request)
     : null;
@@ -272,7 +301,7 @@ function MessagesPage({ authUser, route }) {
       .reverse()
       .map((message) => ({
         message,
-        request: parseTutorRequest(message.text),
+        request: parseTutorRequest(message.text, message.tuitionRequest),
       }))
       .find((entry) => entry.request) || null;
 
@@ -285,7 +314,11 @@ function MessagesPage({ authUser, route }) {
     markThreadSeen(authUser.email, activeThread._id, latestMessage.createdAt);
   }, [activeThread, authUser?.email]);
 
-  const sendMessage = async (text) => {
+  useEffect(() => {
+    setRequestAction({ type: "", message: "" });
+  }, [activeId]);
+
+  const sendMessage = async (text, extra = {}) => {
     const bodyText = text.trim();
     if (!bodyText || !authUser?.email || (!activeThread && !pendingRecipient)) {
       return;
@@ -322,6 +355,7 @@ function MessagesPage({ authUser, route }) {
               text: bodyText,
               fromName: authUser.name,
               toName: matchedAdmin?.name || toName || recipientEmail,
+              tuitionRequest: extra.tuitionRequest || undefined,
             }),
           });
 
@@ -350,6 +384,7 @@ function MessagesPage({ authUser, route }) {
       setPendingRecipient(null);
       setDraft("");
       setError("");
+      setRequestAction({ type: "", message: "" });
     } catch (sendError) {
       setError(sendError.message || "Unable to send message.");
     }
@@ -383,8 +418,67 @@ function MessagesPage({ authUser, route }) {
       `${t("messages.prefixes.details")} ${requestForm.details.trim()}`,
     ].join("\n");
 
-    await sendMessage(message);
+    const requestId = `request:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`;
+
+    await sendMessage(message, {
+      tuitionRequest: {
+        requestId,
+        title: t("messages.tuitionRequest"),
+        subject: requestForm.subject.trim(),
+        classLevel: requestForm.classLevel.trim(),
+        medium: requestForm.medium.trim(),
+        location: requestForm.location.trim(),
+        landmark: requestForm.landmark.trim() || t("profile.notProvided"),
+        schedule: requestForm.schedule.trim(),
+        budget: requestForm.budget.trim(),
+        details: requestForm.details.trim(),
+        studentEmail: authUser?.email || "",
+        studentName: authUser?.name || "",
+        status: "pending",
+      },
+    });
     setRequestForm(EMPTY_REQUEST);
+  };
+
+  const handleAcceptTutorRequest = async (messageId) => {
+    if (!activeThread?._id || !messageId) {
+      return;
+    }
+
+    const token = localStorage.getItem("educonnect-auth-token");
+    if (!token) {
+      setRequestAction({ type: "error", message: "Admin session not found. Please sign in again." });
+      return;
+    }
+
+    try {
+      setRequestAction({ type: "loading", message: "Publishing this tuition request..." });
+      const response = await fetch(`/api/messages/threads/${encodeURIComponent(activeThread._id)}/requests/${encodeURIComponent(messageId)}/accept`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.message || "Unable to accept this tuition request.");
+      }
+
+      setThreads((prev) =>
+        prev.map((thread) => (thread._id === data.thread?._id ? data.thread : thread))
+      );
+      setRequestAction({
+        type: "success",
+        message: data?.message || "Tuition request accepted and posted to the job board.",
+      });
+      setError("");
+    } catch (acceptError) {
+      setRequestAction({
+        type: "error",
+        message: acceptError.message || "Unable to accept this tuition request.",
+      });
+    }
   };
 
   const renderStudentRequestPanel = isStudent && supportContact;
@@ -576,17 +670,38 @@ function MessagesPage({ authUser, route }) {
               <p className="messages-empty-state">{error}</p>
             ) : activeThread ? (
               <>
+                {requestAction.message ? (
+                  <p className={`auth-status ${
+                    requestAction.type === "error"
+                      ? "auth-status-error"
+                      : requestAction.type === "success"
+                        ? "auth-status-success"
+                        : ""
+                  }`}>
+                    {requestAction.message}
+                  </p>
+                ) : null}
+
                 {!isStudent && latestTutorRequest ? (
                   <section className="messages-request-summary-card">
                     <div className="messages-request-summary-head">
                       <div>
                         <h4>{getDisplayName(activeThread)}</h4>
                       </div>
-                      <span className="messages-request-summary-time">
-                        {latestTutorRequest.message.createdAt
-                          ? new Date(latestTutorRequest.message.createdAt).toLocaleString()
-                          : ""}
-                      </span>
+                      <div className="messages-request-summary-meta">
+                        <span className={`messages-request-status ${
+                          latestTutorRequest.request.status === "accepted"
+                            ? "messages-request-status-accepted"
+                            : "messages-request-status-pending"
+                        }`}>
+                          {latestTutorRequest.request.status === "accepted" ? "Accepted" : "Pending"}
+                        </span>
+                        <span className="messages-request-summary-time">
+                          {latestTutorRequest.message.createdAt
+                            ? new Date(latestTutorRequest.message.createdAt).toLocaleString()
+                            : ""}
+                        </span>
+                      </div>
                     </div>
                     <div className="messages-request-summary-grid">
                       {Object.entries(REQUEST_FIELD_LABELS).map(([key, label]) =>
@@ -598,11 +713,30 @@ function MessagesPage({ authUser, route }) {
                         ) : null
                       )}
                     </div>
+                    {isAdmin && latestTutorRequest.request.status !== "accepted" ? (
+                      <div className="messages-request-actions">
+                        <button
+                          className="btn btn-primary"
+                          type="button"
+                          onClick={() => handleAcceptTutorRequest(latestTutorRequest.message._id)}
+                          disabled={requestAction.type === "loading"}
+                        >
+                          {requestAction.type === "loading" ? "Posting..." : "Accept & Post to Job Board"}
+                        </button>
+                      </div>
+                    ) : null}
+                    {latestTutorRequest.request.status === "accepted" && latestTutorRequest.request.jobId ? (
+                      <div className="messages-request-actions">
+                        <a className="btn btn-ghost" href="#jobs">
+                          View on Job Board
+                        </a>
+                      </div>
+                    ) : null}
                   </section>
                 ) : null}
 
                 {activeThread.messages.map((msg) => {
-                  const parsedRequest = parseTutorRequest(msg.text);
+                  const parsedRequest = parseTutorRequest(msg.text, msg.tuitionRequest);
 
                   return (
                     <div
@@ -613,7 +747,16 @@ function MessagesPage({ authUser, route }) {
                     >
                       {parsedRequest ? (
                         <div className="message-request-content">
-                          <span className="message-request-title">{parsedRequest.title}</span>
+                          <div className="message-request-topline">
+                            <span className="message-request-title">{parsedRequest.title}</span>
+                            <span className={`messages-request-status ${
+                              parsedRequest.status === "accepted"
+                                ? "messages-request-status-accepted"
+                                : "messages-request-status-pending"
+                            }`}>
+                              {parsedRequest.status === "accepted" ? "Accepted" : "Pending"}
+                            </span>
+                          </div>
                           <div className="message-request-grid">
                             {Object.entries(REQUEST_FIELD_LABELS).map(([key, label]) =>
                               parsedRequest.fields[key] ? (
@@ -624,6 +767,11 @@ function MessagesPage({ authUser, route }) {
                               ) : null
                             )}
                           </div>
+                          {parsedRequest.status === "accepted" && parsedRequest.jobId ? (
+                            <a className="message-request-link" href="#jobs">
+                              Open Job Board
+                            </a>
+                          ) : null}
                         </div>
                       ) : (
                         <p>{msg.text}</p>

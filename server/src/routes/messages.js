@@ -1,8 +1,117 @@
 import express from "express";
+import jwt from "jsonwebtoken";
 import MessageThread from "../models/MessageThread.js";
 import User from "../models/User.js";
+import Job from "../models/Job.js";
 
 const router = express.Router();
+
+const authenticate = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.sub);
+    if (!user) {
+      return res.status(401).json({ message: "User not found." });
+    }
+    req.user = user;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid token." });
+  }
+};
+
+const buildJobTitle = (request) => {
+  const subject = request?.subject?.trim();
+  const classLevel = request?.classLevel?.trim();
+  if (subject && classLevel) {
+    return `${subject} Tutor - ${classLevel}`;
+  }
+  if (subject) {
+    return `${subject} Tutor Needed`;
+  }
+  if (classLevel) {
+    return `Tutor Needed - ${classLevel}`;
+  }
+  return "Tuition Request";
+};
+
+const toPlainThread = (thread) =>
+  typeof thread?.toObject === "function" ? thread.toObject() : { ...thread };
+
+const collectStudentTuitionRequests = (threads, studentEmail) => {
+  const normalizedStudentEmail = (studentEmail || "").toLowerCase();
+  const requestMap = new Map();
+
+  threads.forEach((thread) => {
+    const plainThread = toPlainThread(thread);
+    (plainThread.messages || []).forEach((message) => {
+      const request = message?.tuitionRequest;
+      if (!request || request.studentEmail !== normalizedStudentEmail) {
+        return;
+      }
+
+      const requestId = request.requestId || String(message._id);
+      const previous = requestMap.get(requestId);
+
+      if (!previous) {
+        requestMap.set(requestId, {
+          requestId,
+          threadId: plainThread._id,
+          messageId: String(message._id),
+          studentEmail: request.studentEmail,
+          studentName: request.studentName || plainThread.participantNames?.[request.studentEmail] || "",
+          fields: {
+            subject: request.subject || "",
+            classLevel: request.classLevel || "",
+            medium: request.medium || "",
+            location: request.location || "",
+            landmark: request.landmark || "",
+            schedule: request.schedule || "",
+            budget: request.budget || "",
+            details: request.details || "",
+          },
+          status: request.status || "pending",
+          submittedAt: message.createdAt,
+          acceptedAt: request.acceptedAt || null,
+          acceptedBy: request.acceptedBy || "",
+          acceptedByName: request.acceptedByName || "",
+          jobId: request.jobId || "",
+        });
+        return;
+      }
+
+      const previousAcceptedAt = previous.acceptedAt ? new Date(previous.acceptedAt).getTime() : 0;
+      const nextAcceptedAt = request.acceptedAt ? new Date(request.acceptedAt).getTime() : 0;
+      const shouldReplace =
+        previous.status !== "accepted" && request.status === "accepted"
+          ? true
+          : request.status === "accepted" && nextAcceptedAt > previousAcceptedAt;
+
+      if (shouldReplace) {
+        requestMap.set(requestId, {
+          ...previous,
+          threadId: plainThread._id,
+          messageId: String(message._id),
+          status: request.status,
+          acceptedAt: request.acceptedAt || previous.acceptedAt,
+          acceptedBy: request.acceptedBy || previous.acceptedBy,
+          acceptedByName: request.acceptedByName || previous.acceptedByName,
+          jobId: request.jobId || previous.jobId,
+        });
+      }
+    });
+  });
+
+  return [...requestMap.values()].sort(
+    (a, b) => new Date(b.submittedAt || 0).getTime() - new Date(a.submittedAt || 0).getTime()
+  );
+};
 
 const resolveParticipantNames = async (threads) => {
   const normalizedThreads = Array.isArray(threads) ? threads : [threads];
@@ -58,9 +167,25 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+router.get("/tuition-requests", async (req, res, next) => {
+  try {
+    const studentEmail = (req.query.studentEmail || "").toLowerCase();
+    if (!studentEmail) {
+      return res.status(400).json({ message: "Student email is required." });
+    }
+
+    const threads = await MessageThread.find({ participants: studentEmail }).sort({ updatedAt: -1 });
+    const hydratedThreads = await resolveParticipantNames(threads);
+    const requests = collectStudentTuitionRequests(hydratedThreads, studentEmail);
+    res.json(requests);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post("/send", async (req, res, next) => {
   try {
-    const { from, to, text, fromName, toName } = req.body;
+    const { from, to, text, fromName, toName, tuitionRequest } = req.body;
     if (!from || !to || !text) {
       return res.status(400).json({ message: "From, to, and text are required." });
     }
@@ -73,7 +198,27 @@ router.post("/send", async (req, res, next) => {
         [`participantNames.${to.toLowerCase()}`]: toName || to,
       },
       $push: {
-        messages: { from, to, text },
+        messages: {
+          from,
+          to,
+          text,
+          tuitionRequest: tuitionRequest
+            ? {
+                requestId: tuitionRequest.requestId || "",
+                subject: tuitionRequest.subject || "",
+                classLevel: tuitionRequest.classLevel || "",
+                medium: tuitionRequest.medium || "",
+                location: tuitionRequest.location || "",
+                landmark: tuitionRequest.landmark || "",
+                schedule: tuitionRequest.schedule || "",
+                budget: tuitionRequest.budget || "",
+                details: tuitionRequest.details || "",
+                studentEmail: (tuitionRequest.studentEmail || from).toLowerCase(),
+                studentName: tuitionRequest.studentName || fromName || from,
+                status: tuitionRequest.status || "pending",
+              }
+            : undefined,
+        },
       },
     };
     const thread = await MessageThread.findOneAndUpdate(
@@ -83,6 +228,81 @@ router.post("/send", async (req, res, next) => {
     );
     const [hydratedThread] = await resolveParticipantNames(thread);
     res.json(hydratedThread);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch("/threads/:threadId/requests/:messageId/accept", authenticate, async (req, res, next) => {
+  try {
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({ message: "Only admins can accept tuition requests." });
+    }
+
+    const { threadId, messageId } = req.params;
+    const thread = await MessageThread.findById(threadId);
+    if (!thread) {
+      return res.status(404).json({ message: "Conversation not found." });
+    }
+
+    const message = thread.messages.id(messageId);
+    if (!message?.tuitionRequest?.requestId && !message?.tuitionRequest?.studentEmail) {
+      return res.status(404).json({ message: "Tuition request not found." });
+    }
+
+    const requestData = message.tuitionRequest || {};
+    if (!requestData.requestId) {
+      return res.status(400).json({ message: "This tuition request cannot be accepted yet." });
+    }
+    let job = null;
+    const acceptedAt = new Date();
+
+    if (requestData.requestId) {
+      job = await Job.findOne({ tuitionRequestId: requestData.requestId });
+    }
+
+    if (!job) {
+      job = await Job.create({
+        title: buildJobTitle(requestData),
+        location: requestData.location || "Location pending",
+        subject: requestData.subject || "",
+        classLevel: requestData.classLevel || "",
+        schedule: requestData.schedule || "Schedule pending",
+        rate: requestData.budget || "Budget pending",
+        postedBy: req.user?.name ? `Admin: ${req.user.name}` : "Admin",
+        postedByEmail: req.user?.email || "",
+        studentEmail: requestData.studentEmail || "",
+        studentName: requestData.studentName || "",
+        tuitionRequestId: requestData.requestId || String(message._id),
+        sourceThreadId: threadId,
+        sourceMessageId: String(message._id),
+      });
+    }
+
+    await MessageThread.updateMany(
+      { "messages.tuitionRequest.requestId": requestData.requestId },
+      {
+        $set: {
+          "messages.$[message].tuitionRequest.status": "accepted",
+          "messages.$[message].tuitionRequest.acceptedAt": acceptedAt,
+          "messages.$[message].tuitionRequest.acceptedBy": req.user.email,
+          "messages.$[message].tuitionRequest.acceptedByName": req.user.name,
+          "messages.$[message].tuitionRequest.jobId": String(job._id),
+        },
+      },
+      {
+        arrayFilters: [{ "message.tuitionRequest.requestId": requestData.requestId }],
+      }
+    );
+
+    const updatedThread = await MessageThread.findById(threadId);
+    const [hydratedThread] = await resolveParticipantNames(updatedThread);
+
+    res.json({
+      message: "Tuition request accepted and posted to the job board.",
+      thread: hydratedThread,
+      job,
+    });
   } catch (error) {
     next(error);
   }
