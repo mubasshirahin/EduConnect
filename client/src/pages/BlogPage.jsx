@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 
-function BlogPage({ authUser, onRequireLogin }) {
+function BlogPage({ authUser, onRequireLogin, onLogout }) {
   const { t } = useLanguage();
   const [showForm, setShowForm] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [tags, setTags] = useState("");
   const [authorName, setAuthorName] = useState("");
   const [role, setRole] = useState("student");
   const [message, setMessage] = useState("");
@@ -30,6 +30,60 @@ function BlogPage({ authUser, onRequireLogin }) {
   useEffect(() => {
     fetchBlogs();
   }, []);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [authUser]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return undefined;
+
+    const handleHashChange = () => setIsMobileMenuOpen(false);
+    window.addEventListener("hashchange", handleHashChange);
+
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, [isMobileMenuOpen]);
+
+  const blogNavLinks = authUser?.role === "teacher"
+    ? [
+        { href: "#home", label: t("dashboard.home") },
+        { href: "#jobs", label: t("dashboard.jobs") },
+        { href: "#status", label: t("dashboard.status") },
+        { href: "#blog", label: t("navbar.blog") },
+        { href: "#reviews", label: t("dashboard.reviews") },
+        { href: "#messages", label: t("dashboard.messages") },
+        { href: "#help", label: t("navbar.help") },
+        { href: "#settings", label: t("dashboard.settings") },
+      ]
+    : authUser?.role === "student"
+      ? [
+          { href: "#home", label: t("dashboard.home") },
+          { href: "#jobs", label: t("dashboard.jobs") },
+          { href: "#status", label: t("dashboard.status") },
+          { href: "#blog", label: t("navbar.blog") },
+          { href: "#reviews", label: t("dashboard.reviews") },
+          { href: "#messages", label: t("dashboard.messages") },
+          { href: "#help", label: t("navbar.help") },
+          { href: "#settings", label: t("dashboard.settings") },
+        ]
+      : authUser?.role === "admin"
+        ? [
+            { href: "#home", label: t("dashboard.home") },
+            { href: "#jobs", label: t("dashboard.jobs") },
+            { href: "#blog", label: t("navbar.blog") },
+            { href: "#messages", label: t("dashboard.messages") },
+            { href: "#notices", label: "Notices" },
+            { href: "#help", label: t("navbar.help") },
+            { href: "#settings", label: t("dashboard.settings") },
+          ]
+        : [
+            { href: "#home", label: t("navbar.home") },
+            { href: "#about", label: t("navbar.about") },
+            { href: "#jobs", label: t("navbar.jobs") },
+            { href: "#reviews", label: t("navbar.reviews") },
+            { href: "#blog", label: t("navbar.blog") },
+            { href: "#help", label: t("navbar.help") },
+          ];
 
   const fetchBlogs = async () => {
     try {
@@ -178,7 +232,6 @@ function BlogPage({ authUser, onRequireLogin }) {
         body: JSON.stringify({
           title,
           content,
-          tags: tags.split(",").map((tag) => tag.trim()),
         }),
       });
 
@@ -186,7 +239,6 @@ function BlogPage({ authUser, onRequireLogin }) {
         setMessage(t("blog.messages.submitSuccess"));
         setTitle("");
         setContent("");
-        setTags("");
         setShowForm(false);
         fetchBlogs();
       } else {
@@ -217,8 +269,29 @@ function BlogPage({ authUser, onRequireLogin }) {
 
   return (
     <div className="container blog-page-shell" style={{ padding: "2rem 0 4rem" }}>
+      {isMobileMenuOpen ? (
+        <button
+          type="button"
+          className="blog-mobile-menu-backdrop"
+          aria-label="Close blog navigation menu"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      ) : null}
+
       <div className="blog-page-topbar">
         <div className="blog-title-row">
+          <button
+            type="button"
+            className={`blog-menu-button ${isMobileMenuOpen ? "blog-menu-button-open" : ""}`}
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="blog-mobile-menu"
+            aria-label={isMobileMenuOpen ? "Close blog navigation menu" : "Open blog navigation menu"}
+          >
+            <span aria-hidden="true" />
+            <span aria-hidden="true" />
+            <span aria-hidden="true" />
+          </button>
           <h1 className="blog-page-title">{t("blog.title")}</h1>
           <button
             className="blog-compose-button"
@@ -233,6 +306,36 @@ function BlogPage({ authUser, onRequireLogin }) {
             </svg>
           </button>
         </div>
+
+        <div
+          id="blog-mobile-menu"
+          className={`blog-mobile-menu ${isMobileMenuOpen ? "blog-mobile-menu-open" : ""}`}
+        >
+          <div className="blog-mobile-menu-links">
+            {blogNavLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="blog-mobile-menu-link"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {link.label}
+              </a>
+            ))}
+            {authUser ? (
+              <button
+                type="button"
+                className="blog-mobile-menu-link blog-mobile-menu-logout"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  onLogout?.();
+                }}
+              >
+                {t("common.logout")}
+              </button>
+            ) : null}
+          </div>
+        </div>
       </div>
 
       {!authUser && (
@@ -243,37 +346,39 @@ function BlogPage({ authUser, onRequireLogin }) {
 
       {showForm && authUser && (
         <div className="dashboard-card blog-form-card blog-form-shell">
-          <h3>{t("blog.shareTips")}</h3>
+          <div className="blog-form-header">
+            <h3>{t("blog.shareTips")}</h3>
+            <p>Share a practical idea, lesson, or study habit that can help other learners.</p>
+          </div>
           <form onSubmit={handleSubmit} className="blog-form">
-            <div className="form-group">
+            <div className="form-group blog-form-group">
               <label>{t("blog.labels.name")}</label>
               <input type="text" value={authorName} readOnly required />
             </div>
-            <div className="form-group">
-              <label>{t("blog.labels.role")}</label>
-              <input type="text" value={role || "student"} readOnly />
+            <div className="blog-form-grid">
+              <div className="form-group blog-form-group">
+                <label>{t("blog.labels.role")}</label>
+                <input
+                  type="text"
+                  value={(role || "student").charAt(0).toUpperCase() + (role || "student").slice(1)}
+                  readOnly
+                />
+              </div>
+              <div className="form-group blog-form-group">
+                <label>{t("blog.labels.title")}</label>
+                <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
+              </div>
             </div>
-            <div className="form-group">
-              <label>{t("blog.labels.title")}</label>
-              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
-            </div>
-            <div className="form-group">
+            <div className="form-group blog-form-group">
               <label>{t("blog.labels.content")}</label>
               <textarea rows="6" value={content} onChange={(e) => setContent(e.target.value)} required />
             </div>
-            <div className="form-group">
-              <label>{t("blog.labels.tags")}</label>
-              <input
-                type="text"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                placeholder={t("blog.placeholders.tags")}
-              />
+            <div className="blog-form-footer">
+              {message ? <p className="blog-form-message">{message}</p> : null}
+              <button type="submit" className="btn btn-primary blog-submit-button">
+                {t("reviewsPage.submit")}
+              </button>
             </div>
-            {message && <p className="blog-form-message">{message}</p>}
-            <button type="submit" className="btn btn-primary">
-              {t("reviewsPage.submit")}
-            </button>
           </form>
         </div>
       )}

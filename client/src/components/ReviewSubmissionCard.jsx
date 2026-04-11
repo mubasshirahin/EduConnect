@@ -14,8 +14,6 @@ function ReviewSubmissionCard({ authorName, role, title, description, sectionId 
   const [submitSuccess, setSubmitSuccess] = useState("");
 
   const normalizedRole = role === "teacher" ? t("auth.teacher") : t("auth.student");
-  const roleLabel = role === "teacher" ? t("reviewsPage.teacherFeedback") : t("reviewsPage.studentFeedback");
-
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((current) => ({
@@ -70,7 +68,6 @@ function ReviewSubmissionCard({ authorName, role, title, description, sectionId 
   return (
     <section className="dashboard-card review-submit-card" id={sectionId}>
       <div className="review-submit-copy">
-        <p className="eyebrow">{roleLabel}</p>
         <h2>{title}</h2>
         <p>{description}</p>
       </div>

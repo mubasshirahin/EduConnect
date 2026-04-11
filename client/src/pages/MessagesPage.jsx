@@ -400,7 +400,6 @@ function MessagesPage({ authUser, route }) {
       {renderStudentRequestPanel ? (
         <div className="messages-request-card">
           <div className="messages-request-copy">
-            <p className="eyebrow">{t("messages.requestForm.eyebrow")}</p>
             <h3>{t("messages.requestForm.title")}</h3>
             <p>
               {t("messages.requestForm.subtitle").replace("{name}", adminLabel)}
@@ -581,7 +580,6 @@ function MessagesPage({ authUser, route }) {
                   <section className="messages-request-summary-card">
                     <div className="messages-request-summary-head">
                       <div>
-                        <p className="eyebrow">{t("messages.latestTuitionRequest")}</p>
                         <h4>{getDisplayName(activeThread)}</h4>
                       </div>
                       <span className="messages-request-summary-time">

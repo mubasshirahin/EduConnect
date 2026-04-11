@@ -55,7 +55,6 @@ function Reviews({ showSubmission = false, submissionProps, showTotalCounter = f
 
       <header className="job-board-header reviews-hero">
         <div className="reviews-hero-copy">
-          {!showSubmission ? <p className="eyebrow">{t("reviewsPage.communityEyebrow")}</p> : null}
           <h1>{t("reviewsPage.communityTitle")}</h1>
           <p className="job-board-subtitle">
             {t("reviewsPage.communitySubtitle")}

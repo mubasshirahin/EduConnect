@@ -6,7 +6,6 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("");
-  const hideTopbar = currentRoute?.startsWith("#reviews");
   const isBangla = language === "bn";
   const copy = {
     closeNavigationMenu: isBangla ? "নেভিগেশন মেনু বন্ধ করুন" : "Close navigation menu",
@@ -213,24 +212,22 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
         </nav>
       </aside>
       <main className="teacher-main">
-        {!hideTopbar ? (
-          <header className="teacher-topbar">
-            <button
-              className="teacher-mobile-menu-button"
-              type="button"
-              aria-label={isMobileMenuOpen ? copy.closeNavigationMenu : copy.openNavigationMenu}
-              aria-expanded={isMobileMenuOpen}
-              onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-            >
-              <span />
-              <span />
-              <span />
-            </button>
-            <div className="teacher-topbar-title">
-              <h1>{t("dashboard.teacherDashboard")}</h1>
-            </div>
-          </header>
-        ) : null}
+        <header className="teacher-topbar">
+          <button
+            className="teacher-mobile-menu-button"
+            type="button"
+            aria-label={isMobileMenuOpen ? copy.closeNavigationMenu : copy.openNavigationMenu}
+            aria-expanded={isMobileMenuOpen}
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+          <div className="teacher-topbar-title">
+            <h1>{t("dashboard.teacherDashboard")}</h1>
+          </div>
+        </header>
         {children}
       </main>
     </div>
