@@ -235,7 +235,11 @@ function BlogPage({ authUser, onRequireLogin }) {
         </div>
       </div>
 
-      {!authUser && <p className="blog-login-note">Read helpful study tips from the community, or tap the pencil icon to sign in and share your own blog.</p>}
+      {!authUser && (
+        <p className="blog-login-note">
+          Read helpful study tips from the community, or tap the pencil icon to sign in and share your own blog.
+        </p>
+      )}
 
       {showForm && authUser && (
         <div className="dashboard-card blog-form-card blog-form-shell">
@@ -317,19 +321,11 @@ function BlogPage({ authUser, onRequireLogin }) {
                     return (
                       <button
                         key={`${blog._id}-star-${star}`}
-                        className="btn blog-star-button"
-                        style={{
-                          minWidth: "32px",
-                          height: "32px",
-                          padding: "0",
-                          background: filled ? "#FFD700" : "#eaeaea",
-                          border: "1px solid #ccc",
-                          color: filled ? "#333" : "#777",
-                          borderRadius: "4px",
-                          cursor: isAuthor ? "not-allowed" : "pointer",
-                        }}
+                        type="button"
+                        className={`blog-star-button ${filled ? "blog-star-button-filled" : ""}`}
                         disabled={isAuthor}
                         onClick={() => !isAuthor && handleRate(blog._id, star)}
+                        aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
                       >
                         ★
                       </button>
@@ -386,10 +382,7 @@ function BlogPage({ authUser, onRequireLogin }) {
                           placeholder={t("blog.placeholders.comment")}
                           className="blog-comment-textarea"
                         />
-                        <button
-                          className="btn blog-comment-submit"
-                          onClick={() => handlePostComment(blog._id)}
-                        >
+                        <button className="btn blog-comment-submit" onClick={() => handlePostComment(blog._id)}>
                           {t("blog.comments.post")}
                         </button>
                       </div>
