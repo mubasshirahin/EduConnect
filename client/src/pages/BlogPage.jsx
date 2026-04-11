@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function BlogPage({ authUser, onRequireLogin }) {
@@ -12,6 +12,9 @@ function BlogPage({ authUser, onRequireLogin }) {
   const [message, setMessage] = useState("");
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [openComments, setOpenComments] = useState({});
+  const [commentInputs, setCommentInputs] = useState({});
+  const [lovedComments, setLovedComments] = useState({});
 
   useEffect(() => {
     if (authUser) {
@@ -52,10 +55,6 @@ function BlogPage({ authUser, onRequireLogin }) {
     return userRating?.rating ?? null;
   };
 
-  const [openComments, setOpenComments] = useState({});
-  const [commentInputs, setCommentInputs] = useState({});
-  const [replyInputs, setReplyInputs] = useState({});
-
   const toggleComments = (blogId) => {
     setOpenComments((prev) => ({ ...prev, [blogId]: !prev[blogId] }));
   };
@@ -64,13 +63,14 @@ function BlogPage({ authUser, onRequireLogin }) {
     setCommentInputs((prev) => ({ ...prev, [blogId]: value }));
   };
 
-  const handleReplyInputChange = (commentId, value) => {
-    setReplyInputs((prev) => ({ ...prev, [commentId]: value }));
-  };
-
   const handlePostComment = async (blogId) => {
-    const content = (commentInputs[blogId] || "").trim();
-    if (!content) {
+    if (!authUser) {
+      onRequireLogin?.();
+      return;
+    }
+
+    const nextContent = (commentInputs[blogId] || "").trim();
+    if (!nextContent) {
       setMessage(t("blog.messages.emptyComment"));
       return;
     }
@@ -84,7 +84,7 @@ function BlogPage({ authUser, onRequireLogin }) {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content: nextContent }),
       });
 
       if (!response.ok) {
@@ -101,37 +101,17 @@ function BlogPage({ authUser, onRequireLogin }) {
     }
   };
 
-  const handlePostReply = async (blogId, commentId) => {
-    const content = (replyInputs[commentId] || "").trim();
-    if (!content) {
-      setMessage(t("blog.messages.emptyReply"));
-      return;
-    }
-
-    const token = localStorage.getItem("educonnect-auth-token");
-
-    try {
-      const response = await fetch(`/api/blogs/${blogId}/comments/${commentId}/replies`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  const handleLoveComment = (commentId) => {
+    setLovedComments((prev) => {
+      const current = prev[commentId] || { active: false, count: 0 };
+      return {
+        ...prev,
+        [commentId]: {
+          active: !current.active,
+          count: current.active ? Math.max(0, current.count - 1) : current.count + 1,
         },
-        body: JSON.stringify({ content }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => null);
-        setMessage(data?.message || "Could not post reply.");
-        return;
-      }
-
-      setReplyInputs((prev) => ({ ...prev, [commentId]: "" }));
-      setMessage(t("blog.messages.replyPosted"));
-      await fetchBlogs();
-    } catch (error) {
-      setMessage("Error posting reply.");
-    }
+      };
+    });
   };
 
   const handleRate = async (blogId, value) => {
@@ -218,56 +198,52 @@ function BlogPage({ authUser, onRequireLogin }) {
     }
   };
 
+  const handleComposeClick = () => {
+    if (!authUser) {
+      onRequireLogin?.();
+      return;
+    }
+
+    setShowForm((prev) => !prev);
+  };
+
   if (loading) {
-    return <div className="container" style={{ padding: "2rem", textAlign: "center" }}>{t("common.pleaseWait") || "Loading..."}</div>;
+    return (
+      <div className="container" style={{ padding: "2rem", textAlign: "center" }}>
+        {t("common.pleaseWait") || "Loading..."}
+      </div>
+    );
   }
 
   return (
-    <div className="container" style={{ padding: "2rem 0 4rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.8rem" }}>
-        <button
-          className="btn"
-          style={{ backgroundColor: "var(--primary)", color: "#fff", borderColor: "var(--primary)", padding: "0.7rem 1rem" }}
-          onClick={() => {
-            window.location.hash = "#home";
-          }}
-        >
-          ← {t("blog.backDashboard")}
-        </button>
-        <h1 style={{ margin: "0 auto" }}>{t("blog.title")}</h1>
+    <div className="container blog-page-shell" style={{ padding: "2rem 0 4rem" }}>
+      <div className="blog-page-topbar">
+        <div className="blog-title-row">
+          <h1 className="blog-page-title">{t("blog.title")}</h1>
+          <button
+            className="blog-compose-button"
+            type="button"
+            onClick={handleComposeClick}
+            aria-label={showForm ? t("blog.cancel") : authUser ? t("blog.writePost") : t("blog.loginToWrite")}
+            title={showForm ? t("blog.cancel") : authUser ? t("blog.writePost") : t("blog.loginToWrite")}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+            </svg>
+          </button>
+        </div>
       </div>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "2rem" }}>
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            if (!authUser) {
-              onRequireLogin?.();
-              return;
-            }
-            setShowForm((prev) => !prev);
-          }}
-        >
-          {showForm ? t("blog.cancel") : authUser ? t("blog.writePost") : t("blog.loginToWrite")}
-        </button>
-      </div>
-      {!authUser && (
-        <p style={{ color: "var(--text-soft)", marginBottom: "1rem" }}>
-          {t("blog.loginRequired")}
-        </p>
-      )}
+
+      {!authUser && <p className="blog-login-note">Read helpful study tips from the community, or tap the pencil icon to sign in and share your own blog.</p>}
 
       {showForm && authUser && (
-        <div className="dashboard-card blog-form-card" style={{ marginBottom: "2rem" }}>
+        <div className="dashboard-card blog-form-card blog-form-shell">
           <h3>{t("blog.shareTips")}</h3>
           <form onSubmit={handleSubmit} className="blog-form">
             <div className="form-group">
               <label>{t("blog.labels.name")}</label>
-              <input
-                type="text"
-                value={authorName}
-                readOnly
-                required
-              />
+              <input type="text" value={authorName} readOnly required />
             </div>
             <div className="form-group">
               <label>{t("blog.labels.role")}</label>
@@ -275,21 +251,11 @@ function BlogPage({ authUser, onRequireLogin }) {
             </div>
             <div className="form-group">
               <label>{t("blog.labels.title")}</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
+              <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
             </div>
             <div className="form-group">
               <label>{t("blog.labels.content")}</label>
-              <textarea
-                rows="6"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                required
-              />
+              <textarea rows="6" value={content} onChange={(e) => setContent(e.target.value)} required />
             </div>
             <div className="form-group">
               <label>{t("blog.labels.tags")}</label>
@@ -300,7 +266,7 @@ function BlogPage({ authUser, onRequireLogin }) {
                 placeholder={t("blog.placeholders.tags")}
               />
             </div>
-            {message && <p style={{ color: "var(--accent)" }}>{message}</p>}
+            {message && <p className="blog-form-message">{message}</p>}
             <button type="submit" className="btn btn-primary">
               {t("reviewsPage.submit")}
             </button>
@@ -309,48 +275,49 @@ function BlogPage({ authUser, onRequireLogin }) {
       )}
 
       {blogs.length === 0 ? (
-        <div className="dashboard-card" style={{ textAlign: "center" }}>
+        <div className="dashboard-card blog-empty-state">
           <p>{t("blog.empty")}</p>
         </div>
       ) : (
-        <div style={{ display: "grid", gap: "1.5rem" }}>
-          {blogs.map(blog => (
+        <div className="blog-post-list">
+          {blogs.map((blog) => (
             <div key={blog._id} className="dashboard-card blog-post-card">
-              <div className="blog-post-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                <h2 style={{ marginBottom: "0" }}>{blog.title}</h2>
-                <span style={{
-                  background: blog.authorRole === "teacher" ? "#3fa971" : "#5bcf90",
-                  color: "#fff",
-                  padding: "0.2rem 0.6rem",
-                  borderRadius: "20px",
-                  fontSize: "0.7rem",
-                  fontWeight: "bold"
-                }}>
+              <div className="blog-post-header">
+                <h2 className="blog-post-title">{blog.title}</h2>
+                <span
+                  className={`blog-role-badge ${
+                    blog.authorRole === "teacher" ? "blog-role-badge-teacher" : "blog-role-badge-student"
+                  }`}
+                >
                   {blog.authorRole === "teacher" ? t("auth.teacher") : t("auth.student")}
                 </span>
               </div>
-              <p style={{ color: "var(--text-soft)", fontSize: "0.85rem", marginBottom: "1rem" }}>
+
+              <p className="blog-meta">
                 By {blog.author} • {new Date(blog.createdAt).toLocaleDateString()}
                 {blog.tags?.length > 0 && ` • Tags: ${blog.tags.join(", ")}`}
               </p>
-              <p style={{ whiteSpace: "pre-wrap" }}>{blog.content}</p>
 
-              <div style={{ marginTop: "1rem" }}>
-                <p style={{ margin: "0 0 .4rem 0", fontSize: "0.88rem", color: "var(--text-soft)" }}>
-                  {t("blog.averageRating")}: {getAverageRating(blog.ratings).toFixed(1)} / 5 ({blog.ratings?.length || 0} {t("blog.votes")})
+              <p className="blog-content">{blog.content}</p>
+
+              <div className="blog-rating-section">
+                <p className="blog-rating-text">
+                  {t("blog.averageRating")}: {getAverageRating(blog.ratings).toFixed(1)} / 5 ({blog.ratings?.length || 0}{" "}
+                  {t("blog.votes")})
                 </p>
-                <p style={{ margin: "0 0 .8rem 0", fontSize: "0.88rem", color: "var(--text-soft)" }}>
+                <p className="blog-rating-text blog-rating-user">
                   {t("blog.yourRating")}: {getUserRating(blog.ratings) || t("blog.notRated")}
                 </p>
-                <div style={{ display: "flex", gap: "0.25rem" }}>
+                <div className="blog-stars-row">
                   {Array.from({ length: 5 }, (_, i) => i + 1).map((star) => {
                     const isAuthor = authUser?.email?.toLowerCase() === blog.authorEmail?.toLowerCase();
                     const currentRating = getUserRating(blog.ratings);
                     const filled = star <= (currentRating || Math.round(getAverageRating(blog.ratings)));
+
                     return (
                       <button
                         key={`${blog._id}-star-${star}`}
-                        className="btn"
+                        className="btn blog-star-button"
                         style={{
                           minWidth: "32px",
                           height: "32px",
@@ -369,79 +336,64 @@ function BlogPage({ authUser, onRequireLogin }) {
                     );
                   })}
                 </div>
+
                 {authUser?.email?.toLowerCase() === blog.authorEmail?.toLowerCase() && (
-                  <p style={{ fontSize: "0.8rem", color: "#ff6347", marginTop: "0.5rem" }}>
-                    {t("blog.messages.ownPostRating")}
-                  </p>
+                  <p className="blog-rating-warning">{t("blog.messages.ownPostRating")}</p>
                 )}
               </div>
 
-              <div style={{ marginTop: "1rem", borderTop: "1px solid #eaeaea", paddingTop: "1rem" }}>
-                <button
-                  className="btn"
-                  style={{ marginBottom: "0.75rem", backgroundColor: "var(--primary)", color: "#fff", borderColor: "var(--primary)" }}
-                  onClick={() => toggleComments(blog._id)}
-                >
-                  {openComments[blog._id] ? t("blog.comments.hide") : `${t("blog.comments.show")} (${blog.comments?.length || 0})`}
+              <div className="blog-comments-section">
+                <button className="btn blog-comment-toggle" onClick={() => toggleComments(blog._id)}>
+                  {openComments[blog._id]
+                    ? t("blog.comments.hide")
+                    : `${t("blog.comments.show")} (${blog.comments?.length || 0})`}
                 </button>
 
                 {openComments[blog._id] && (
-                  <div style={{ marginTop: "0.5rem", backgroundColor: "#f0faf2", borderRadius: "10px", padding: "0.8rem" }}>
+                  <div className="blog-comments-panel">
                     {blog.comments?.length === 0 ? (
-                      <p style={{ color: "var(--text-soft)" }}>{t("blog.comments.none")}</p>
+                      <p className="blog-empty-comments">{t("blog.comments.none")}</p>
                     ) : (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                      <div className="blog-comments-list">
                         {blog.comments.map((comment) => (
-                          <div key={comment._id} style={{ backgroundColor: "#e8f7ec", padding: "0.75rem", borderRadius: "8px", border: "1px solid #d3edd9" }}>
-                            <p style={{ margin: "0 0 0.25rem 0", fontWeight: "bold" }}>
-                              {comment.authorName || "Anonymous"} <span style={{ color: "var(--text-soft)", fontWeight: "normal" }}>• {new Date(comment.createdAt).toLocaleString()}</span>
-                            </p>
-                            <p style={{ margin: "0 0 0.5rem 0" }}>{comment.content}</p>
-
-                            <div style={{ paddingLeft: "0.75rem", borderLeft: "2px solid #ececec" }}>
-                              {comment.replies?.map((reply) => (
-                                <div key={reply._id} style={{ marginBottom: "0.5rem" }}>
-                                  <p style={{ margin: "0", fontWeight: "bold", fontSize: "0.9rem" }}>
-                                    {reply.authorName || "Anonymous"} <span style={{ color: "var(--text-soft)", fontWeight: "normal", fontSize: "0.8rem" }}>• {new Date(reply.createdAt).toLocaleString()}</span>
-                                  </p>
-                                  <p style={{ margin: "0.15rem 0 0 0", fontSize: "0.9rem" }}>{reply.content}</p>
-                                </div>
-                              ))}
-
-                              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.3rem", backgroundColor: "#e6f8e7", border: "1px solid #bce8c5", borderRadius: "8px", padding: "0.5rem" }}>
-                                <textarea
-                                  rows="2"
-                                  value={replyInputs[comment._id] || ""}
-                                  onChange={(e) => handleReplyInputChange(comment._id, e.target.value)}
-                                  placeholder={t("blog.placeholders.reply")}
-                                  style={{ flex: 1, resize: "vertical", backgroundColor: "#dff6dc", border: "1px solid #8fd089", borderRadius: "6px", padding: "0.4rem" }}
-                                />
-                                <button className="btn" style={{ backgroundColor: "var(--primary)", color: "#fff", borderColor: "var(--primary)" }} onClick={() => handlePostReply(blog._id, comment._id)}>
-                                  {t("blog.comments.reply")}
-                                </button>
-                              </div>
+                          <div key={comment._id} className="blog-comment-card">
+                            <div className="blog-comment-top">
+                              <p className="blog-comment-meta">
+                                {comment.authorName || "Anonymous"} <span>• {new Date(comment.createdAt).toLocaleString()}</span>
+                              </p>
+                              <button
+                                type="button"
+                                className={`blog-love-button ${lovedComments[comment._id]?.active ? "blog-love-button-active" : ""}`}
+                                onClick={() => handleLoveComment(comment._id)}
+                                aria-label="Love this comment"
+                              >
+                                <span aria-hidden="true">♥</span>
+                                <span>{lovedComments[comment._id]?.count || 0}</span>
+                              </button>
                             </div>
+                            <p className="blog-comment-body">{comment.content}</p>
                           </div>
                         ))}
                       </div>
                     )}
 
-                    <div style={{ marginTop: "0.75rem", backgroundColor: "#e6f8e7", border: "1px solid #bce8c5", borderRadius: "8px", padding: "0.75rem" }}>
-                      <textarea
-                        rows="3"
-                        value={commentInputs[blog._id] || ""}
-                        onChange={(e) => handleCommentInputChange(blog._id, e.target.value)}
-                        placeholder={t("blog.placeholders.comment")}
-                        style={{ width: "100%", resize: "vertical", backgroundColor: "#dff6dc", border: "1px solid #8fd089", borderRadius: "6px", padding: "0.4rem" }}
-                      />
-                      <button
-                        className="btn"
-                        style={{ marginTop: "0.4rem", backgroundColor: "var(--primary)", color: "#fff", borderColor: "var(--primary)" }}
-                        onClick={() => handlePostComment(blog._id)}
-                      >
-                        {t("blog.comments.post")}
-                      </button>
-                    </div>
+                    {authUser ? (
+                      <div className="blog-comment-form">
+                        <textarea
+                          rows="3"
+                          value={commentInputs[blog._id] || ""}
+                          onChange={(e) => handleCommentInputChange(blog._id, e.target.value)}
+                          placeholder={t("blog.placeholders.comment")}
+                          className="blog-comment-textarea"
+                        />
+                        <button
+                          className="btn blog-comment-submit"
+                          onClick={() => handlePostComment(blog._id)}
+                        >
+                          {t("blog.comments.post")}
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
                 )}
               </div>
