@@ -2,11 +2,19 @@ import React, { useEffect, useState } from "react";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 
 function TeacherShell({ user, onLogout, children, currentRoute }) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("");
   const hideTopbar = currentRoute?.startsWith("#reviews");
+  const isBangla = language === "bn";
+  const copy = {
+    closeNavigationMenu: isBangla ? "নেভিগেশন মেনু বন্ধ করুন" : "Close navigation menu",
+    openNavigationMenu: isBangla ? "নেভিগেশন মেনু খুলুন" : "Open navigation menu",
+    expandSidebar: isBangla ? "সাইডবার বড় করুন" : "Expand sidebar",
+    collapseSidebar: isBangla ? "সাইডবার ছোট করুন" : "Collapse sidebar",
+    teacherNameFallback: isBangla ? "শিক্ষকের নাম" : "Teacher Name",
+  };
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -40,7 +48,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
       <button
         className={`teacher-mobile-backdrop ${isMobileMenuOpen ? "teacher-mobile-backdrop-visible" : ""}`}
         type="button"
-        aria-label="Close navigation menu"
+        aria-label={copy.closeNavigationMenu}
         onClick={() => setIsMobileMenuOpen(false)}
       />
       <aside className="teacher-sidebar">
@@ -53,7 +61,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
             )}
           </div>
           <div>
-            <p className="sidebar-name">{user?.name || "Teacher Name"}</p>
+            <p className="sidebar-name">{user?.name || copy.teacherNameFallback}</p>
             <p className="sidebar-meta">ID: {user?.tutorId || "-"}</p>
           </div>
         </div>
@@ -64,7 +72,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
           className="sidebar-toggle"
           type="button"
           onClick={() => setIsCollapsed((prev) => !prev)}
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={isCollapsed ? copy.expandSidebar : copy.collapseSidebar}
         >
           {isCollapsed ? ">>" : "<<"}
         </button>
@@ -128,7 +136,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
           <a
             className={`sidebar-link ${currentRoute?.startsWith("#blog") ? "sidebar-link-active" : ""}`}
             href="#blog"
-            aria-label="Blog"
+            aria-label={t("navbar.blog")}
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <span className="sidebar-icon">
@@ -139,7 +147,7 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
                 <path d="M8 18h8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="sidebar-text">Blog</span>
+            <span className="sidebar-text">{t("navbar.blog")}</span>
           </a>
           <a
             className={`sidebar-link ${currentRoute?.startsWith("#reviews") ? "sidebar-link-active" : ""}`}
@@ -153,6 +161,21 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
               </svg>
             </span>
             <span className="sidebar-text">{t("dashboard.reviews")}</span>
+          </a>
+          <a
+            className={`sidebar-link ${currentRoute?.startsWith("#help") ? "sidebar-link-active" : ""}`}
+            href="#help"
+            aria-label={t("navbar.help")}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <span className="sidebar-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2" />
+                <path d="M9.1 9a3 3 0 1 1 5.2 2c-.7.8-1.6 1.3-2.1 2.1-.3.4-.4.8-.4 1.4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 17h.01" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            <span className="sidebar-text">{t("navbar.help")}</span>
           </a>
           <a
             className={`sidebar-link ${currentRoute?.startsWith("#settings") ? "sidebar-link-active" : ""}`}
@@ -192,14 +215,10 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
       <main className="teacher-main">
         {!hideTopbar ? (
           <header className="teacher-topbar">
-            <div>
-              <p className="eyebrow">{t("dashboard.dashboardLabel")}</p>
-              <h1>{t("dashboard.teacherDashboard")}</h1>
-            </div>
             <button
               className="teacher-mobile-menu-button"
               type="button"
-              aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-label={isMobileMenuOpen ? copy.closeNavigationMenu : copy.openNavigationMenu}
               aria-expanded={isMobileMenuOpen}
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
             >
@@ -207,6 +226,9 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
               <span />
               <span />
             </button>
+            <div className="teacher-topbar-title">
+              <h1>{t("dashboard.teacherDashboard")}</h1>
+            </div>
           </header>
         ) : null}
         {children}
