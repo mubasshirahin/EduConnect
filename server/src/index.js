@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.js";
 import jobRoutes from "./routes/jobs.js";
 import messageRoutes from "./routes/messages.js";
 import adminRoutes from "./routes/admin.js";
+import complaintRoutes from "./routes/complaints.js";
 import reviewRoutes from "./routes/reviews.js";
 import blogRoutes from "./routes/blog.js";
 import bookmarkRoutes from "./routes/bookmarks.js";
@@ -33,6 +34,7 @@ app.get("/api/health", async (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/complaints", complaintRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use((err, req, res, next) => {

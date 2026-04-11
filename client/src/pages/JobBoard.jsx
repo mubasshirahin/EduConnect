@@ -1,6 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 
+const REQUIRED_TEACHER_PROFILE_FIELDS = [
+  "name",
+  "email",
+  "phone",
+  "address",
+  "bscCurriculum",
+  "preferredClasses",
+  "hscInstitute",
+  "city",
+  "emergencyName",
+  "emergencyNumber",
+  "idCardImage",
+];
+
 function JobBoard({ authUser, onRequireLogin }) {
   const { t } = useLanguage();
   const getIsMobileView = () => {
@@ -25,6 +39,13 @@ function JobBoard({ authUser, onRequireLogin }) {
   const [selectedLocation, setSelectedLocation] = useState("");
   const [isMobileView, setIsMobileView] = useState(getIsMobileView);
   const [currentPage, setCurrentPage] = useState(1);
+<<<<<<< HEAD
+  const [savedJobIds, setSavedJobIds] = useState([]);
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
+  const [isTeacherProfileReady, setIsTeacherProfileReady] = useState(false);
+  const [blockedApplyJobId, setBlockedApplyJobId] = useState("");
+=======
+>>>>>>> origin/main
   const [filters, setFilters] = useState({
     classLevel: "",
     subject: "",
@@ -120,6 +141,10 @@ function JobBoard({ authUser, onRequireLogin }) {
       onRequireLogin?.();
       return;
     }
+    if (authUser.role === "teacher" && !isTeacherProfileReady) {
+      setBlockedApplyJobId(job?._id || "");
+      return;
+    }
     if (!authUser.email) {
       return;
     }
@@ -143,6 +168,7 @@ function JobBoard({ authUser, onRequireLogin }) {
         .then((updatedJob) => {
           setJobs((prev) => prev.map((item) => (item._id === updatedJob._id ? updatedJob : item)));
           setApplyStatus({ type: "success", message: "Application submitted successfully." });
+          setBlockedApplyJobId("");
         })
         .catch((error) => {
           setApplyStatus({ type: "error", message: error.message || "Failed to apply for this job." });
@@ -174,6 +200,11 @@ function JobBoard({ authUser, onRequireLogin }) {
       return;
     }
 
+    if (authUser.role === "teacher" && !isTeacherProfileReady) {
+      setBlockedApplyJobId(job?._id || "");
+      return;
+    }
+
     if (!authUser.email) {
       return;
     }
@@ -202,6 +233,37 @@ function JobBoard({ authUser, onRequireLogin }) {
   }, []);
 
   useEffect(() => {
+    if (authUser?.role !== "teacher" || !authUser?.email) {
+      setIsTeacherProfileReady(false);
+      return;
+    }
+
+    const profileStorageKey = `educonnect-profile:${authUser.email}`;
+    const syncTeacherProfileStatus = () => {
+      const stored = localStorage.getItem(profileStorageKey);
+      if (!stored) {
+        setIsTeacherProfileReady(false);
+        return;
+      }
+
+      try {
+        const profile = JSON.parse(stored);
+        const missingFields = REQUIRED_TEACHER_PROFILE_FIELDS.filter((field) => {
+          const value = profile?.[field];
+          return value === undefined || value === null || String(value).trim().length === 0;
+        });
+        setIsTeacherProfileReady(missingFields.length === 0);
+      } catch {
+        setIsTeacherProfileReady(false);
+      }
+    };
+
+    syncTeacherProfileStatus();
+    window.addEventListener("storage", syncTeacherProfileStatus);
+    return () => window.removeEventListener("storage", syncTeacherProfileStatus);
+  }, [authUser?.email, authUser?.role]);
+
+  useEffect(() => {
     const loadJobs = async () => {
       try {
         setIsLoading(true);
@@ -219,8 +281,54 @@ function JobBoard({ authUser, onRequireLogin }) {
       }
     };
     loadJobs();
+<<<<<<< HEAD
+
+    if (authUser) {
+      const token = localStorage.getItem("educonnect-auth-token");
+      fetch("/api/bookmarks", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setSavedJobIds(data.map(job => String(job._id)));
+        }
+      })
+      .catch(() => {});
+    }
   }, [authUser]);
 
+  const handleToggleBookmark = async (jobId) => {
+    if (!authUser) {
+      onRequireLogin?.();
+      return;
+    }
+    const token = localStorage.getItem("educonnect-auth-token");
+    if (!token) {
+      setApplyStatus({ type: "error", message: "Please sign in again to save jobs." });
+      return;
+    }
+    try {
+      const res = await fetch(`/api/bookmarks/toggle/${jobId}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSavedJobIds((data.savedJobs || []).map((id) => String(id)));
+      } else {
+        const data = await res.json();
+        throw new Error(data?.message || "Unable to save this job.");
+      }
+    } catch (error) {
+      setApplyStatus({ type: "error", message: error.message || "Unable to save this job." });
+    }
+  };
+
+=======
+  }, [authUser]);
+
+>>>>>>> origin/main
   const handlePostJob = async (event) => {
     event.preventDefault();
     if (!isAdmin) {
@@ -684,11 +792,22 @@ function JobBoard({ authUser, onRequireLogin }) {
                           </button>
                         </>
                       ) : (
-                        <button className="btn btn-primary" type="button" onClick={() => openApplyConfirmation(job)}>
+                        <button
+                          className="btn btn-primary"
+                          type="button"
+                          onClick={() => openApplyConfirmation(job)}
+                        >
                           {t("jobBoard.apply")}
                         </button>
                       )}
                     </div>
+                  ) : null}
+                  {isTeacher && !isTeacherProfileReady && blockedApplyJobId === job._id ? (
+                    <p className="job-apply-warning">
+                      Complete your profile to continue.
+                      {" "}
+                      <a href="#profile">Open Profile</a>
+                    </p>
                   ) : null}
               </div>
             </article>

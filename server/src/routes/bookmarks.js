@@ -40,12 +40,17 @@ router.post("/toggle/:jobId", authenticate, async (req, res, next) => {
   try {
     const { jobId } = req.params;
     const user = await User.findById(req.user._id);
+    const job = await Job.findById(jobId);
+
+    if (!job) {
+      return res.status(404).json({ message: "Job not found." });
+    }
     
-    const index = user.savedJobs.indexOf(jobId);
+    const index = user.savedJobs.findIndex((savedJobId) => String(savedJobId) === jobId);
     let isSaved = false;
     
     if (index === -1) {
-      user.savedJobs.push(jobId);
+      user.savedJobs.push(job._id);
       isSaved = true;
     } else {
       user.savedJobs.splice(index, 1);
