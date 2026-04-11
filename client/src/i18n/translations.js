@@ -40,7 +40,7 @@ export const translations = {
         q2: "How do I apply for tuition jobs?",
         a2: "To apply for jobs, ensure your profile is 100% complete and verified. Browse the Job Board for available tuition requests. When you find a match, click 'Apply Now'. You can track your applications in your Teacher Dashboard.",
         q3: "Is EduConnect free to use?",
-        a3: "EduConnect offers a free platform for students to post jobs and for teachers to browse. We may have premium features or small service fees for successful matches to help maintain the platform's security and quality of service.",
+        a3: "EduConnect offers a free platform where students send tutor requirements to admin and teachers browse verified job posts. We may have premium features or small service fees for successful matches to help maintain the platform's security and quality of service.",
         q4: "What should I do if a tutor doesn't show up?",
         a4: "Safety and reliability are our priorities. If a tutor fails to show up, please report it immediately through the 'Report' button on their profile or contact our support team. We take these matters seriously and will investigate.",
         q5: "How can I increase my chances of getting hired?",
@@ -308,12 +308,12 @@ export const translations = {
     jobBoard: {
       eyebrow: "Teacher Job Timeline",
       title: "Job Board",
-      subtitle: "Latest tuition jobs posted by teachers, shown in order.",
+      subtitle: "Latest tuition jobs posted by admins, shown in order.",
       loadingTitle: "Loading jobs...",
       loadingBody: "Please wait a moment.",
       errorBody: "Make sure the server is running.",
       emptyTitle: "No jobs posted yet",
-      emptyBody: "Guardians can add new tuition posts from the dashboard.",
+      emptyBody: "Admins can add new tuition posts from the dashboard.",
       location: "Location",
       schedule: "Schedule",
       salary: "Salary",
@@ -505,7 +505,7 @@ export const translations = {
         },
         {
           title: "2. User Roles",
-          body: "EduConnect connects Teachers and Students. Teachers can post job opportunities. Students can apply for positions.",
+          body: "EduConnect connects teachers and students through an admin-managed tuition board. Admins publish opportunities and teachers can apply for positions.",
         },
         {
           title: "3. Account Responsibility",
