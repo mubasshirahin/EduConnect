@@ -335,7 +335,7 @@ function StudentDashboard({ user }) {
       </section>
 
       <section className="teacher-cards">
-        <article className="teacher-tile teacher-highlight">
+        <article className="teacher-tile teacher-highlight student-next-step-card">
           <div>
             <p className="tile-label">{copy.nextStep}</p>
             <h3>{nextStep.title}</h3>
