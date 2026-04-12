@@ -1,15 +1,17 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import eduConnectLogo from "../assets/educonnect-logo.png";
 import { useLanguage } from "../i18n/LanguageContext.jsx";
 import MessageNotifications from "./MessageNotifications.jsx";
 
 function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme, currentRoute }) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const isDark = theme === "dark";
   const themeLabel = isDark ? t("common.lightMode") : t("common.nightMode");
   const themeButtonLabel = isDark ? t("common.lightModeShort") : t("common.nightModeShort");
   const mobileThemeButtonLabel = isDark ? "Light" : "Dark";
   const nextLanguage = language === "en" ? "bn" : "en";
+  const nextLanguageLabel = nextLanguage.toUpperCase();
   const activeSection = currentRoute === "#home" || !currentRoute
     ? "#home"
     : currentRoute?.startsWith("#about")
@@ -23,6 +25,18 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
             : currentRoute?.startsWith("#help")
               ? "#help"
               : null;
+  const navItems = [
+    { href: "#home", label: t("navbar.home"), isActive: activeSection === "#home" },
+    { href: "#about", label: t("navbar.about"), isActive: activeSection === "#about" },
+    { href: "#jobs", label: t("navbar.jobs"), isActive: activeSection === "#jobs" },
+    { href: "#reviews", label: t("navbar.reviews"), isActive: activeSection === "#reviews" },
+    { href: "#blog", label: t("navbar.blog"), isActive: activeSection === "#blog" },
+    { href: "#help", label: t("navbar.help"), isActive: activeSection === "#help" },
+  ];
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [authUser, currentRoute]);
 
   const renderThemeButton = (className = "") => (
     <button
@@ -67,6 +81,9 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
           <path d="M12 3a14.5 14.5 0 0 0 0 18" />
         </svg>
       </span>
+      <span className="language-icon-code" aria-hidden="true">
+        {nextLanguageLabel}
+      </span>
     </button>
   );
 
@@ -81,26 +98,18 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
         </div>
 
         {!authUser && (
-          <div className="nav-links">
-            <a className={`nav-link ${activeSection === "#home" ? "nav-link-active" : ""}`} href="#home">
-              {t("navbar.home")}
-            </a>
-            <a className={`nav-link ${activeSection === "#about" ? "nav-link-active" : ""}`} href="#about">
-              {t("navbar.about")}
-            </a>
-            <a className={`nav-link ${activeSection === "#jobs" ? "nav-link-active" : ""}`} href="#jobs">
-              {t("navbar.jobs")}
-            </a>
-            <a className={`nav-link ${activeSection === "#reviews" ? "nav-link-active" : ""}`} href="#reviews">
-              {t("navbar.reviews")}
-            </a>
-            <a className={`nav-link ${activeSection === "#blog" ? "nav-link-active" : ""}`} href="#blog">
-              {t("navbar.blog")}
-            </a>
-            <a className={`nav-link ${activeSection === "#help" ? "nav-link-active" : ""}`} href="#help">
-              {t("navbar.help")}
-            </a>
-          </div>
+          <button
+            className={`nav-menu-toggle ${isMobileMenuOpen ? "nav-menu-toggle-open" : ""}`}
+            type="button"
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="navbar-mobile-panel"
+            aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
         )}
 
         {authUser ? (
@@ -112,15 +121,32 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
         ) : null}
 
         {!authUser ? (
-          <div className="nav-actions">
-            {renderThemeButton()}
-            <button className="btn btn-ghost" type="button" onClick={onLoginClick}>
-              {t("navbar.login")}
-            </button>
-            <button className="btn btn-primary" type="button" onClick={onRegisterClick}>
-              {t("navbar.register")}
-            </button>
-            {renderLanguageButton()}
+          <div
+            id="navbar-mobile-panel"
+            className={`nav-mobile-panel ${isMobileMenuOpen ? "nav-mobile-panel-open" : ""}`}
+          >
+            <div className="nav-links">
+              {navItems.map((item) => (
+                <a
+                  key={item.href}
+                  className={`nav-link ${item.isActive ? "nav-link-active" : ""}`}
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </div>
+            <div className="nav-actions">
+              {renderThemeButton()}
+              <button className="btn btn-ghost" type="button" onClick={onLoginClick}>
+                {t("navbar.login")}
+              </button>
+              <button className="btn btn-primary" type="button" onClick={onRegisterClick}>
+                {t("navbar.register")}
+              </button>
+              {renderLanguageButton()}
+            </div>
           </div>
         ) : null}
       </div>
