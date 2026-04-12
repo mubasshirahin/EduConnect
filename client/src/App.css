@@ -5137,7 +5137,7 @@ html[data-theme="light"] .settings-field select option {
   }
 
   .teacher-mobile-menu-button {
-    display: inline-flex;
+    display: none;
     flex: 0 0 auto;
   }
 
@@ -5201,6 +5201,20 @@ html[data-theme="light"] .settings-field select option {
     row-gap: 0.65rem;
   }
 
+  .navbar-inner-guest {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "toggle brand"
+      "panel panel";
+    column-gap: 0.85rem;
+  }
+
+  .navbar-inner-auth {
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "toggle auth";
+    column-gap: 0.85rem;
+  }
+
   .brand {
     grid-area: brand;
     width: 100%;
@@ -5213,9 +5227,19 @@ html[data-theme="light"] .settings-field select option {
     transform: translateY(5px);
   }
 
+  .brand-text {
+    display: none;
+  }
+
   .brand-logo {
-    width: 40px;
-    height: 22px;
+    display: none;
+  }
+
+  .navbar-inner-guest .brand-guest {
+    display: none;
+    justify-self: start;
+    width: auto;
+    padding-left: 0.35rem;
   }
 
   .brand-user-block {
@@ -5249,15 +5273,19 @@ html[data-theme="light"] .settings-field select option {
     transform: translateY(5px);
   }
 
+  .nav-shell-toggle {
+    display: inline-flex;
+  }
+
   .nav-menu-toggle {
-    grid-area: auth;
+    grid-area: toggle;
     display: inline-flex;
     position: relative;
     width: 44px;
     height: 44px;
     align-items: center;
     justify-content: center;
-    justify-self: end;
+    justify-self: start;
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 16px;
     background:
