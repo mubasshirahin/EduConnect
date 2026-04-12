@@ -18,6 +18,15 @@ function AdminShell({ user, onLogout, children, currentRoute }) {
     setIsMobileMenuOpen(false);
   }, [currentRoute]);
 
+  useEffect(() => {
+    const handleShellToggle = () => {
+      setIsMobileMenuOpen((prev) => !prev);
+    };
+
+    window.addEventListener("educonnect:toggle-shell-nav", handleShellToggle);
+    return () => window.removeEventListener("educonnect:toggle-shell-nav", handleShellToggle);
+  }, []);
+
   return (
     <div
       className={`teacher-dashboard ${isCollapsed ? "teacher-dashboard-collapsed" : ""} ${isMobileMenuOpen ? "teacher-dashboard-mobile-menu-open" : ""}`}

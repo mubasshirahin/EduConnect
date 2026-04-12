@@ -20,6 +20,15 @@ function TeacherShell({ user, onLogout, children, currentRoute }) {
   }, [currentRoute]);
 
   useEffect(() => {
+    const handleShellToggle = () => {
+      setIsMobileMenuOpen((prev) => !prev);
+    };
+
+    window.addEventListener("educonnect:toggle-shell-nav", handleShellToggle);
+    return () => window.removeEventListener("educonnect:toggle-shell-nav", handleShellToggle);
+  }, []);
+
+  useEffect(() => {
     if (!user?.email) return;
     const profileKey = `educonnect-profile:${user.email}`;
     const readProfile = () => {

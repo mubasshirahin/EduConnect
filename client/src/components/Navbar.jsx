@@ -12,6 +12,14 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
   const mobileThemeButtonLabel = isDark ? "Light" : "Dark";
   const nextLanguage = language === "en" ? "bn" : "en";
   const nextLanguageLabel = nextLanguage.toUpperCase();
+  const shellToggleLabel = language === "bn" ? "নেভিগেশন মেনু খুলুন" : "Open navigation menu";
+  const userRoleLabel = authUser?.role === "teacher"
+    ? t("auth.teacher")
+    : authUser?.role === "student"
+      ? t("auth.student")
+      : authUser?.role === "admin"
+        ? "Admin"
+        : "";
   const activeSection = currentRoute === "#home" || !currentRoute
     ? "#home"
     : currentRoute?.startsWith("#about")
@@ -37,6 +45,10 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [authUser, currentRoute]);
+
+  const toggleShellNavigation = () => {
+    window.dispatchEvent(new CustomEvent("educonnect:toggle-shell-nav"));
+  };
 
   const renderThemeButton = (className = "") => (
     <button
@@ -89,8 +101,8 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
 
   return (
     <nav className="navbar">
-      <div className="container navbar-inner">
-        <div className="brand">
+      <div className={`container navbar-inner ${authUser ? "navbar-inner-auth" : "navbar-inner-guest"}`}>
+        <div className={`brand ${authUser ? "brand-auth" : "brand-guest"}`}>
           <span className="brand-logo" aria-hidden="true">
             <img className="brand-logo-image" src={eduConnectLogo} alt="" />
           </span>
@@ -113,10 +125,27 @@ function Navbar({ onLoginClick, onRegisterClick, authUser, theme, onToggleTheme,
         )}
 
         {authUser ? (
+          <button
+            className="nav-menu-toggle nav-shell-toggle"
+            type="button"
+            aria-label={shellToggleLabel}
+            onClick={toggleShellNavigation}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        ) : null}
+
+        {authUser ? (
           <div className="nav-top-shortcuts">
             {renderThemeButton("nav-theme-inline-auth")}
             <MessageNotifications authUser={authUser} />
             {renderLanguageButton("nav-language-inline-auth")}
+            <div className="nav-user-block">
+              <span className="nav-user-name">{authUser?.name || t("common.userFallback")}</span>
+              <span className="nav-user-role">{userRoleLabel}</span>
+            </div>
           </div>
         ) : null}
 
